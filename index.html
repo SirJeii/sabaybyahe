@@ -102,11 +102,10 @@
         }
 
         #view-login.active {
-            bottom: 0; /* Login takes full screen */
+            bottom: 0;
             z-index: 60;
         }
 
-        /* Chat view specific adjustment: input is at bottom */
         #view-chat {
             display: none;
             flex-direction: column;
@@ -125,7 +124,6 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Loading Overlay */
         #loading-overlay {
             position: absolute;
             inset: 0;
@@ -139,7 +137,6 @@
         }
         #loading-overlay.active { display: flex; }
 
-        /* Custom Toasts */
         #toast-container {
             position: absolute;
             top: 20px;
@@ -171,10 +168,8 @@
             to { opacity: 0; transform: translateY(-20px); }
         }
         
-        /* Map Adjustments */
         .leaflet-control-attribution { display: none !important; }
         
-        /* Input overrides */
         input[type="datetime-local"]::-webkit-calendar-picker-indicator {
             background: transparent;
             bottom: 0;
@@ -187,6 +182,30 @@
             top: 0;
             width: auto;
         }
+
+        /* Autocomplete Styles */
+        .suggestions-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            margin-top: 4px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+        }
+        .suggestion-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .suggestion-item:last-child { border-bottom: none; }
+        .suggestion-item:hover { background: #f9fafb; }
     </style>
 </head>
 <body class="antialiased text-gray-800">
@@ -353,26 +372,28 @@
                         <div class="absolute left-8 top-12 bottom-12 w-0.5 bg-gray-200 rounded-full"></div>
                         
                         <div class="space-y-5 relative">
-                            <div>
+                            <div class="relative">
                                 <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 ml-7">Starting Point</label>
                                 <div class="flex items-center gap-3">
                                     <div class="w-4 h-4 rounded-full border-4 border-brand-500 bg-white z-10 flex-shrink-0 mt-2"></div>
                                     <div class="flex-1 relative">
-                                        <input type="text" id="offer-origin" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all pr-10" placeholder="e.g., SM Megamall">
+                                        <input type="text" id="offer-origin" required autocomplete="off" oninput="window.app.handleAutocomplete(event, 'offer-origin-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all pr-10" placeholder="e.g., SM Megamall">
                                         <i data-lucide="map-pin" class="absolute right-3 top-3.5 w-4 h-4 text-gray-400"></i>
                                     </div>
                                 </div>
+                                <div id="offer-origin-suggestions" class="suggestions-list hidden"></div>
                             </div>
                             
-                            <div>
+                            <div class="relative">
                                 <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 ml-7">Destination</label>
                                 <div class="flex items-center gap-3">
                                     <div class="w-4 h-4 rounded-full bg-gray-900 border-2 border-white shadow-sm z-10 flex-shrink-0 mt-2"></div>
                                     <div class="flex-1 relative">
-                                        <input type="text" id="offer-dest" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all pr-10" placeholder="e.g., UP Diliman">
+                                        <input type="text" id="offer-dest" required autocomplete="off" oninput="window.app.handleAutocomplete(event, 'offer-dest-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all pr-10" placeholder="e.g., UP Diliman">
                                         <i data-lucide="flag" class="absolute right-3 top-3.5 w-4 h-4 text-gray-400"></i>
                                     </div>
                                 </div>
+                                <div id="offer-dest-suggestions" class="suggestions-list hidden"></div>
                             </div>
                         </div>
                     </div>
@@ -407,7 +428,7 @@
                     <div class="bg-brand-50/50 p-4 rounded-2xl border border-brand-100/50 flex gap-3 items-start">
                         <i data-lucide="info" class="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5"></i>
                         <p class="text-xs text-brand-800 leading-relaxed font-medium">
-                            Once you post, we'll calculate the exact route distance and suggest a fair fuel split based on live pump prices.
+                            Price calculation includes a standard ₱50 commission for you to help cover maintenance and platform use.
                         </p>
                     </div>
 
@@ -437,13 +458,19 @@
                     <div class="absolute left-8 top-12 bottom-12 w-0.5 bg-gray-200 rounded-full"></div>
                     
                     <div class="space-y-4 relative">
-                        <div class="flex items-center gap-3">
-                            <div class="w-4 h-4 rounded-full border-4 border-brand-500 bg-white z-10 flex-shrink-0"></div>
-                            <input type="text" id="find-origin" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500" placeholder="Leaving from...">
+                        <div class="relative">
+                            <div class="flex items-center gap-3">
+                                <div class="w-4 h-4 rounded-full border-4 border-brand-500 bg-white z-10 flex-shrink-0"></div>
+                                <input type="text" id="find-origin" autocomplete="off" oninput="window.app.handleAutocomplete(event, 'find-origin-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500" placeholder="Leaving from...">
+                            </div>
+                            <div id="find-origin-suggestions" class="suggestions-list hidden"></div>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-4 h-4 rounded-full bg-gray-900 border-2 border-white shadow-sm z-10 flex-shrink-0"></div>
-                            <input type="text" id="find-dest" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500" placeholder="Going to...">
+                        <div class="relative">
+                            <div class="flex items-center gap-3">
+                                <div class="w-4 h-4 rounded-full bg-gray-900 border-2 border-white shadow-sm z-10 flex-shrink-0"></div>
+                                <input type="text" id="find-dest" autocomplete="off" oninput="window.app.handleAutocomplete(event, 'find-dest-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500" placeholder="Going to...">
+                            </div>
+                            <div id="find-dest-suggestions" class="suggestions-list hidden"></div>
                         </div>
                     </div>
                     
@@ -460,7 +487,6 @@
                     </div>
                     
                     <div id="search-results-list" class="space-y-4 pb-10">
-                        <!-- Populated dynamically -->
                     </div>
                 </div>
             </div>
@@ -473,15 +499,12 @@
             <!-- Map Container -->
             <div id="detail-map" class="h-56 w-full bg-gray-200 relative z-0"></div>
             
-            <!-- Back Button over map -->
             <button onclick="window.app.navigate('find')" class="absolute top-12 left-4 w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-lg text-gray-900 flex items-center justify-center active:scale-90 transition-transform z-20">
                 <i data-lucide="arrow-left" class="w-5 h-5"></i>
             </button>
 
-            <!-- Bottom Sheet Style Content -->
             <div class="relative -mt-6 bg-white rounded-t-[32px] px-6 pt-8 pb-10 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-10 min-h-[50vh]">
                 
-                <!-- Driver & Route Summary -->
                 <div class="flex justify-between items-start mb-6">
                     <div class="flex-1 pr-4">
                         <h2 id="detail-route" class="text-xl font-black text-gray-900 leading-tight mb-2">Route</h2>
@@ -495,7 +518,6 @@
                     </div>
                 </div>
 
-                <!-- Logistics Badges -->
                 <div class="flex gap-2 mb-6 overflow-x-auto hide-scrollbar pb-1">
                     <div class="bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 flex items-center gap-2 flex-shrink-0">
                         <i data-lucide="car" class="w-4 h-4 text-gray-500"></i>
@@ -511,7 +533,6 @@
                     </div>
                 </div>
 
-                <!-- Calculator Module -->
                 <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-[0_4px_20px_rgba(0,0,0,0.03)] mb-8">
                     <div class="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
                         <div class="bg-brand-100 p-1.5 rounded-lg text-brand-600"><i data-lucide="calculator" class="w-4 h-4"></i></div>
@@ -520,17 +541,17 @@
 
                     <div class="space-y-3">
                         <div class="flex justify-between items-center text-xs">
-                            <span class="text-gray-500 font-medium">Est. Total Trip Fuel (₱64.20/L)</span>
+                            <span class="text-gray-500 font-medium">Fuel Share Calculation</span>
                             <span id="detail-total-cost" class="font-bold text-gray-800">₱0.00</span>
                         </div>
                         <div class="flex justify-between items-center text-xs">
-                            <span class="text-gray-500 font-medium" id="detail-sharing-text">Divided by (Driver + Seats)</span>
-                            <span id="detail-sharing-math" class="font-bold text-gray-800">÷ 1</span>
+                            <span class="text-gray-500 font-medium">+ Driver Commission</span>
+                            <span class="font-bold text-brand-600">₱50.00</span>
                         </div>
                         
                         <div class="pt-3 mt-1 border-t border-dashed border-gray-200 flex justify-between items-end">
                             <div>
-                                <span class="block text-[10px] font-bold text-brand-600 uppercase tracking-wider">Your Share</span>
+                                <span class="block text-[10px] font-bold text-brand-600 uppercase tracking-wider">Your Total Split</span>
                             </div>
                             <span id="detail-exact-share" class="text-3xl font-black text-gray-900 tracking-tight">₱0</span>
                         </div>
@@ -549,13 +570,12 @@
         </div>
 
         <!-- ==========================================
-             VIEW: ACTIVITY (MY RIDES)
+             VIEW: ACTIVITY
         =========================================== -->
         <div id="view-activity" class="view">
             <div class="bg-white pt-10 pb-4 px-6 sticky top-0 z-20 border-b border-gray-100 shadow-sm">
                 <h2 class="text-xl font-bold text-gray-900">My Activity</h2>
                 
-                <!-- Tabs -->
                 <div class="flex mt-4 bg-gray-100 p-1 rounded-xl">
                     <button onclick="window.app.switchActivityTab('joined')" id="tab-joined" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-gray-900 transition-all">Requests</button>
                     <button onclick="window.app.switchActivityTab('offered')" id="tab-offered" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">Driving</button>
@@ -563,15 +583,8 @@
             </div>
 
             <div class="p-6">
-                <!-- Joined/Requested List -->
-                <div id="activity-joined-list" class="space-y-4">
-                    <!-- Populated by JS -->
-                </div>
-                
-                <!-- Offered List -->
-                <div id="activity-offered-list" class="space-y-4 hidden">
-                    <!-- Populated by JS -->
-                </div>
+                <div id="activity-joined-list" class="space-y-4"></div>
+                <div id="activity-offered-list" class="space-y-4 hidden"></div>
             </div>
         </div>
 
@@ -589,9 +602,7 @@
                 </div>
             </div>
 
-            <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50">
-                <!-- Messages populated by JS -->
-            </div>
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50"></div>
 
             <div class="p-4 bg-white border-t border-gray-100 flex items-center gap-2">
                 <input type="text" id="chat-input" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500" placeholder="Type a message...">
@@ -615,7 +626,7 @@
             </button>
             <button onclick="window.app.navigate('offer')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group relative" data-target="offer">
                 <div class="absolute -top-4 bg-gray-900 text-white p-3 rounded-full shadow-lg transform group-hover:-translate-y-1 transition-transform border-4 border-white"><i data-lucide="plus" class="w-5 h-5"></i></div>
-                <div class="h-8"></div><!-- Spacer -->
+                <div class="h-8"></div>
                 <span class="text-[10px] font-bold mt-1">Offer</span>
             </button>
             <button onclick="window.app.navigate('activity')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="activity">
@@ -635,7 +646,6 @@
         import { getAuth, signInWithCustomToken, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, getDocs, setDoc, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase Configuration (Provided by user)
         const firebaseConfig = {
             apiKey: "AIzaSyDMOHXX-muvgnVlkMRN37-qRhUUXAp7Y_8",
             authDomain: "sabaybiyahe-app.firebaseapp.com",
@@ -645,14 +655,13 @@
             appId: "1:429764230835:web:b17844fc4054516b5d3ac6"
         };
         
-        // Environment IDs
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'sabaybiyahe-production';
 
-        // Global State & Service Refs
         let appInstance, auth, db;
         const CONSTANTS = {
             FUEL_PRICE_PER_LITER: 64.20,
-            AVG_KM_PER_LITER: 12
+            AVG_KM_PER_LITER: 12,
+            DRIVER_COMMISSION: 50.00
         };
 
         window.app = {
@@ -667,12 +676,12 @@
             unsubMessages: null,
             map: null,
             routeLayer: null,
+            autocompleteTimer: null,
 
             async init() {
                 lucide.createIcons();
                 this.setLoading(true, "Connecting to SabayBiyahe...");
 
-                // 1. Initialize Firebase Services
                 try {
                     appInstance = initializeApp(firebaseConfig);
                     auth = getAuth(appInstance);
@@ -682,26 +691,20 @@
                     this.showToast("Connection Error", "error");
                 }
 
-                // 2. Security First (Rule 3)
                 const initAuth = async () => {
                     if(!auth) return;
                     try {
-                        // Check if custom token is provided by environment first
                         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                             try {
                                 await signInWithCustomToken(auth, __initial_auth_token);
                             } catch (tokenErr) {
-                                console.warn("Initial token mismatched project, falling back to anonymous:", tokenErr);
-                                await signInAnonymously(auth);
+                                console.warn("Initial token mismatched, trying anonymous");
+                                await signInAnonymously(auth).catch(() => {});
                             }
                         } else {
-                            await signInAnonymously(auth);
+                            await signInAnonymously(auth).catch(() => {});
                         }
-                    } catch(e) { 
-                        console.error("Initial auth failed:", e); 
-                        // Final fallback to ensure app stays usable
-                        try { await signInAnonymously(auth); } catch(inner) {}
-                    }
+                    } catch(e) { console.error("Initial auth failed:", e); }
                 };
 
                 await initAuth();
@@ -713,14 +716,9 @@
                         this.updateProfileUI(user);
                         this.navigate('dashboard');
                         document.getElementById('bottom-nav').classList.remove('hidden');
-                        
                         this.setupDatabaseListeners();
-                    } else if (user && user.isAnonymous) {
-                        this.user = user;
-                        this.navigate('login');
-                        document.getElementById('bottom-nav').classList.add('hidden');
                     } else {
-                        this.user = null;
+                        this.user = user;
                         this.navigate('login');
                         document.getElementById('bottom-nav').classList.add('hidden');
                     }
@@ -730,6 +728,48 @@
                 now.setHours(now.getHours() + 1);
                 now.setMinutes(0);
                 document.getElementById('offer-time').value = now.toISOString().slice(0, 16);
+            },
+
+            // Autocomplete Logic
+            handleAutocomplete(event, suggestionsId) {
+                const query = event.target.value;
+                const container = document.getElementById(suggestionsId);
+                
+                clearTimeout(this.autocompleteTimer);
+                if (query.length < 3) {
+                    container.classList.add('hidden');
+                    return;
+                }
+
+                this.autocompleteTimer = setTimeout(async () => {
+                    try {
+                        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ', Philippines')}&limit=5`);
+                        const data = await res.json();
+                        
+                        if (data && data.length > 0) {
+                            container.innerHTML = data.map(place => `
+                                <div class="suggestion-item" onclick="window.app.selectSuggestion('${event.target.id}', '${suggestionsId}', '${place.display_name.replace(/'/g, "\\'")}', ${place.lat}, ${place.lon})">
+                                    <p class="font-bold text-gray-800">${place.display_name.split(',')[0]}</p>
+                                    <p class="text-[10px] text-gray-500 truncate">${place.display_name}</p>
+                                </div>
+                            `).join('');
+                            container.classList.remove('hidden');
+                        } else {
+                            container.classList.add('hidden');
+                        }
+                    } catch (e) { console.error(e); }
+                }, 500);
+            },
+
+            selectSuggestion(inputId, suggestionsId, fullName, lat, lon) {
+                const input = document.getElementById(inputId);
+                input.value = fullName.split(',')[0];
+                document.getElementById(suggestionsId).classList.add('hidden');
+                
+                // Store temporary data on element
+                input.dataset.lat = lat;
+                input.dataset.lon = lon;
+                input.dataset.fullName = fullName;
             },
 
             setLoading(isActive, text = "Loading...") {
@@ -742,15 +782,10 @@
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
                 toast.className = 'toast';
-                
-                const icon = type === 'success' ? '<i data-lucide="check-circle" class="w-5 h-5 text-brand-500"></i>' 
-                           : type === 'error' ? '<i data-lucide="alert-circle" class="w-5 h-5 text-red-500"></i>'
-                           : '<i data-lucide="info" class="w-5 h-5 text-blue-500"></i>';
-                
+                const icon = type === 'success' ? '<i data-lucide="check-circle" class="w-5 h-5 text-brand-500"></i>' : '<i data-lucide="alert-circle" class="w-5 h-5 text-red-500"></i>';
                 toast.innerHTML = `${icon} <span class="text-sm font-semibold text-gray-800">${msg}</span>`;
                 container.appendChild(toast);
                 lucide.createIcons();
-                
                 setTimeout(() => { if(toast.parentNode) toast.remove(); }, 3500);
             },
 
@@ -783,9 +818,7 @@
             formatDate(timestampStr) {
                 try {
                     const date = new Date(timestampStr);
-                    return new Intl.DateTimeFormat('en-PH', { 
-                        month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true 
-                    }).format(date);
+                    return new Intl.DateTimeFormat('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(date);
                 } catch(e) { return timestampStr; }
             },
 
@@ -795,14 +828,10 @@
                 btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Verifying...';
                 btn.disabled = true;
                 lucide.createIcons();
-
-                try {
-                    await signInWithPopup(auth, provider);
-                } catch (error) {
-                    console.error("Google Auth failed:", error);
+                try { await signInWithPopup(auth, provider); } catch (error) {
                     btn.innerHTML = `Continue with Google`;
                     btn.disabled = false;
-                    this.showToast("Sign in failed. Use Chrome/Safari.", "error");
+                    this.showToast("Sign in failed", "error");
                 }
             },
 
@@ -813,24 +842,12 @@
                 await signOut(auth);
             },
 
-            async geocode(queryStr) {
-                try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queryStr + ', Philippines')}&limit=1`);
-                    const data = await res.json();
-                    if(data && data.length > 0) {
-                        return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon), name: data[0].display_name.split(',')[0] };
-                    }
-                    return null;
-                } catch(e) { return null; }
-            },
-
             async getRouteInfo(originCoords, destCoords) {
                 try {
                     const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${originCoords.lon},${originCoords.lat};${destCoords.lon},${destCoords.lat}?overview=full&geometries=geojson`);
                     const data = await res.json();
                     if(data.code === 'Ok' && data.routes.length > 0) {
-                        const route = data.routes[0];
-                        return { distanceKm: (route.distance / 1000).toFixed(1), geometry: route.geometry };
+                        return { distanceKm: (data.routes[0].distance / 1000).toFixed(1), geometry: data.routes[0].geometry };
                     }
                     return null;
                 } catch(e) { return null; }
@@ -838,7 +855,6 @@
 
             setupDatabaseListeners() {
                 if(!db || !this.user) return;
-
                 const ridesRef = collection(db, 'artifacts', appId, 'public', 'data', 'rides');
                 const requestsRef = collection(db, 'artifacts', appId, 'public', 'data', 'requests');
                 const messagesRef = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
@@ -849,58 +865,63 @@
                     this.renderActivity();
                     if(document.getElementById('view-find').classList.contains('active')) this.searchRides();
                 });
-
                 this.unsubRequests = onSnapshot(requestsRef, (snap) => {
                     this.allRequests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                     this.renderActivity();
                     this.updateActivityBadge();
                 });
-
                 this.unsubMessages = onSnapshot(messagesRef, (snap) => {
                     this.allMessages = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    if(this.activeChatRideId) {
-                        this.renderChat();
-                    }
+                    if(this.activeChatRideId) this.renderChat();
                 });
             },
 
             async submitOffer() {
                 if(!db || !this.user) return;
-                
-                const originRaw = document.getElementById('offer-origin').value;
-                const destRaw = document.getElementById('offer-dest').value;
+                const originInput = document.getElementById('offer-origin');
+                const destInput = document.getElementById('offer-dest');
                 const timeStr = document.getElementById('offer-time').value;
                 const seats = parseInt(document.getElementById('offer-seats').value);
                 const car = document.getElementById('offer-car').value;
 
-                if(!originRaw || !destRaw) {
+                if(!originInput.value || !destInput.value) {
                     this.showToast("Enter route locations", "error");
                     return;
                 }
 
                 const btn = document.getElementById('btn-submit-offer');
-                const ogHtml = btn.innerHTML;
-                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Calculating Distance...';
+                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Processing...';
                 btn.disabled = true;
                 lucide.createIcons();
 
                 try {
-                    const originCoords = await this.geocode(originRaw);
-                    const destCoords = await this.geocode(destRaw);
+                    // Use stored data or attempt to geocode fallback
+                    let originCoords = originInput.dataset.lat ? { lat: parseFloat(originInput.dataset.lat), lon: parseFloat(originInput.dataset.lon), name: originInput.value } : null;
+                    let destCoords = destInput.dataset.lat ? { lat: parseFloat(destInput.dataset.lat), lon: parseFloat(destInput.dataset.lon), name: destInput.value } : null;
 
-                    if(!originCoords || !destCoords) throw new Error("Locations not found");
+                    if (!originCoords || !destCoords) {
+                         // Attempt manual geocode if they didn't select from autocomplete
+                         const resO = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(originInput.value + ', Philippines')}&limit=1`).then(r => r.json());
+                         const resD = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destInput.value + ', Philippines')}&limit=1`).then(r => r.json());
+                         if(resO.length && resD.length) {
+                             originCoords = { lat: parseFloat(resO[0].lat), lon: parseFloat(resO[0].lon), name: originInput.value };
+                             destCoords = { lat: parseFloat(resD[0].lat), lon: parseFloat(resD[0].lon), name: destInput.value };
+                         }
+                    }
+
+                    if(!originCoords || !destCoords) throw new Error("Location not found. Use suggestions.");
 
                     const route = await this.getRouteInfo(originCoords, destCoords);
-                    const distanceKm = route ? route.distanceKm : 15.0;
-                    const totalCost = (parseFloat(distanceKm) / CONSTANTS.AVG_KM_PER_LITER) * CONSTANTS.FUEL_PRICE_PER_LITER;
-                    const pricePerSeat = Math.ceil(totalCost / (seats + 1));
+                    const distanceKm = route ? route.distanceKm : 10.0;
+                    const fuelCostPerSeat = Math.ceil(((parseFloat(distanceKm) / CONSTANTS.AVG_KM_PER_LITER) * CONSTANTS.FUEL_PRICE_PER_LITER) / (seats + 1));
+                    const pricePerSeat = fuelCostPerSeat + CONSTANTS.DRIVER_COMMISSION;
 
                     const ridesRef = collection(db, 'artifacts', appId, 'public', 'data', 'rides');
                     await addDoc(ridesRef, {
                         driverId: this.user.uid,
                         driverName: this.user.displayName || "Commuter",
-                        originName: originCoords.name || originRaw,
-                        destName: destCoords.name || destRaw,
+                        originName: originCoords.name,
+                        destName: destCoords.name,
                         originCoords, destCoords,
                         time: timeStr,
                         seatsAvailable: seats,
@@ -908,6 +929,7 @@
                         carModel: car,
                         distanceKm,
                         pricePerSeat,
+                        fuelSplit: fuelCostPerSeat,
                         status: 'active',
                         createdAt: Date.now()
                     });
@@ -915,10 +937,8 @@
                     this.showToast("Ride posted!");
                     document.getElementById('form-offer').reset();
                     this.navigate('dashboard');
-                } catch (error) {
-                    this.showToast(error.message, "error");
-                } finally {
-                    btn.innerHTML = ogHtml;
+                } catch (error) { this.showToast(error.message, "error"); } finally {
+                    btn.innerHTML = 'Calculate & Post Ride';
                     btn.disabled = false;
                 }
             },
@@ -926,7 +946,6 @@
             searchRides() {
                 const originQ = document.getElementById('find-origin').value.toLowerCase();
                 const destQ = document.getElementById('find-dest').value.toLowerCase();
-                
                 let results = this.allRides.filter(r => r.status === 'active' && r.seatsAvailable > 0 && r.driverId !== this.user?.uid);
                 if(originQ || destQ) {
                     results = results.filter(r => r.originName.toLowerCase().includes(originQ) || r.destName.toLowerCase().includes(destQ));
@@ -937,12 +956,10 @@
             renderSearchResults(rides) {
                 const list = document.getElementById('search-results-list');
                 document.getElementById('search-count').textContent = `${rides.length} Live`;
-                
                 if (rides.length === 0) {
                     list.innerHTML = `<div class="bg-gray-50 rounded-2xl p-8 text-center text-xs text-gray-500 font-bold border-2 border-dashed border-gray-100">NO ACTIVE RIDES MATCHING</div>`;
                     return;
                 }
-
                 list.innerHTML = rides.map(ride => `
                     <div onclick="window.app.openDetails('${ride.id}')" class="bg-white rounded-3xl border border-gray-100 shadow-sm p-4 cursor-pointer hover:border-brand-400 hover:shadow-md transition-all active:scale-[0.98]">
                         <div class="flex justify-between items-start mb-4">
@@ -959,10 +976,6 @@
                             <p class="text-xs font-bold text-gray-800 truncate">${ride.originName}</p>
                             <p class="text-xs font-bold text-gray-800 truncate">${ride.destName}</p>
                         </div>
-                        <div class="flex gap-2 text-[10px] font-bold">
-                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-md flex items-center gap-1"><i data-lucide="car" class="w-3 h-3"></i> ${ride.carModel}</span>
-                            <span class="bg-blue-50 text-blue-600 px-2 py-1 rounded-md flex items-center gap-1"><i data-lucide="users" class="w-3 h-3"></i> ${ride.seatsAvailable} seats</span>
-                        </div>
                     </div>
                 `).join('');
                 lucide.createIcons();
@@ -972,7 +985,6 @@
                 const ride = this.allRides.find(r => r.id === rideId);
                 if(!ride) return;
                 this.selectedRide = ride;
-                
                 document.getElementById('detail-route').textContent = `${ride.originName} → ${ride.destName}`;
                 document.getElementById('detail-time').innerHTML = `<i data-lucide="clock" class="w-4 h-4"></i> <span>${this.formatDate(ride.time)}</span>`;
                 document.getElementById('detail-avatar').textContent = ride.driverName.substring(0,1).toUpperCase();
@@ -980,24 +992,16 @@
                 document.getElementById('detail-car').textContent = ride.carModel;
                 document.getElementById('detail-seats').textContent = `${ride.seatsAvailable} Seats`;
                 document.getElementById('detail-distance').textContent = `${ride.distanceKm}km`;
-
-                const totalCost = (parseFloat(ride.distanceKm) / CONSTANTS.AVG_KM_PER_LITER) * CONSTANTS.FUEL_PRICE_PER_LITER;
-                document.getElementById('detail-total-cost').textContent = `₱${totalCost.toFixed(0)}`;
-                document.getElementById('detail-sharing-math').textContent = `÷ ${ride.totalSeats + 1}`;
+                document.getElementById('detail-total-cost').textContent = `₱${(ride.fuelSplit || 0).toFixed(2)}`;
                 document.getElementById('detail-exact-share').textContent = `₱${ride.pricePerSeat}`;
 
                 const existingReq = this.allRequests.find(req => req.rideId === rideId && req.passengerId === this.user.uid);
                 const btn = document.getElementById('btn-request');
                 const chatBtn = document.getElementById('btn-chat-detail');
-                
                 if(existingReq) {
                     btn.disabled = true;
                     btn.innerHTML = `<i data-lucide="check" class="w-5 h-5"></i> Requested (${existingReq.status})`;
-                    if(existingReq.status === 'accepted') {
-                        chatBtn.classList.remove('hidden');
-                    } else {
-                        chatBtn.classList.add('hidden');
-                    }
+                    if(existingReq.status === 'accepted') chatBtn.classList.remove('hidden');
                 } else if (ride.driverId === this.user.uid) {
                     btn.disabled = true;
                     btn.innerHTML = 'Your Drive';
@@ -1014,34 +1018,24 @@
             async renderMap(origin, dest) {
                 if(!window.L || !document.getElementById('detail-map')) return;
                 if(this.map) this.map.remove();
-
                 this.map = L.map('detail-map', { zoomControl: false }).setView([origin.lat, origin.lon], 13);
                 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(this.map);
-
-                const originIco = L.divIcon({ className: 'bg-brand-500 w-4 h-4 rounded-full border-4 border-white' });
-                const destIco = L.divIcon({ className: 'bg-gray-900 w-4 h-4 rounded-full border-4 border-white' });
-
-                L.marker([origin.lat, origin.lon], {icon: originIco}).addTo(this.map);
-                L.marker([dest.lat, dest.lon], {icon: destIco}).addTo(this.map);
-
+                L.marker([origin.lat, origin.lon], {icon: L.divIcon({ className: 'bg-brand-500 w-4 h-4 rounded-full border-4 border-white' })}).addTo(this.map);
+                L.marker([dest.lat, dest.lon], {icon: L.divIcon({ className: 'bg-gray-900 w-4 h-4 rounded-full border-4 border-white' })}).addTo(this.map);
                 const routeInfo = await this.getRouteInfo(origin, dest);
-                if(routeInfo && routeInfo.geometry) {
-                    this.routeLayer = L.geoJSON(routeInfo.geometry, { style: { color: '#16a34a', weight: 4, opacity: 0.7, dashArray: '10, 10' } }).addTo(this.map);
+                if(routeInfo) {
+                    this.routeLayer = L.geoJSON(routeInfo.geometry, { style: { color: '#16a34a', weight: 4, dashArray: '10, 10' } }).addTo(this.map);
                     this.map.fitBounds(this.routeLayer.getBounds(), { padding: [30, 30] });
-                } else {
-                    this.map.fitBounds(L.latLngBounds([[origin.lat, origin.lon], [dest.lat, dest.lon]]), { padding: [30, 30] });
                 }
             },
 
             async requestRide() {
                 if(!db || !this.user || !this.selectedRide) return;
                 const btn = document.getElementById('btn-request');
-                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Processing...';
+                btn.innerHTML = 'Processing...';
                 btn.disabled = true;
-
                 try {
-                    const requestsRef = collection(db, 'artifacts', appId, 'public', 'data', 'requests');
-                    await addDoc(requestsRef, {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'requests'), {
                         rideId: this.selectedRide.id,
                         driverId: this.selectedRide.driverId,
                         passengerId: this.user.uid,
@@ -1070,56 +1064,41 @@
                 if(!this.user) return;
                 const myReqs = this.allRequests.filter(req => req.passengerId === this.user.uid);
                 const joinedList = document.getElementById('activity-joined-list');
-                
                 joinedList.innerHTML = myReqs.length === 0 ? `<p class="text-center py-10 text-gray-400 font-bold text-xs">NO REQUESTS YET</p>` : myReqs.map(req => {
                     const ride = this.allRides.find(r => r.id === req.rideId);
                     if(!ride) return '';
                     const col = req.status === 'accepted' ? 'text-brand-600 bg-brand-50' : 'text-orange-600 bg-orange-50';
-                    return `
-                        <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-[10px] font-bold uppercase ${col} px-2 py-1 rounded-md">${req.status}</span>
-                                <span class="text-[10px] text-gray-500 font-bold">${this.formatDate(ride.time)}</span>
-                            </div>
-                            <h4 class="font-bold text-gray-900 text-sm">${ride.originName} → ${ride.destName}</h4>
-                            <div class="mt-3 flex justify-end">
-                                ${req.status === 'accepted' ? `
-                                    <button onclick="window.app.openChat('${ride.id}')" class="text-brand-600 font-bold text-xs flex items-center gap-1">
-                                        <i data-lucide="message-circle" class="w-3 h-3"></i> Message Driver
-                                    </button>
-                                ` : ''}
-                            </div>
+                    return `<div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold uppercase ${col} px-2 py-1 rounded-md">${req.status}</span>
+                            <span class="text-[10px] text-gray-500 font-bold">${this.formatDate(ride.time)}</span>
                         </div>
-                    `;
+                        <h4 class="font-bold text-gray-900 text-sm">${ride.originName} → ${ride.destName}</h4>
+                        <div class="mt-3 flex justify-end">
+                            ${req.status === 'accepted' ? `<button onclick="window.app.openChat('${ride.id}')" class="text-brand-600 font-bold text-xs flex items-center gap-1"><i data-lucide="message-circle" class="w-3 h-3"></i> Message Driver</button>` : ''}
+                        </div>
+                    </div>`;
                 }).join('');
 
                 const myOffered = this.allRides.filter(r => r.driverId === this.user.uid);
                 const offeredList = document.getElementById('activity-offered-list');
                 offeredList.innerHTML = myOffered.length === 0 ? `<p class="text-center py-10 text-gray-400 font-bold text-xs">NOT DRIVING ANY TRIPS</p>` : myOffered.map(ride => {
                     const reqs = this.allRequests.filter(req => req.rideId === ride.id);
-                    return `
-                        <div class="bg-white rounded-2xl p-4 border border-gray-100 relative">
-                            <div class="flex justify-between items-center mb-1">
-                                <h4 class="font-bold text-gray-900 text-sm">${ride.originName} → ${ride.destName}</h4>
-                                <button onclick="window.app.openChat('${ride.id}')" class="p-2 bg-brand-50 text-brand-600 rounded-lg">
-                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                            <div class="mt-4 space-y-2">
-                                ${reqs.map(req => `
-                                    <div class="flex justify-between items-center bg-gray-50 p-2 rounded-xl">
-                                        <span class="text-xs font-bold">${req.passengerName}</span>
-                                        ${req.status === 'pending' ? `
-                                            <div class="flex gap-2">
-                                                <button onclick="window.app.handleRequest('${req.id}', 'accepted', '${ride.id}')" class="text-[10px] bg-brand-600 text-white px-2 py-1 rounded-lg font-bold">Accept</button>
-                                                <button onclick="window.app.handleRequest('${req.id}', 'rejected', null)" class="text-[10px] bg-gray-200 text-gray-700 px-2 py-1 rounded-lg font-bold">Decline</button>
-                                            </div>
-                                        ` : `<span class="text-[10px] font-bold uppercase text-gray-400">${req.status}</span>`}
-                                    </div>
-                                `).join('') || '<p class="text-[10px] italic text-gray-400">No requests yet</p>'}
-                            </div>
+                    return `<div class="bg-white rounded-2xl p-4 border border-gray-100 relative">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="font-bold text-gray-900 text-sm">${ride.originName} → ${ride.destName}</h4>
+                            <button onclick="window.app.openChat('${ride.id}')" class="p-2 bg-brand-50 text-brand-600 rounded-lg"><i data-lucide="message-circle" class="w-4 h-4"></i></button>
                         </div>
-                    `;
+                        <div class="mt-4 space-y-2">
+                            ${reqs.map(req => `<div class="flex justify-between items-center bg-gray-50 p-2 rounded-xl">
+                                <span class="text-xs font-bold">${req.passengerName}</span>
+                                ${req.status === 'pending' ? `<div class="flex gap-2">
+                                    <button onclick="window.app.handleRequest('${req.id}', 'accepted', '${ride.id}')" class="text-[10px] bg-brand-600 text-white px-2 py-1 rounded-lg font-bold">Accept</button>
+                                    <button onclick="window.app.handleRequest('${req.id}', 'rejected', null)" class="text-[10px] bg-gray-200 text-gray-700 px-2 py-1 rounded-lg font-bold">Decline</button>
+                                </div>` : `<span class="text-[10px] font-bold uppercase text-gray-400">${req.status}</span>`}
+                            </div>`).join('') || '<p class="text-[10px] italic text-gray-400">No requests yet</p>'}
+                        </div>
+                    </div>`;
                 }).join('');
                 lucide.createIcons();
             },
@@ -1139,34 +1118,26 @@
                 const list = document.getElementById('dash-activity-list');
                 const myAccepted = this.allRequests.filter(req => req.passengerId === this.user?.uid && req.status === 'accepted').map(r => r.rideId);
                 const relevant = this.allRides.filter(r => r.driverId === this.user?.uid || myAccepted.includes(r.id)).slice(0, 2);
-                
                 document.getElementById('dashboard-recent-activity').classList.toggle('hidden', relevant.length === 0);
-                list.innerHTML = relevant.map(ride => `
-                    <div class="bg-white rounded-2xl p-3 border border-gray-100 flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg ${ride.driverId === this.user?.uid ? 'bg-brand-50 text-brand-600' : 'bg-blue-50 text-blue-600'} flex items-center justify-center font-bold text-[10px]">
-                                ${ride.driverId === this.user?.uid ? 'DRV' : 'JOIN'}
-                            </div>
-                            <div>
-                                <p class="text-xs font-bold text-gray-900">${ride.destName}</p>
-                                <p class="text-[10px] text-gray-500 font-bold">${this.formatDate(ride.time)}</p>
-                            </div>
+                list.innerHTML = relevant.map(ride => `<div class="bg-white rounded-2xl p-3 border border-gray-100 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg ${ride.driverId === this.user?.uid ? 'bg-brand-50 text-brand-600' : 'bg-blue-50 text-blue-600'} flex items-center justify-center font-bold text-[10px]">${ride.driverId === this.user?.uid ? 'DRV' : 'JOIN'}</div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-900">${ride.destName}</p>
+                            <p class="text-[10px] text-gray-500 font-bold">${this.formatDate(ride.time)}</p>
                         </div>
-                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300"></i>
                     </div>
-                `).join('');
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300"></i>
+                </div>`).join('');
                 lucide.createIcons();
             },
 
-            // --- Chat Functionality ---
             openChat(rideId) {
                 const ride = this.allRides.find(r => r.id === rideId);
                 if(!ride) return;
-                
                 this.activeChatRideId = rideId;
                 document.getElementById('chat-title').textContent = `${ride.originName.split(',')[0]} to ${ride.destName.split(',')[0]}`;
                 document.getElementById('chat-subtitle').textContent = `Driver: ${ride.driverName}`;
-                
                 this.navigate('chat');
                 document.getElementById('bottom-nav').classList.add('hidden');
                 this.renderChat();
@@ -1182,49 +1153,29 @@
                 const input = document.getElementById('chat-input');
                 const text = input.value.trim();
                 if(!text || !this.activeChatRideId || !this.user) return;
-
                 input.value = '';
                 try {
-                    const messagesRef = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
-                    await addDoc(messagesRef, {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), {
                         rideId: this.activeChatRideId,
                         senderId: this.user.uid,
                         senderName: this.user.displayName || "Commuter",
-                        text: text,
-                        timestamp: Date.now()
+                        text, timestamp: Date.now()
                     });
-                } catch(e) {
-                    this.showToast("Message failed", "error");
-                }
+                } catch(e) { this.showToast("Message failed", "error"); }
             },
 
             renderChat() {
                 const container = document.getElementById('chat-messages');
-                const rideMessages = this.allMessages
-                    .filter(m => m.rideId === this.activeChatRideId)
-                    .sort((a, b) => a.timestamp - b.timestamp);
-
-                if (rideMessages.length === 0) {
-                    container.innerHTML = `
-                        <div class="flex flex-col items-center justify-center h-full text-center p-8 opacity-40">
-                            <i data-lucide="message-square-dashed" class="w-12 h-12 mb-2"></i>
-                            <p class="text-xs font-bold uppercase tracking-widest">No messages yet</p>
+                const rideMessages = this.allMessages.filter(m => m.rideId === this.activeChatRideId).sort((a, b) => a.timestamp - b.timestamp);
+                container.innerHTML = rideMessages.length === 0 ? `<div class="flex flex-col items-center justify-center h-full opacity-40"><p class="text-xs font-bold uppercase">No messages yet</p></div>` : rideMessages.map(m => {
+                    const isMe = m.senderId === this.user?.uid;
+                    return `<div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                        ${!isMe ? `<span class="text-[9px] font-black text-gray-400 mb-1 ml-1 uppercase">${m.senderName}</span>` : ''}
+                        <div class="${isMe ? 'bg-brand-600 text-white rounded-l-2xl rounded-tr-2xl' : 'bg-white text-gray-800 border border-gray-200 rounded-r-2xl rounded-tl-2xl'} p-3 shadow-sm max-w-[80%]">
+                            <p class="text-sm font-medium leading-relaxed">${m.text}</p>
                         </div>
-                    `;
-                } else {
-                    container.innerHTML = rideMessages.map(m => {
-                        const isMe = m.senderId === this.user?.uid;
-                        return `
-                            <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                                ${!isMe ? `<span class="text-[9px] font-black text-gray-400 mb-1 ml-1 uppercase">${m.senderName}</span>` : ''}
-                                <div class="${isMe ? 'bg-brand-600 text-white rounded-l-2xl rounded-tr-2xl' : 'bg-white text-gray-800 border border-gray-200 rounded-r-2xl rounded-tl-2xl'} p-3 shadow-sm max-w-[80%]">
-                                    <p class="text-sm font-medium leading-relaxed">${m.text}</p>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                }
-                
+                    </div>`;
+                }).join('');
                 lucide.createIcons();
                 container.scrollTop = container.scrollHeight;
             }
