@@ -590,14 +590,24 @@
     <!-- Application Logic & Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithCustomToken, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, getDocs, setDoc, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global Setup
-        let appInstance, auth, db;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'sabaybiyahe-v2';
+        // Firebase Configuration (Provided by user)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDMOHXX-muvgnVlkMRN37-qRhUUXAp7Y_8",
+            authDomain: "sabaybiyahe-app.firebaseapp.com",
+            projectId: "sabaybiyahe-app",
+            storageBucket: "sabaybiyahe-app.firebasestorage.app",
+            messagingSenderId: "429764230835",
+            appId: "1:429764230835:web:b17844fc4054516b5d3ac6"
+        };
         
-        // Settings
+        // Environment IDs
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'sabaybiyahe-production';
+
+        // Global State & Service Refs
+        let appInstance, auth, db;
         const CONSTANTS = {
             FUEL_PRICE_PER_LITER: 64.20,
             AVG_KM_PER_LITER: 12
@@ -615,51 +625,57 @@
 
             async init() {
                 lucide.createIcons();
-                this.setLoading(true, "Connecting...");
+                this.setLoading(true, "Connecting to SabayBiyahe...");
 
-                // 1. Initialize Firebase (Outside Component as per rules)
+                // 1. Initialize Firebase Services
                 try {
-                    const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
-                    const firebaseConfig = Object.keys(configStr).length > 2 ? JSON.parse(configStr) : {
-                        // Fallback purely for local layout testing if needed, though immersive provides it
-                        projectId: "demo-project" 
-                    };
                     appInstance = initializeApp(firebaseConfig);
                     auth = getAuth(appInstance);
                     db = getFirestore(appInstance);
-                } catch(e) { console.warn("Firebase config issue, continuing for UI rendering", e); }
+                } catch(e) { 
+                    console.error("Firebase init failed:", e); 
+                    this.showToast("Connection Error", "error");
+                }
 
-                // 2. Auth First (Rule 3)
+                // 2. Security First (Rule 3)
                 const initAuth = async () => {
                     if(!auth) return;
                     try {
+                        // Check if custom token is provided by environment first
                         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                             await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            // If user hasn't logged in via Google yet, allow anonymous session for UI browsing
+                            // though actual participation usually requires Google auth in this app's flow.
+                            await signInAnonymously(auth);
                         }
-                    } catch(e) { console.error("Auth token error:", e); }
+                    } catch(e) { console.error("Initial auth failed:", e); }
                 };
 
                 await initAuth();
 
                 onAuthStateChanged(auth, async (user) => {
-                    if (user) {
+                    this.setLoading(false);
+                    if (user && !user.isAnonymous) {
                         this.user = user;
                         this.updateProfileUI(user);
                         this.navigate('dashboard');
                         document.getElementById('bottom-nav').classList.remove('hidden');
                         
-                        // Rule 1 & 2: Listeners setup after auth
+                        // Setup Real-time Listeners (Rule 1: Path scoping)
                         this.setupDatabaseListeners();
-                        this.setLoading(false);
+                    } else if (user && user.isAnonymous) {
+                        // If anonymous, we stay on login or restricted dashboard
+                        this.navigate('login');
+                        document.getElementById('bottom-nav').classList.add('hidden');
                     } else {
                         this.user = null;
                         this.navigate('login');
                         document.getElementById('bottom-nav').classList.add('hidden');
-                        this.setLoading(false);
                     }
                 });
 
-                // Set default date for offer form to today/now + 1 hour
+                // Set default date for offer form
                 const now = new Date();
                 now.setHours(now.getHours() + 1);
                 now.setMinutes(0);
@@ -694,30 +710,23 @@
                 const targetView = document.getElementById(`view-${viewId}`);
                 if (targetView) targetView.classList.add('active');
 
-                // Update Bottom Nav
+                // Update Nav States
                 document.querySelectorAll('.nav-btn').forEach(btn => {
-                    if(btn.dataset.target === viewId) {
-                        btn.classList.add('text-brand-600');
-                        btn.classList.remove('text-gray-400');
-                    } else if (btn.dataset.target) {
-                        btn.classList.remove('text-brand-600');
-                        btn.classList.add('text-gray-400');
-                    }
+                    const isActive = btn.dataset.target === viewId;
+                    btn.classList.toggle('text-brand-600', isActive);
+                    btn.classList.toggle('text-gray-400', !isActive);
                 });
 
-                // Re-render specifics based on view
                 if(viewId === 'dashboard') this.renderDashboardActivity();
                 if(viewId === 'activity') this.renderActivity();
                 if(viewId === 'details' && this.selectedRide) {
-                    // Delay map render slightly to ensure container is visible
-                    setTimeout(() => this.renderMap(this.selectedRide.originCoords, this.selectedRide.destCoords), 100);
+                    setTimeout(() => this.renderMap(this.selectedRide.originCoords, this.selectedRide.destCoords), 150);
                 }
             },
 
             updateProfileUI(user) {
                 const name = user.displayName ? user.displayName.split(' ')[0] : "Commuter";
                 document.getElementById('user-display-name').textContent = name;
-                
                 if (user.photoURL) {
                     document.getElementById('dashboard-avatar').innerHTML = `<img src="${user.photoURL}" class="w-full h-full object-cover" referrerpolicy="no-referrer">`;
                 }
@@ -732,24 +741,21 @@
                 } catch(e) { return timestampStr; }
             },
 
-            // --- Authentication ---
+            // --- Auth Methods ---
             async loginWithGoogle() {
                 const provider = new GoogleAuthProvider();
                 const btn = document.getElementById('btn-google-login');
-                const originalHtml = btn.innerHTML;
-                
-                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Authenticating...';
+                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Verifying...';
                 btn.disabled = true;
                 lucide.createIcons();
 
                 try {
                     await signInWithPopup(auth, provider);
-                    // onAuthStateChanged handles the rest
                 } catch (error) {
-                    console.error("Login err:", error);
-                    btn.innerHTML = originalHtml;
+                    console.error("Google Auth failed:", error);
+                    btn.innerHTML = `Continue with Google`;
                     btn.disabled = false;
-                    this.showToast("Authentication failed", "error");
+                    this.showToast("Sign in failed. Use Chrome/Safari.", "error");
                 }
             },
 
@@ -759,64 +765,53 @@
                 await signOut(auth);
             },
 
-            // --- Geocoding & Routing (Real APIs) ---
+            // --- Real APIs: Geocoding & Route ---
             async geocode(queryStr) {
                 try {
-                    // Using Nominatim (OSM) - Note: In production, respect usage policies
                     const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queryStr + ', Philippines')}&limit=1`);
                     const data = await res.json();
                     if(data && data.length > 0) {
                         return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon), name: data[0].display_name.split(',')[0] };
                     }
                     return null;
-                } catch(e) { console.error("Geocoding failed", e); return null; }
+                } catch(e) { return null; }
             },
 
             async getRouteInfo(originCoords, destCoords) {
                 try {
-                    // Using OSRM public API
                     const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${originCoords.lon},${originCoords.lat};${destCoords.lon},${destCoords.lat}?overview=full&geometries=geojson`);
                     const data = await res.json();
-                    
                     if(data.code === 'Ok' && data.routes.length > 0) {
                         const route = data.routes[0];
-                        return {
-                            distanceKm: (route.distance / 1000).toFixed(1),
-                            durationMin: Math.round(route.duration / 60),
-                            geometry: route.geometry
-                        };
+                        return { distanceKm: (route.distance / 1000).toFixed(1), geometry: route.geometry };
                     }
                     return null;
-                } catch(e) { console.error("Routing failed", e); return null; }
+                } catch(e) { return null; }
             },
 
-            // --- Firebase Data Operations ---
+            // --- Database Sync (Rule 1 & 2) ---
             setupDatabaseListeners() {
                 if(!db || !this.user) return;
 
-                // Rule 1: Strict paths. Public data.
+                // Path Structure Mandatory: /artifacts/{appId}/public/data/{collection}
                 const ridesRef = collection(db, 'artifacts', appId, 'public', 'data', 'rides');
                 const requestsRef = collection(db, 'artifacts', appId, 'public', 'data', 'requests');
 
-                // Rule 2: Fetch all, no complex compound queries requiring indexes. Filter in JS.
                 this.unsubRides = onSnapshot(ridesRef, (snap) => {
                     this.allRides = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                     this.renderDashboardActivity();
                     this.renderActivity();
-                    // If currently on find view, re-render results
-                    if(document.getElementById('view-find').classList.contains('active')) {
-                        this.renderSearchResults(this.allRides);
-                    }
-                }, (err) => console.error(err));
+                    if(document.getElementById('view-find').classList.contains('active')) this.searchRides();
+                }, (err) => console.error("Rides Sync Err:", err));
 
                 this.unsubRequests = onSnapshot(requestsRef, (snap) => {
                     this.allRequests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                     this.renderActivity();
                     this.updateActivityBadge();
-                }, (err) => console.error(err));
+                }, (err) => console.error("Requests Sync Err:", err));
             },
 
-            // --- Core Features ---
+            // --- Actions ---
             async submitOffer() {
                 if(!db || !this.user) return;
                 
@@ -826,60 +821,50 @@
                 const seats = parseInt(document.getElementById('offer-seats').value);
                 const car = document.getElementById('offer-car').value;
 
-                if(!originRaw || !destRaw || !timeStr) {
-                    this.showToast("Please fill all required fields", "error");
+                if(!originRaw || !destRaw) {
+                    this.showToast("Enter route locations", "error");
                     return;
                 }
 
                 const btn = document.getElementById('btn-submit-offer');
                 const ogHtml = btn.innerHTML;
-                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Processing Route...';
+                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Calculating Distance...';
                 btn.disabled = true;
                 lucide.createIcons();
 
                 try {
-                    // 1. Geocode
                     const originCoords = await this.geocode(originRaw);
                     const destCoords = await this.geocode(destRaw);
 
-                    if(!originCoords || !destCoords) {
-                        throw new Error("Could not find exact locations. Try being more specific (e.g., 'SM Megamall, Mandaluyong').");
-                    }
+                    if(!originCoords || !destCoords) throw new Error("Locations not found");
 
-                    // 2. Get Route Distance
                     const route = await this.getRouteInfo(originCoords, destCoords);
-                    const distanceKm = route ? route.distanceKm : 15.0; // Fallback distance
-                    
-                    // 3. Calculate Math
+                    const distanceKm = route ? route.distanceKm : 15.0;
                     const totalCost = (parseFloat(distanceKm) / CONSTANTS.AVG_KM_PER_LITER) * CONSTANTS.FUEL_PRICE_PER_LITER;
-                    const pricePerSeat = Math.ceil(totalCost / (seats + 1)); // Round up
+                    const pricePerSeat = Math.ceil(totalCost / (seats + 1));
 
-                    // 4. Save to Firestore
                     const ridesRef = collection(db, 'artifacts', appId, 'public', 'data', 'rides');
                     await addDoc(ridesRef, {
                         driverId: this.user.uid,
-                        driverName: this.user.displayName || "Driver",
+                        driverName: this.user.displayName || "Commuter",
                         originName: originCoords.name || originRaw,
                         destName: destCoords.name || destRaw,
-                        originCoords: originCoords,
-                        destCoords: destCoords,
+                        originCoords, destCoords,
                         time: timeStr,
                         seatsAvailable: seats,
                         totalSeats: seats,
                         carModel: car,
-                        distanceKm: distanceKm,
-                        pricePerSeat: pricePerSeat,
+                        distanceKm,
+                        pricePerSeat,
                         status: 'active',
                         createdAt: Date.now()
                     });
 
-                    this.showToast("Ride posted successfully!");
+                    this.showToast("Ride posted!");
                     document.getElementById('form-offer').reset();
                     this.navigate('dashboard');
-
                 } catch (error) {
-                    console.error(error);
-                    this.showToast(error.message || "Failed to post ride", "error");
+                    this.showToast(error.message, "error");
                 } finally {
                     btn.innerHTML = ogHtml;
                     btn.disabled = false;
@@ -887,44 +872,23 @@
             },
 
             searchRides() {
-                const originQuery = document.getElementById('find-origin').value.toLowerCase();
-                const destQuery = document.getElementById('find-dest').value.toLowerCase();
+                const originQ = document.getElementById('find-origin').value.toLowerCase();
+                const destQ = document.getElementById('find-dest').value.toLowerCase();
                 
-                const btn = document.getElementById('btn-search-rides');
-                btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Searching...';
-                lucide.createIcons();
-
-                setTimeout(() => {
-                    // Filter in memory (Rule 2)
-                    let results = this.allRides.filter(r => r.status === 'active' && r.seatsAvailable > 0 && r.driverId !== this.user?.uid);
-                    
-                    if(originQuery || destQuery) {
-                        results = results.filter(r => {
-                            const matchOrigin = !originQuery || r.originName.toLowerCase().includes(originQuery);
-                            const matchDest = !destQuery || r.destName.toLowerCase().includes(destQuery);
-                            return matchOrigin || matchDest;
-                        });
-                    }
-
-                    this.renderSearchResults(results);
-                    
-                    btn.innerHTML = '<i data-lucide="search" class="w-4 h-4"></i> Search Routes';
-                    lucide.createIcons();
-                }, 500); // Fake delay for UI feel
+                // Memory filtering as per Rule 2
+                let results = this.allRides.filter(r => r.status === 'active' && r.seatsAvailable > 0 && r.driverId !== this.user?.uid);
+                if(originQ || destQ) {
+                    results = results.filter(r => r.originName.toLowerCase().includes(originQ) || r.destName.toLowerCase().includes(destQ));
+                }
+                this.renderSearchResults(results);
             },
 
             renderSearchResults(rides) {
                 const list = document.getElementById('search-results-list');
-                document.getElementById('search-count').textContent = `${rides.length} Found`;
+                document.getElementById('search-count').textContent = `${rides.length} Live`;
                 
                 if (rides.length === 0) {
-                    list.innerHTML = `
-                        <div class="bg-gray-50 rounded-2xl p-8 text-center border border-dashed border-gray-200">
-                            <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="map" class="w-6 h-6 text-gray-400"></i></div>
-                            <p class="text-sm font-bold text-gray-700">No matches right now</p>
-                            <p class="text-xs text-gray-500 mt-1">Try different locations or check back later.</p>
-                        </div>`;
-                    lucide.createIcons();
+                    list.innerHTML = `<div class="bg-gray-50 rounded-2xl p-8 text-center text-xs text-gray-500 font-bold border-2 border-dashed border-gray-100">NO ACTIVE RIDES MATCHING</div>`;
                     return;
                 }
 
@@ -932,121 +896,84 @@
                     <div onclick="window.app.openDetails('${ride.id}')" class="bg-white rounded-3xl border border-gray-100 shadow-sm p-4 cursor-pointer hover:border-brand-400 hover:shadow-md transition-all active:scale-[0.98]">
                         <div class="flex justify-between items-start mb-4">
                             <div class="flex gap-3">
-                                <div class="w-12 h-12 rounded-full bg-brand-50 text-brand-700 flex items-center justify-center font-bold text-lg border border-brand-100 flex-shrink-0">
-                                    ${ride.driverName.substring(0,1).toUpperCase()}
-                                </div>
+                                <div class="w-12 h-12 rounded-full bg-brand-50 text-brand-700 flex items-center justify-center font-bold text-lg border border-brand-100">${ride.driverName.substring(0,1).toUpperCase()}</div>
                                 <div>
                                     <h4 class="text-sm font-bold text-gray-900">${ride.driverName}</h4>
-                                    <p class="text-[10px] text-gray-500 font-medium">${this.formatDate(ride.time)}</p>
+                                    <p class="text-[10px] text-gray-500 font-bold">${this.formatDate(ride.time)}</p>
                                 </div>
                             </div>
-                            <div class="text-right">
-                                <p class="text-xl font-black text-brand-600">₱${ride.pricePerSeat}</p>
-                            </div>
+                            <div class="text-right"><p class="text-xl font-black text-brand-600">₱${ride.pricePerSeat}</p></div>
                         </div>
-                        
-                        <div class="relative pl-3 border-l-2 border-gray-100 space-y-3 ml-2 mb-4">
-                            <div class="relative">
-                                <div class="absolute w-2 h-2 bg-brand-500 rounded-full -left-[17px] top-1.5 ring-4 ring-white"></div>
-                                <p class="text-xs font-bold text-gray-800 line-clamp-1">${ride.originName}</p>
-                            </div>
-                            <div class="relative">
-                                <div class="absolute w-2 h-2 bg-gray-900 rounded-full -left-[17px] top-1.5 ring-4 ring-white"></div>
-                                <p class="text-xs font-bold text-gray-800 line-clamp-1">${ride.destName}</p>
-                            </div>
+                        <div class="pl-3 border-l-2 border-gray-100 space-y-3 ml-2 mb-4">
+                            <p class="text-xs font-bold text-gray-800 truncate">${ride.originName}</p>
+                            <p class="text-xs font-bold text-gray-800 truncate">${ride.destName}</p>
                         </div>
-
                         <div class="flex gap-2 text-[10px] font-bold">
                             <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-md flex items-center gap-1"><i data-lucide="car" class="w-3 h-3"></i> ${ride.carModel}</span>
-                            <span class="bg-blue-50 text-blue-600 px-2 py-1 rounded-md flex items-center gap-1"><i data-lucide="users" class="w-3 h-3"></i> ${ride.seatsAvailable} left</span>
+                            <span class="bg-blue-50 text-blue-600 px-2 py-1 rounded-md flex items-center gap-1"><i data-lucide="users" class="w-3 h-3"></i> ${ride.seatsAvailable} seats</span>
                         </div>
                     </div>
                 `).join('');
-                
                 lucide.createIcons();
             },
 
             openDetails(rideId) {
                 const ride = this.allRides.find(r => r.id === rideId);
                 if(!ride) return;
-                
                 this.selectedRide = ride;
                 
                 document.getElementById('detail-route').textContent = `${ride.originName} → ${ride.destName}`;
                 document.getElementById('detail-time').innerHTML = `<i data-lucide="clock" class="w-4 h-4"></i> <span>${this.formatDate(ride.time)}</span>`;
                 document.getElementById('detail-avatar').textContent = ride.driverName.substring(0,1).toUpperCase();
                 document.getElementById('detail-driver').textContent = ride.driverName;
-                
                 document.getElementById('detail-car').textContent = ride.carModel;
-                document.getElementById('detail-seats').textContent = `${ride.seatsAvailable} Left`;
+                document.getElementById('detail-seats').textContent = `${ride.seatsAvailable} Seats`;
                 document.getElementById('detail-distance').textContent = `${ride.distanceKm}km`;
 
-                // Calc math
                 const totalCost = (parseFloat(ride.distanceKm) / CONSTANTS.AVG_KM_PER_LITER) * CONSTANTS.FUEL_PRICE_PER_LITER;
                 document.getElementById('detail-total-cost').textContent = `₱${totalCost.toFixed(0)}`;
                 document.getElementById('detail-sharing-math').textContent = `÷ ${ride.totalSeats + 1}`;
                 document.getElementById('detail-exact-share').textContent = `₱${ride.pricePerSeat}`;
 
-                // Check if user already requested
                 const existingReq = this.allRequests.find(req => req.rideId === rideId && req.passengerId === this.user.uid);
                 const btn = document.getElementById('btn-request');
                 
                 if(existingReq) {
                     btn.disabled = true;
-                    btn.className = "w-full py-4 rounded-2xl shadow-sm text-base font-bold text-gray-500 bg-gray-100 cursor-not-allowed flex justify-center items-center gap-2";
                     btn.innerHTML = `<i data-lucide="check" class="w-5 h-5"></i> Requested (${existingReq.status})`;
-                } else if (ride.driverId === this.user.uid) {
-                    btn.disabled = true;
-                    btn.className = "w-full py-4 rounded-2xl shadow-sm text-base font-bold text-gray-500 bg-gray-100 cursor-not-allowed flex justify-center items-center gap-2";
-                    btn.innerHTML = `This is your ride`;
                 } else {
                     btn.disabled = false;
-                    btn.className = "w-full py-4 rounded-2xl shadow-[0_8px_20px_rgba(17,24,39,0.2)] text-base font-bold text-white bg-gray-900 hover:bg-black active:scale-95 transition-all flex justify-center items-center gap-2";
                     btn.innerHTML = 'Request to Join';
                 }
-
                 this.navigate('details');
             },
 
             async renderMap(origin, dest) {
-                if(!window.L) return; // Leaflet not loaded yet
-                
-                if(this.map) {
-                    this.map.remove();
-                }
+                if(!window.L || !document.getElementById('detail-map')) return;
+                if(this.map) this.map.remove();
 
                 this.map = L.map('detail-map', { zoomControl: false }).setView([origin.lat, origin.lon], 13);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '&copy; OpenStreetMap contributors'
-                }).addTo(this.map);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(this.map);
 
-                const iconBase = L.Icon.extend({ options: { iconSize: [24, 24], iconAnchor: [12, 12] } });
-                const originIcon = new iconBase({iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2322c55e"><circle cx="12" cy="12" r="10"/></svg>'});
-                const destIcon = new iconBase({iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23111827"><circle cx="12" cy="12" r="10"/></svg>'});
+                const originIco = L.divIcon({ className: 'bg-brand-500 w-4 h-4 rounded-full border-4 border-white' });
+                const destIco = L.divIcon({ className: 'bg-gray-900 w-4 h-4 rounded-full border-4 border-white' });
 
-                L.marker([origin.lat, origin.lon], {icon: originIcon}).addTo(this.map);
-                L.marker([dest.lat, dest.lon], {icon: destIcon}).addTo(this.map);
+                L.marker([origin.lat, origin.lon], {icon: originIco}).addTo(this.map);
+                L.marker([dest.lat, dest.lon], {icon: destIco}).addTo(this.map);
 
-                // Fetch real route line to draw
                 const routeInfo = await this.getRouteInfo(origin, dest);
                 if(routeInfo && routeInfo.geometry) {
-                    const geoJSON = { type: "LineString", coordinates: routeInfo.geometry.coordinates };
-                    this.routeLayer = L.geoJSON(geoJSON, {
-                        style: { color: '#16a34a', weight: 4, opacity: 0.7, dashArray: '10, 10' }
-                    }).addTo(this.map);
+                    this.routeLayer = L.geoJSON(routeInfo.geometry, { style: { color: '#16a34a', weight: 4, opacity: 0.7, dashArray: '10, 10' } }).addTo(this.map);
                     this.map.fitBounds(this.routeLayer.getBounds(), { padding: [30, 30] });
                 } else {
-                    // Fallback straight line
-                    const bounds = L.latLngBounds([[origin.lat, origin.lon], [dest.lat, dest.lon]]);
-                    this.map.fitBounds(bounds, { padding: [30, 30] });
+                    this.map.fitBounds(L.latLngBounds([[origin.lat, origin.lon], [dest.lat, dest.lon]]), { padding: [30, 30] });
                 }
             },
 
             async requestRide() {
                 if(!db || !this.user || !this.selectedRide) return;
-
                 const btn = document.getElementById('btn-request');
-                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Sending...';
+                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Processing...';
                 btn.disabled = true;
 
                 try {
@@ -1059,172 +986,105 @@
                         status: 'pending',
                         timestamp: Date.now()
                     });
-
-                    this.showToast("Request sent to driver!");
+                    this.showToast("Request Sent!");
                     this.navigate('dashboard');
-                } catch(e) {
-                    console.error("Req err", e);
-                    this.showToast("Failed to send request", "error");
-                    btn.innerHTML = 'Request to Join';
-                    btn.disabled = false;
-                }
+                } catch(e) { this.showToast("Failed to request", "error"); }
             },
 
-            // --- Activity Management ---
+            // --- Tabs & List Renders ---
             switchActivityTab(tab) {
-                document.getElementById('tab-joined').className = tab === 'joined' ? 'flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-gray-900 transition-all' : 'flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all';
-                document.getElementById('tab-offered').className = tab === 'offered' ? 'flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-gray-900 transition-all' : 'flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all';
-                
-                document.getElementById('activity-joined-list').style.display = tab === 'joined' ? 'block' : 'none';
-                document.getElementById('activity-offered-list').style.display = tab === 'offered' ? 'block' : 'none';
+                document.getElementById('tab-joined').classList.toggle('bg-white', tab === 'joined');
+                document.getElementById('tab-offered').classList.toggle('bg-white', tab === 'offered');
+                document.getElementById('activity-joined-list').classList.toggle('hidden', tab !== 'joined');
+                document.getElementById('activity-offered-list').classList.toggle('hidden', tab !== 'offered');
             },
 
             updateActivityBadge() {
-                // Check for pending requests on MY rides
-                const pendingForMe = this.allRequests.filter(req => req.driverId === this.user?.uid && req.status === 'pending');
-                const badge = document.getElementById('activity-badge');
-                if(pendingForMe.length > 0) {
-                    badge.classList.remove('hidden');
-                } else {
-                    badge.classList.add('hidden');
-                }
+                const pend = this.allRequests.filter(req => req.driverId === this.user?.uid && req.status === 'pending');
+                document.getElementById('activity-badge').classList.toggle('hidden', pend.length === 0);
             },
 
             renderActivity() {
                 if(!this.user) return;
-
-                // 1. Render Joined/Requested
-                const myRequests = this.allRequests.filter(req => req.passengerId === this.user.uid);
+                const myReqs = this.allRequests.filter(req => req.passengerId === this.user.uid);
                 const joinedList = document.getElementById('activity-joined-list');
                 
-                if(myRequests.length === 0) {
-                    joinedList.innerHTML = `<div class="text-center p-8 text-gray-400 text-sm font-medium">You haven't requested any rides yet.</div>`;
-                } else {
-                    joinedList.innerHTML = myRequests.map(req => {
-                        const ride = this.allRides.find(r => r.id === req.rideId);
-                        if(!ride) return ''; // Ride might be deleted
-                        
-                        const statusColor = req.status === 'accepted' ? 'text-brand-600 bg-brand-50' : req.status === 'rejected' ? 'text-red-600 bg-red-50' : 'text-orange-600 bg-orange-50';
-                        
-                        return `
+                joinedList.innerHTML = myReqs.length === 0 ? `<p class="text-center py-10 text-gray-400 font-bold text-xs">NO REQUESTS YET</p>` : myReqs.map(req => {
+                    const ride = this.allRides.find(r => r.id === req.rideId);
+                    if(!ride) return '';
+                    const col = req.status === 'accepted' ? 'text-brand-600 bg-brand-50' : 'text-orange-600 bg-orange-50';
+                    return `
                         <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
                             <div class="flex justify-between items-center mb-2">
-                                <span class="text-xs font-bold uppercase ${statusColor} px-2 py-1 rounded-md">${req.status}</span>
-                                <span class="text-xs text-gray-500 font-bold">${this.formatDate(ride.time)}</span>
+                                <span class="text-[10px] font-bold uppercase ${col} px-2 py-1 rounded-md">${req.status}</span>
+                                <span class="text-[10px] text-gray-500 font-bold">${this.formatDate(ride.time)}</span>
                             </div>
-                            <h4 class="font-bold text-gray-900 text-sm">${ride.originName} to ${ride.destName}</h4>
-                            <p class="text-xs text-gray-500 mt-1">Driver: ${ride.driverName}</p>
+                            <h4 class="font-bold text-gray-900 text-sm">${ride.originName} → ${ride.destName}</h4>
                         </div>
-                        `;
-                    }).join('');
-                }
+                    `;
+                }).join('');
 
-                // 2. Render Offered (Driving)
-                const myOffered = this.allRides.filter(ride => ride.driverId === this.user.uid);
+                const myOffered = this.allRides.filter(r => r.driverId === this.user.uid);
                 const offeredList = document.getElementById('activity-offered-list');
-
-                if(myOffered.length === 0) {
-                    offeredList.innerHTML = `<div class="text-center p-8 text-gray-400 text-sm font-medium">You aren't offering any rides.</div>`;
-                } else {
-                    offeredList.innerHTML = myOffered.map(ride => {
-                        // Find requests for this ride
-                        const rideReqs = this.allRequests.filter(req => req.rideId === ride.id);
-                        
-                        const reqHtml = rideReqs.map(req => `
-                            <div class="flex justify-between items-center bg-gray-50 p-2 rounded-lg mt-2">
-                                <span class="text-xs font-bold">${req.passengerName}</span>
-                                ${req.status === 'pending' ? `
-                                    <div class="flex gap-2">
-                                        <button onclick="window.app.handleRequest('${req.id}', 'accepted', '${ride.id}')" class="text-xs bg-brand-600 text-white px-3 py-1 rounded-md font-bold">Accept</button>
-                                        <button onclick="window.app.handleRequest('${req.id}', 'rejected', null)" class="text-xs bg-gray-200 text-gray-700 px-3 py-1 rounded-md font-bold">Decline</button>
+                offeredList.innerHTML = myOffered.length === 0 ? `<p class="text-center py-10 text-gray-400 font-bold text-xs">NOT DRIVING ANY TRIPS</p>` : myOffered.map(ride => {
+                    const reqs = this.allRequests.filter(req => req.rideId === ride.id);
+                    return `
+                        <div class="bg-white rounded-2xl p-4 border border-gray-100 relative">
+                            <h4 class="font-bold text-gray-900 text-sm">${ride.originName} → ${ride.destName}</h4>
+                            <div class="mt-4 space-y-2">
+                                ${reqs.map(req => `
+                                    <div class="flex justify-between items-center bg-gray-50 p-2 rounded-xl">
+                                        <span class="text-xs font-bold">${req.passengerName}</span>
+                                        ${req.status === 'pending' ? `
+                                            <div class="flex gap-2">
+                                                <button onclick="window.app.handleRequest('${req.id}', 'accepted', '${ride.id}')" class="text-[10px] bg-brand-600 text-white px-2 py-1 rounded-lg font-bold">Accept</button>
+                                                <button onclick="window.app.handleRequest('${req.id}', 'rejected', null)" class="text-[10px] bg-gray-200 text-gray-700 px-2 py-1 rounded-lg font-bold">Decline</button>
+                                            </div>
+                                        ` : `<span class="text-[10px] font-bold uppercase text-gray-400">${req.status}</span>`}
                                     </div>
-                                ` : `<span class="text-[10px] uppercase font-bold text-gray-400">${req.status}</span>`}
-                            </div>
-                        `).join('');
-
-                        return `
-                        <div class="bg-white rounded-2xl p-4 border border-brand-100 shadow-sm relative overflow-hidden">
-                            <div class="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
-                            <div class="flex justify-between items-start mb-2 pl-2">
-                                <div>
-                                    <h4 class="font-bold text-gray-900 text-sm">${ride.originName} to ${ride.destName}</h4>
-                                    <span class="text-xs text-gray-500 font-bold">${this.formatDate(ride.time)}</span>
-                                </div>
-                                <span class="text-xs font-bold bg-gray-100 px-2 py-1 rounded-md">${ride.seatsAvailable} seats left</span>
-                            </div>
-                            <div class="mt-4 pl-2 border-t border-gray-100 pt-2">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Requests (${rideReqs.length})</p>
-                                ${reqHtml || '<p class="text-xs text-gray-400 italic">No requests yet.</p>'}
+                                `).join('') || '<p class="text-[10px] italic text-gray-400">No requests yet</p>'}
                             </div>
                         </div>
-                        `;
-                    }).join('');
-                }
+                    `;
+                }).join('');
             },
 
             async handleRequest(reqId, newStatus, rideId) {
-                if(!db) return;
                 try {
-                    const reqRef = doc(db, 'artifacts', appId, 'public', 'data', 'requests', reqId);
-                    await updateDoc(reqRef, { status: newStatus });
-                    
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'requests', reqId), { status: newStatus });
                     if(newStatus === 'accepted' && rideId) {
-                        // Deduct seat
                         const ride = this.allRides.find(r => r.id === rideId);
-                        if(ride && ride.seatsAvailable > 0) {
-                            const rideRef = doc(db, 'artifacts', appId, 'public', 'data', 'rides', rideId);
-                            await updateDoc(rideRef, { seatsAvailable: ride.seatsAvailable - 1 });
-                        }
+                        if(ride && ride.seatsAvailable > 0) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rides', rideId), { seatsAvailable: ride.seatsAvailable - 1 });
                     }
                     this.showToast(`Request ${newStatus}`);
-                } catch(e) {
-                    console.error("Action failed", e);
-                    this.showToast("Action failed", "error");
-                }
+                } catch(e) { this.showToast("Action failed", "error"); }
             },
 
             renderDashboardActivity() {
-                const container = document.getElementById('dashboard-recent-activity');
                 const list = document.getElementById('dash-activity-list');
+                const myAccepted = this.allRequests.filter(req => req.passengerId === this.user?.uid && req.status === 'accepted').map(r => r.rideId);
+                const relevant = this.allRides.filter(r => r.driverId === this.user?.uid || myAccepted.includes(r.id)).slice(0, 2);
                 
-                // Show upcoming rides involving user (driving or accepted requests)
-                const myAcceptedReqs = this.allRequests.filter(req => req.passengerId === this.user?.uid && req.status === 'accepted').map(r => r.rideId);
-                const activeRides = this.allRides.filter(r => r.driverId === this.user?.uid || myAcceptedReqs.includes(r.id)).slice(0, 2); // Limit 2
-
-                if(activeRides.length > 0) {
-                    container.classList.remove('hidden');
-                    list.innerHTML = activeRides.map(ride => {
-                        const isDriver = ride.driverId === this.user?.uid;
-                        const roleLabel = isDriver ? 'Driving' : 'Joining';
-                        const color = isDriver ? 'bg-brand-50 text-brand-700 border-brand-200' : 'bg-blue-50 text-blue-700 border-blue-200';
-                        
-                        return `
-                        <div class="bg-white rounded-2xl p-3 border border-gray-100 shadow-sm flex justify-between items-center">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl ${color} border flex items-center justify-center font-bold text-xs">
-                                    ${roleLabel}
-                                </div>
-                                <div>
-                                    <p class="text-xs font-bold text-gray-900 line-clamp-1">${ride.destName}</p>
-                                    <p class="text-[10px] text-gray-500 font-medium">${this.formatDate(ride.time)}</p>
-                                </div>
+                document.getElementById('dashboard-recent-activity').classList.toggle('hidden', relevant.length === 0);
+                list.innerHTML = relevant.map(ride => `
+                    <div class="bg-white rounded-2xl p-3 border border-gray-100 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg ${ride.driverId === this.user?.uid ? 'bg-brand-50 text-brand-600' : 'bg-blue-50 text-blue-600'} flex items-center justify-center font-bold text-[10px]">
+                                ${ride.driverId === this.user?.uid ? 'DRV' : 'JOIN'}
                             </div>
-                            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300"></i>
+                            <div>
+                                <p class="text-xs font-bold text-gray-900">${ride.destName}</p>
+                                <p class="text-[10px] text-gray-500 font-bold">${this.formatDate(ride.time)}</p>
+                            </div>
                         </div>
-                        `;
-                    }).join('');
-                    lucide.createIcons();
-                } else {
-                    container.classList.add('hidden');
-                }
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300"></i>
+                    </div>
+                `).join('');
+                lucide.createIcons();
             }
         };
 
-        // Boot app
-        document.addEventListener('DOMContentLoaded', () => {
-            window.app.init();
-        });
-
+        document.addEventListener('DOMContentLoaded', () => window.app.init());
     </script>
 </body>
 </html>
