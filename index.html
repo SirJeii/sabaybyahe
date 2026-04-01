@@ -106,6 +106,17 @@
             z-index: 60;
         }
 
+        /* Chat view specific adjustment: input is at bottom */
+        #view-chat {
+            display: none;
+            flex-direction: column;
+            bottom: 0;
+            z-index: 70;
+        }
+        #view-chat.active {
+            display: flex;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
@@ -198,7 +209,7 @@
         <!-- ==========================================
              VIEW: LOGIN
         =========================================== -->
-        <div id="view-login" class="view bg-white">
+        <div id="view-login" class="view bg-white active">
             <div class="h-full flex flex-col justify-center px-8 py-12 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-gray-50">
                 <div class="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-white">
                     <div class="text-center mb-10">
@@ -526,9 +537,14 @@
                     </div>
                 </div>
 
-                <button onclick="window.app.requestRide()" id="btn-request" class="w-full py-4 rounded-2xl shadow-[0_8px_20px_rgba(17,24,39,0.2)] text-base font-bold text-white bg-gray-900 hover:bg-black active:scale-95 transition-all flex justify-center items-center gap-2">
-                    Request to Join
-                </button>
+                <div class="flex gap-4">
+                    <button onclick="window.app.requestRide()" id="btn-request" class="flex-1 py-4 rounded-2xl shadow-[0_8px_20px_rgba(17,24,39,0.2)] text-base font-bold text-white bg-gray-900 hover:bg-black active:scale-95 transition-all flex justify-center items-center gap-2">
+                        Request to Join
+                    </button>
+                    <button id="btn-chat-detail" onclick="window.app.openChat(window.app.selectedRide.id)" class="hidden py-4 px-6 rounded-2xl border-2 border-gray-100 text-gray-900 hover:bg-gray-50 active:scale-95 transition-all flex justify-center items-center gap-2">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -556,6 +572,32 @@
                 <div id="activity-offered-list" class="space-y-4 hidden">
                     <!-- Populated by JS -->
                 </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             VIEW: CHAT
+        =========================================== -->
+        <div id="view-chat" class="view bg-white">
+            <div class="bg-white pt-10 pb-4 px-6 sticky top-0 z-20 border-b border-gray-100 flex items-center gap-3 shadow-sm">
+                <button onclick="window.app.closeChat()" class="w-10 h-10 flex items-center justify-center -ml-2 text-gray-900 hover:bg-gray-100 rounded-full active:scale-90 transition-all">
+                    <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                </button>
+                <div class="flex-1">
+                    <h2 id="chat-title" class="text-base font-bold text-gray-900 truncate">Chat</h2>
+                    <p id="chat-subtitle" class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Ride Group Chat</p>
+                </div>
+            </div>
+
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50">
+                <!-- Messages populated by JS -->
+            </div>
+
+            <div class="p-4 bg-white border-t border-gray-100 flex items-center gap-2">
+                <input type="text" id="chat-input" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500" placeholder="Type a message...">
+                <button onclick="window.app.sendMessage()" class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand-200 active:scale-90 transition-transform">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                </button>
             </div>
         </div>
 
@@ -617,9 +659,12 @@
             user: null,
             allRides: [],
             allRequests: [],
+            allMessages: [],
+            activeChatRideId: null,
             selectedRide: null,
             unsubRides: null,
             unsubRequests: null,
+            unsubMessages: null,
             map: null,
             routeLayer: null,
 
@@ -643,13 +688,20 @@
                     try {
                         // Check if custom token is provided by environment first
                         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await signInWithCustomToken(auth, __initial_auth_token);
+                            try {
+                                await signInWithCustomToken(auth, __initial_auth_token);
+                            } catch (tokenErr) {
+                                console.warn("Initial token mismatched project, falling back to anonymous:", tokenErr);
+                                await signInAnonymously(auth);
+                            }
                         } else {
-                            // If user hasn't logged in via Google yet, allow anonymous session for UI browsing
-                            // though actual participation usually requires Google auth in this app's flow.
                             await signInAnonymously(auth);
                         }
-                    } catch(e) { console.error("Initial auth failed:", e); }
+                    } catch(e) { 
+                        console.error("Initial auth failed:", e); 
+                        // Final fallback to ensure app stays usable
+                        try { await signInAnonymously(auth); } catch(inner) {}
+                    }
                 };
 
                 await initAuth();
@@ -662,10 +714,9 @@
                         this.navigate('dashboard');
                         document.getElementById('bottom-nav').classList.remove('hidden');
                         
-                        // Setup Real-time Listeners (Rule 1: Path scoping)
                         this.setupDatabaseListeners();
                     } else if (user && user.isAnonymous) {
-                        // If anonymous, we stay on login or restricted dashboard
+                        this.user = user;
                         this.navigate('login');
                         document.getElementById('bottom-nav').classList.add('hidden');
                     } else {
@@ -675,14 +726,12 @@
                     }
                 });
 
-                // Set default date for offer form
                 const now = new Date();
                 now.setHours(now.getHours() + 1);
                 now.setMinutes(0);
                 document.getElementById('offer-time').value = now.toISOString().slice(0, 16);
             },
 
-            // --- UI Helpers ---
             setLoading(isActive, text = "Loading...") {
                 const overlay = document.getElementById('loading-overlay');
                 document.getElementById('loading-text').textContent = text;
@@ -710,7 +759,6 @@
                 const targetView = document.getElementById(`view-${viewId}`);
                 if (targetView) targetView.classList.add('active');
 
-                // Update Nav States
                 document.querySelectorAll('.nav-btn').forEach(btn => {
                     const isActive = btn.dataset.target === viewId;
                     btn.classList.toggle('text-brand-600', isActive);
@@ -741,7 +789,6 @@
                 } catch(e) { return timestampStr; }
             },
 
-            // --- Auth Methods ---
             async loginWithGoogle() {
                 const provider = new GoogleAuthProvider();
                 const btn = document.getElementById('btn-google-login');
@@ -762,10 +809,10 @@
             async logout() {
                 if(this.unsubRides) this.unsubRides();
                 if(this.unsubRequests) this.unsubRequests();
+                if(this.unsubMessages) this.unsubMessages();
                 await signOut(auth);
             },
 
-            // --- Real APIs: Geocoding & Route ---
             async geocode(queryStr) {
                 try {
                     const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queryStr + ', Philippines')}&limit=1`);
@@ -789,29 +836,34 @@
                 } catch(e) { return null; }
             },
 
-            // --- Database Sync (Rule 1 & 2) ---
             setupDatabaseListeners() {
                 if(!db || !this.user) return;
 
-                // Path Structure Mandatory: /artifacts/{appId}/public/data/{collection}
                 const ridesRef = collection(db, 'artifacts', appId, 'public', 'data', 'rides');
                 const requestsRef = collection(db, 'artifacts', appId, 'public', 'data', 'requests');
+                const messagesRef = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
 
                 this.unsubRides = onSnapshot(ridesRef, (snap) => {
                     this.allRides = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                     this.renderDashboardActivity();
                     this.renderActivity();
                     if(document.getElementById('view-find').classList.contains('active')) this.searchRides();
-                }, (err) => console.error("Rides Sync Err:", err));
+                });
 
                 this.unsubRequests = onSnapshot(requestsRef, (snap) => {
                     this.allRequests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                     this.renderActivity();
                     this.updateActivityBadge();
-                }, (err) => console.error("Requests Sync Err:", err));
+                });
+
+                this.unsubMessages = onSnapshot(messagesRef, (snap) => {
+                    this.allMessages = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    if(this.activeChatRideId) {
+                        this.renderChat();
+                    }
+                });
             },
 
-            // --- Actions ---
             async submitOffer() {
                 if(!db || !this.user) return;
                 
@@ -875,7 +927,6 @@
                 const originQ = document.getElementById('find-origin').value.toLowerCase();
                 const destQ = document.getElementById('find-dest').value.toLowerCase();
                 
-                // Memory filtering as per Rule 2
                 let results = this.allRides.filter(r => r.status === 'active' && r.seatsAvailable > 0 && r.driverId !== this.user?.uid);
                 if(originQ || destQ) {
                     results = results.filter(r => r.originName.toLowerCase().includes(originQ) || r.destName.toLowerCase().includes(destQ));
@@ -937,15 +988,27 @@
 
                 const existingReq = this.allRequests.find(req => req.rideId === rideId && req.passengerId === this.user.uid);
                 const btn = document.getElementById('btn-request');
+                const chatBtn = document.getElementById('btn-chat-detail');
                 
                 if(existingReq) {
                     btn.disabled = true;
                     btn.innerHTML = `<i data-lucide="check" class="w-5 h-5"></i> Requested (${existingReq.status})`;
+                    if(existingReq.status === 'accepted') {
+                        chatBtn.classList.remove('hidden');
+                    } else {
+                        chatBtn.classList.add('hidden');
+                    }
+                } else if (ride.driverId === this.user.uid) {
+                    btn.disabled = true;
+                    btn.innerHTML = 'Your Drive';
+                    chatBtn.classList.remove('hidden');
                 } else {
                     btn.disabled = false;
                     btn.innerHTML = 'Request to Join';
+                    chatBtn.classList.add('hidden');
                 }
                 this.navigate('details');
+                lucide.createIcons();
             },
 
             async renderMap(origin, dest) {
@@ -991,7 +1054,6 @@
                 } catch(e) { this.showToast("Failed to request", "error"); }
             },
 
-            // --- Tabs & List Renders ---
             switchActivityTab(tab) {
                 document.getElementById('tab-joined').classList.toggle('bg-white', tab === 'joined');
                 document.getElementById('tab-offered').classList.toggle('bg-white', tab === 'offered');
@@ -1020,6 +1082,13 @@
                                 <span class="text-[10px] text-gray-500 font-bold">${this.formatDate(ride.time)}</span>
                             </div>
                             <h4 class="font-bold text-gray-900 text-sm">${ride.originName} → ${ride.destName}</h4>
+                            <div class="mt-3 flex justify-end">
+                                ${req.status === 'accepted' ? `
+                                    <button onclick="window.app.openChat('${ride.id}')" class="text-brand-600 font-bold text-xs flex items-center gap-1">
+                                        <i data-lucide="message-circle" class="w-3 h-3"></i> Message Driver
+                                    </button>
+                                ` : ''}
+                            </div>
                         </div>
                     `;
                 }).join('');
@@ -1030,7 +1099,12 @@
                     const reqs = this.allRequests.filter(req => req.rideId === ride.id);
                     return `
                         <div class="bg-white rounded-2xl p-4 border border-gray-100 relative">
-                            <h4 class="font-bold text-gray-900 text-sm">${ride.originName} → ${ride.destName}</h4>
+                            <div class="flex justify-between items-center mb-1">
+                                <h4 class="font-bold text-gray-900 text-sm">${ride.originName} → ${ride.destName}</h4>
+                                <button onclick="window.app.openChat('${ride.id}')" class="p-2 bg-brand-50 text-brand-600 rounded-lg">
+                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                </button>
+                            </div>
                             <div class="mt-4 space-y-2">
                                 ${reqs.map(req => `
                                     <div class="flex justify-between items-center bg-gray-50 p-2 rounded-xl">
@@ -1047,6 +1121,7 @@
                         </div>
                     `;
                 }).join('');
+                lucide.createIcons();
             },
 
             async handleRequest(reqId, newStatus, rideId) {
@@ -1081,6 +1156,77 @@
                     </div>
                 `).join('');
                 lucide.createIcons();
+            },
+
+            // --- Chat Functionality ---
+            openChat(rideId) {
+                const ride = this.allRides.find(r => r.id === rideId);
+                if(!ride) return;
+                
+                this.activeChatRideId = rideId;
+                document.getElementById('chat-title').textContent = `${ride.originName.split(',')[0]} to ${ride.destName.split(',')[0]}`;
+                document.getElementById('chat-subtitle').textContent = `Driver: ${ride.driverName}`;
+                
+                this.navigate('chat');
+                document.getElementById('bottom-nav').classList.add('hidden');
+                this.renderChat();
+            },
+
+            closeChat() {
+                this.activeChatRideId = null;
+                this.navigate('activity');
+                document.getElementById('bottom-nav').classList.remove('hidden');
+            },
+
+            async sendMessage() {
+                const input = document.getElementById('chat-input');
+                const text = input.value.trim();
+                if(!text || !this.activeChatRideId || !this.user) return;
+
+                input.value = '';
+                try {
+                    const messagesRef = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
+                    await addDoc(messagesRef, {
+                        rideId: this.activeChatRideId,
+                        senderId: this.user.uid,
+                        senderName: this.user.displayName || "Commuter",
+                        text: text,
+                        timestamp: Date.now()
+                    });
+                } catch(e) {
+                    this.showToast("Message failed", "error");
+                }
+            },
+
+            renderChat() {
+                const container = document.getElementById('chat-messages');
+                const rideMessages = this.allMessages
+                    .filter(m => m.rideId === this.activeChatRideId)
+                    .sort((a, b) => a.timestamp - b.timestamp);
+
+                if (rideMessages.length === 0) {
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-full text-center p-8 opacity-40">
+                            <i data-lucide="message-square-dashed" class="w-12 h-12 mb-2"></i>
+                            <p class="text-xs font-bold uppercase tracking-widest">No messages yet</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = rideMessages.map(m => {
+                        const isMe = m.senderId === this.user?.uid;
+                        return `
+                            <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                                ${!isMe ? `<span class="text-[9px] font-black text-gray-400 mb-1 ml-1 uppercase">${m.senderName}</span>` : ''}
+                                <div class="${isMe ? 'bg-brand-600 text-white rounded-l-2xl rounded-tr-2xl' : 'bg-white text-gray-800 border border-gray-200 rounded-r-2xl rounded-tl-2xl'} p-3 shadow-sm max-w-[80%]">
+                                    <p class="text-sm font-medium leading-relaxed">${m.text}</p>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+                
+                lucide.createIcons();
+                container.scrollTop = container.scrollHeight;
             }
         };
 
