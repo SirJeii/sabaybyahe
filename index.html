@@ -230,68 +230,29 @@
         <div id="toast-container"></div>
 
         <!-- ==========================================
-             VIEW: LOGIN & SIGNUP
+             VIEW: LOGIN
         =========================================== -->
         <div id="view-login" class="view bg-white active">
-            <div class="h-full flex flex-col px-8 py-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-gray-50 overflow-y-auto hide-scrollbar">
-                
-                <div class="text-center mb-8 mt-4">
-                    <div class="mx-auto w-16 h-16 bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl flex items-center justify-center shadow-lg shadow-brand-200 mb-4 transform -rotate-3">
-                        <i data-lucide="car-front" class="w-8 h-8 text-white"></i>
+            <div class="h-full flex flex-col justify-center px-8 py-12 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-gray-50">
+                <div class="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-white">
+                    <div class="text-center mb-10">
+                        <div class="mx-auto w-20 h-20 bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl flex items-center justify-center shadow-lg shadow-brand-200 mb-6 transform -rotate-3">
+                            <i data-lucide="car-front" class="w-10 h-10 text-white"></i>
+                        </div>
+                        <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 mb-2">SabayBiyahe</h1>
+                        <p class="text-gray-500 text-sm font-medium">Join a ride. Save the environment.</p>
                     </div>
-                    <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 mb-1">SabayBiyahe</h1>
-                    <p class="text-gray-500 text-xs font-medium">Join a ride. Save the environment.</p>
-                </div>
 
-                <div class="bg-white/90 backdrop-blur-xl p-6 rounded-3xl shadow-xl border border-white">
-                    
-                    <!-- Auth Forms -->
-                    <div id="auth-forms" class="space-y-4">
-                        <!-- Tabs -->
-                        <div class="flex bg-gray-100 p-1 rounded-xl mb-4">
-                            <button id="tab-login" onclick="window.app.switchAuthTab('login')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-gray-900 transition-all">Login</button>
-                            <button id="tab-signup" onclick="window.app.switchAuthTab('signup')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">Sign Up</button>
-                        </div>
-
-                        <!-- Email/Password Form -->
-                        <form onsubmit="event.preventDefault(); window.app.handleEmailAuth();" class="space-y-3">
-                            <input type="email" id="auth-email" required placeholder="Email address" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                            <input type="password" id="auth-password" required placeholder="Password" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                            <button type="submit" id="btn-email-auth" class="w-full py-3.5 rounded-xl font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-md shadow-brand-200 transition-all">Login</button>
-                        </form>
-
-                        <div class="relative flex items-center py-2">
-                            <div class="flex-grow border-t border-gray-200"></div>
-                            <span class="flex-shrink-0 mx-4 text-gray-400 text-[10px] font-bold uppercase tracking-widest">OR</span>
-                            <div class="flex-grow border-t border-gray-200"></div>
-                        </div>
-
-                        <!-- Google Auth -->
-                        <button onclick="window.app.loginWithGoogle()" id="btn-google-login" class="w-full flex justify-center py-3.5 px-4 border-2 border-gray-100 rounded-xl shadow-sm text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 hover:border-brand-200 transition-all active:scale-95 items-center gap-3">
+                    <div class="space-y-4">
+                        <button onclick="window.app.loginWithGoogle()" id="btn-google-login" class="w-full flex justify-center py-4 px-4 border-2 border-gray-100 rounded-2xl shadow-sm text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 hover:border-brand-200 transition-all active:scale-95 items-center gap-3">
                             <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
                             Continue with Google
                         </button>
                         
-                        <p class="text-center text-[10px] text-gray-400 mt-4 leading-relaxed">
-                            By continuing, you agree to SabayBiyahe's Terms of Service.
+                        <p class="text-center text-[11px] text-gray-400 mt-6 px-4 leading-relaxed">
+                            By continuing, you agree to SabayBiyahe's Terms of Service and verify your identity via Google.
                         </p>
                     </div>
-
-                    <!-- Email Verification Notice -->
-                    <div id="view-verify-email" class="hidden text-center space-y-4 py-4">
-                        <div class="w-16 h-16 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                            <i data-lucide="mail-warning" class="w-8 h-8"></i>
-                        </div>
-                        <h3 class="font-bold text-xl text-gray-900">Verify your email</h3>
-                        <p class="text-sm text-gray-500 font-medium">We've sent a verification link to your email. Please verify your account to continue using the app.</p>
-                        
-                        <div class="pt-4 space-y-3">
-                            <button onclick="window.app.checkVerification()" class="w-full py-3.5 rounded-xl font-bold text-white bg-brand-600 shadow-md hover:bg-brand-700 transition-all">I've verified my email</button>
-                            <button onclick="window.app.resendVerification()" class="w-full py-3 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200">Resend Link</button>
-                        </div>
-                        <button onclick="window.app.logout()" class="text-xs text-red-500 underline font-bold mt-4 block mx-auto">Sign out</button>
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -562,7 +523,7 @@
                     </div>
                     
                     <div id="search-results-list" class="space-y-4 pb-10">
-                        <!-- Populated dynamically -->
+                        <!-- Populated by JS -->
                     </div>
                 </div>
             </div>
@@ -803,7 +764,7 @@
     <!-- Application Logic & Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithCustomToken, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, getDocs, setDoc, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -827,7 +788,6 @@
         window.app = {
             user: null,
             userRole: null,
-            authMode: 'login',
             allRides: [],
             allRequests: [],
             previousRequests: [],
@@ -884,12 +844,13 @@
                 onAuthStateChanged(auth, async (user) => {
                     if (user && !user.isAnonymous) {
                         this.user = user;
-                        this.routeUser(user);
+                        this.updateProfileUI(user);
+                        
+                        this.setupDatabaseListeners();
+                        this.setupPrivateListeners();
                     } else {
                         this.user = null;
                         this.userRole = null;
-                        document.getElementById('auth-forms').classList.remove('hidden');
-                        document.getElementById('view-verify-email').classList.add('hidden');
                         this.navigate('login');
                         document.getElementById('bottom-nav').classList.add('hidden');
                         this.setLoading(false);
@@ -900,107 +861,6 @@
                 now.setHours(now.getHours() + 1);
                 now.setMinutes(0);
                 document.getElementById('offer-time').value = now.toISOString().slice(0, 16);
-            },
-
-            // --- Authentication Logic ---
-
-            switchAuthTab(mode) {
-                this.authMode = mode;
-                document.getElementById('tab-login').className = mode === 'login' ? 'flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-gray-900 transition-all' : 'flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all';
-                document.getElementById('tab-signup').className = mode === 'signup' ? 'flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-gray-900 transition-all' : 'flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all';
-                document.getElementById('btn-email-auth').textContent = mode === 'login' ? 'Login' : 'Sign Up';
-            },
-
-            async handleEmailAuth() {
-                const email = document.getElementById('auth-email').value;
-                const password = document.getElementById('auth-password').value;
-                if(!email || !password) return this.showToast("Please enter email and password", "error");
-
-                this.setLoading(true, "Authenticating...");
-                try {
-                    if(this.authMode === 'login') {
-                        await signInWithEmailAndPassword(auth, email, password);
-                    } else {
-                        const cred = await createUserWithEmailAndPassword(auth, email, password);
-                        await sendEmailVerification(cred.user);
-                        this.showToast("Account created! Please check your email to verify.");
-                    }
-                } catch(e) {
-                    this.showToast(e.message.replace('Firebase:', '').trim(), "error");
-                }
-                this.setLoading(false);
-            },
-
-            async loginWithGoogle() {
-                const provider = new GoogleAuthProvider();
-                const btn = document.getElementById('btn-google-login');
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Verifying...';
-                btn.disabled = true;
-                lucide.createIcons();
-                try { 
-                    await signInWithPopup(auth, provider); 
-                } catch (error) {
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    this.showToast("Sign in failed. Use Chrome/Safari.", "error");
-                }
-            },
-
-            async resendVerification() {
-                if(this.user) {
-                    this.setLoading(true, "Sending email...");
-                    try {
-                        await sendEmailVerification(this.user);
-                        this.showToast("Verification email sent!");
-                    } catch (e) {
-                        this.showToast("Please wait before sending another request.", "error");
-                    }
-                    this.setLoading(false);
-                }
-            },
-
-            async checkVerification() {
-                if(this.user) {
-                    this.setLoading(true, "Checking status...");
-                    await this.user.reload();
-                    if(this.user.emailVerified) {
-                        this.showToast("Email verified!");
-                        this.routeUser(this.user);
-                    } else {
-                        this.showToast("Email not yet verified. Check your inbox or spam folder.", "error");
-                    }
-                    this.setLoading(false);
-                }
-            },
-
-            async logout() {
-                if(this.unsubRides) this.unsubRides();
-                if(this.unsubRequests) this.unsubRequests();
-                if(this.unsubMessages) this.unsubMessages();
-                if(this.unsubRatings) this.unsubRatings();
-                if(this.unsubProfile) this.unsubProfile();
-                await signOut(auth);
-            },
-
-            routeUser(user) {
-                // Require Email Verification before proceeding
-                if (!user.emailVerified) {
-                    document.getElementById('auth-forms').classList.add('hidden');
-                    document.getElementById('view-verify-email').classList.remove('hidden');
-                    this.navigate('login');
-                    document.getElementById('bottom-nav').classList.add('hidden');
-                    this.setLoading(false);
-                    return;
-                }
-
-                // Restore auth forms layout for next time
-                document.getElementById('auth-forms').classList.remove('hidden');
-                document.getElementById('view-verify-email').classList.add('hidden');
-
-                this.updateProfileUI(user);
-                this.setupDatabaseListeners();
-                this.setupPrivateListeners(); // This determines if role selection or dashboard is needed
             },
 
             async selectRole(role) {
@@ -1038,7 +898,7 @@
                 }
             },
 
-            // --- Geolocation & Search Logic ---
+            // Autocomplete Logic
             handleAutocomplete(event, suggestionsId) {
                 const query = event.target.value;
                 const container = document.getElementById(suggestionsId);
@@ -1074,6 +934,7 @@
                 input.value = fullName.split(',')[0];
                 document.getElementById(suggestionsId).classList.add('hidden');
                 
+                // Store temporary data on element
                 input.dataset.lat = lat;
                 input.dataset.lon = lon;
                 input.dataset.fullName = fullName;
@@ -1115,11 +976,11 @@
             },
 
             updateProfileUI(user) {
-                const name = user.displayName || user.email?.split('@')[0] || "Commuter";
+                const name = user.displayName ? user.displayName.split(' ')[0] : "Commuter";
                 document.getElementById('user-display-name').textContent = name;
                 
                 const profileNameLarge = document.getElementById('profile-name-large');
-                if(profileNameLarge) profileNameLarge.textContent = name;
+                if(profileNameLarge) profileNameLarge.textContent = user.displayName || "Commuter";
                 
                 if (user.photoURL) {
                     const imgHtml = `<img src="${user.photoURL}" class="w-full h-full object-cover" referrerpolicy="no-referrer">`;
@@ -1127,12 +988,9 @@
                     const largeAvatar = document.getElementById('profile-avatar-large');
                     if(largeAvatar) largeAvatar.innerHTML = imgHtml;
                 } else {
-                    const iconHtml = `<i data-lucide="user" class="w-10 h-10 text-white"></i>`;
-                    document.getElementById('dashboard-avatar').innerHTML = `<i data-lucide="user" class="w-6 h-6 text-white"></i>`;
                     const largeAvatar = document.getElementById('profile-avatar-large');
-                    if(largeAvatar) largeAvatar.innerHTML = iconHtml;
+                    if(largeAvatar) largeAvatar.innerHTML = `<i data-lucide="user" class="w-10 h-10 text-white"></i>`;
                 }
-                lucide.createIcons();
             },
 
             formatDate(timestampStr) {
@@ -1140,6 +998,28 @@
                     const date = new Date(timestampStr);
                     return new Intl.DateTimeFormat('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(date);
                 } catch(e) { return timestampStr; }
+            },
+
+            async loginWithGoogle() {
+                const provider = new GoogleAuthProvider();
+                const btn = document.getElementById('btn-google-login');
+                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Verifying...';
+                btn.disabled = true;
+                lucide.createIcons();
+                try { await signInWithPopup(auth, provider); } catch (error) {
+                    btn.innerHTML = `Continue with Google`;
+                    btn.disabled = false;
+                    this.showToast("Sign in failed. Use Chrome/Safari.", "error");
+                }
+            },
+
+            async logout() {
+                if(this.unsubRides) this.unsubRides();
+                if(this.unsubRequests) this.unsubRequests();
+                if(this.unsubMessages) this.unsubMessages();
+                if(this.unsubRatings) this.unsubRatings();
+                if(this.unsubProfile) this.unsubProfile();
+                await signOut(auth);
             },
 
             async getRouteInfo(originCoords, destCoords) {
@@ -1237,6 +1117,7 @@
                         }
                         this.setLoading(false);
                     } else {
+                        // Setup profile structure if it does not exist
                         this.navigate('role');
                         document.getElementById('bottom-nav').classList.add('hidden');
                         this.setLoading(false);
@@ -1398,7 +1279,7 @@
                     const ridesRef = collection(db, 'artifacts', appId, 'public', 'data', 'rides');
                     await addDoc(ridesRef, {
                         driverId: this.user.uid,
-                        driverName: this.user.displayName || this.user.email.split('@')[0] || "Commuter",
+                        driverName: this.user.displayName || "Commuter",
                         originName: originCoords.name,
                         destName: destCoords.name,
                         originCoords, destCoords,
@@ -1555,7 +1436,7 @@
                         rideId: this.selectedRide.id,
                         driverId: this.selectedRide.driverId,
                         passengerId: this.user.uid,
-                        passengerName: this.user.displayName || this.user.email?.split('@')[0] || "Commuter",
+                        passengerName: this.user.displayName || "Commuter",
                         status: 'pending',
                         timestamp: Date.now()
                     });
@@ -1748,7 +1629,7 @@
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), {
                         rideId: this.activeChatRideId,
                         senderId: this.user.uid,
-                        senderName: this.user.displayName || this.user.email?.split('@')[0] || "Commuter",
+                        senderName: this.user.displayName || "Commuter",
                         text, timestamp: Date.now()
                     });
                 } catch(e) { this.showToast("Message failed", "error"); }
