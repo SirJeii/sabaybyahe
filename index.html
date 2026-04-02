@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- PWA Setup -->
+    <!-- Setup ng PWA -->
     <meta name="theme-color" content="#16a34a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,7 +19,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Leaflet Maps CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -28,7 +28,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'] },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
                         brand: {
                             50: '#f0fdf4',
@@ -42,10 +42,6 @@
                             800: '#166534',
                             900: '#14532d',
                         }
-                    },
-                    boxShadow: {
-                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                        'premium': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
                     }
                 }
             }
@@ -53,8 +49,8 @@
     </script>
     <style>
         body {
-            background-color: #f1f5f9;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
             display: flex;
             justify-content: center;
@@ -72,16 +68,17 @@
             background-color: #ffffff;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             display: flex;
             flex-direction: column;
         }
         
         @media (min-width: 420px) {
             #app-container {
-                height: 850px;
-                border-radius: 48px;
-                border: 12px solid #1e293b;
-                box-shadow: 0 40px 60px -20px rgba(0, 0, 0, 0.3);
+                height: 90vh;
+                max-height: 896px;
+                border-radius: 40px;
+                border: 8px solid #1f2937;
             }
         }
         
@@ -93,19 +90,18 @@
             position: absolute;
             top: 0;
             left: 0;
-            bottom: 80px;
-            background: #fdfdfd;
-            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            bottom: 70px; /* Espasyo para sa bottom nav */
+            background: #f9fafb;
+            animation: fadeIn 0.2s ease-out;
             padding-bottom: env(safe-area-inset-bottom);
         }
         
         .view.active {
-            display: flex;
-            flex-direction: column;
+            display: block;
             z-index: 10;
         }
 
-        #view-login.active, #view-role.active {
+        #view-login.active {
             bottom: 0;
             z-index: 60;
         }
@@ -120,8 +116,8 @@
             display: flex;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -131,9 +127,9 @@
         #loading-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            z-index: 200;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            z-index: 100;
             display: none;
             justify-content: center;
             align-items: center;
@@ -141,153 +137,122 @@
         }
         #loading-overlay.active { display: flex; }
 
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        #toast-container {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: 90%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
         }
-
-        .suggestion-item {
-            padding: 14px 18px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        .toast {
+            background: white;
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, fadeOut 0.3s ease-in 3s forwards;
         }
-        .suggestion-item:hover { background: #f0fdf4; color: #16a34a; }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
         
-        .star-rating { color: #e2e8f0; cursor: pointer; transition: transform 0.2s ease; }
-        .star-rating:active { transform: scale(1.2); }
+        .leaflet-control-attribution { display: none !important; }
+        
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            background: transparent;
+            bottom: 0;
+            color: transparent;
+            cursor: pointer;
+            height: auto;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: auto;
+        }
+
+        /* Estilo para sa Autocomplete */
+        .suggestions-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            margin-top: 4px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+        }
+        .suggestion-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .suggestion-item:last-child { border-bottom: none; }
+        .suggestion-item:hover { background: #f9fafb; }
+        
+        /* Bituin para sa Rating */
+        .star-rating { color: #d1d5db; cursor: pointer; transition: color 0.2s; }
         .star-rating.active { color: #f59e0b; fill: #f59e0b; }
-
-        /* Custom Input Styling */
-        .form-input {
-            transition: all 0.3s ease;
-            border: 1.5px solid #e2e8f0;
-        }
-        .form-input:focus {
-            border-color: #22c55e;
-            background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
-        }
-
-        .action-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .action-card:active { transform: scale(0.96); }
     </style>
 </head>
-<body class="antialiased text-slate-900">
+<body class="antialiased text-gray-800">
 
     <div id="app-container">
         
         <!-- Global Loading Overlay -->
         <div id="loading-overlay">
-            <div class="relative w-20 h-20 mb-6">
+            <div class="relative w-16 h-16 mb-4">
                 <div class="absolute inset-0 border-4 border-brand-100 rounded-full"></div>
                 <div class="absolute inset-0 border-4 border-brand-600 rounded-full border-t-transparent animate-spin"></div>
-                <i data-lucide="car" class="absolute inset-0 m-auto w-8 h-8 text-brand-600 animate-pulse"></i>
+                <i data-lucide="car" class="absolute inset-0 m-auto w-6 h-6 text-brand-600 animate-pulse"></i>
             </div>
-            <p class="text-sm font-semibold text-slate-600 tracking-wide" id="loading-text">Optimizing experience...</p>
+            <p class="text-sm font-bold text-gray-800 tracking-wide" id="loading-text">Sinisimulan ang SabayBiyahe...</p>
         </div>
 
         <!-- Toast Container -->
         <div id="toast-container"></div>
 
         <!-- ==========================================
-             VIEW: LOGIN & SIGNUP
+             VIEW: LOGIN
         =========================================== -->
         <div id="view-login" class="view bg-white active">
-            <div class="h-full flex flex-col px-8 py-12 bg-gradient-to-br from-brand-50 to-white overflow-y-auto hide-scrollbar">
-                
-                <div class="text-center mb-10 mt-6">
-                    <div class="mx-auto w-20 h-20 bg-brand-600 rounded-[28px] flex items-center justify-center shadow-premium transform -rotate-6 mb-6">
-                        <i data-lucide="car-front" class="w-10 h-10 text-white"></i>
+            <div class="h-full flex flex-col justify-center px-8 py-12 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-gray-50">
+                <div class="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-white">
+                    <div class="text-center mb-10">
+                        <div class="mx-auto w-20 h-20 bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl flex items-center justify-center shadow-lg shadow-brand-200 mb-6 transform -rotate-3">
+                            <i data-lucide="car-front" class="w-10 h-10 text-white"></i>
+                        </div>
+                        <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 mb-2">SabayBiyahe</h1>
+                        <p class="text-gray-500 text-sm font-medium">Maki-ride. I-save ang kalikasan.</p>
                     </div>
-                    <h1 class="text-4xl font-black tracking-tight text-slate-900 mb-2">SabayBiyahe</h1>
-                    <p class="text-slate-500 font-medium">Eco-friendly micro-carpooling</p>
-                </div>
 
-                <div class="space-y-6">
-                    <!-- Auth Forms Card -->
-                    <div class="bg-white p-2 rounded-[32px] shadow-premium border border-slate-100">
-                        <div class="flex p-1 mb-4">
-                            <button id="tab-login" onclick="window.app.switchAuthTab('login')" class="flex-1 py-3 text-sm font-bold rounded-2xl bg-slate-900 text-white shadow-lg transition-all">Login</button>
-                            <button id="tab-signup" onclick="window.app.switchAuthTab('signup')" class="flex-1 py-3 text-sm font-bold rounded-2xl text-slate-500 hover:bg-slate-50 transition-all">Sign Up</button>
-                        </div>
-
-                        <div id="auth-forms" class="px-4 pb-6 space-y-4">
-                            <form onsubmit="event.preventDefault(); window.app.handleEmailAuth();" class="space-y-4">
-                                <div class="space-y-1">
-                                    <label class="text-[11px] font-bold text-slate-400 uppercase ml-1">Email</label>
-                                    <input type="email" id="auth-email" required placeholder="name@email.com" class="w-full bg-slate-50 form-input rounded-2xl py-3.5 px-4 text-sm font-semibold outline-none">
-                                </div>
-                                <div class="space-y-1">
-                                    <label class="text-[11px] font-bold text-slate-400 uppercase ml-1">Password</label>
-                                    <input type="password" id="auth-password" required placeholder="••••••••" class="w-full bg-slate-50 form-input rounded-2xl py-3.5 px-4 text-sm font-semibold outline-none">
-                                </div>
-                                <button type="submit" id="btn-email-auth" class="w-full py-4 rounded-2xl font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-xl shadow-brand-100 transition-all active:scale-95 mt-2">Login to Account</button>
-                            </form>
-
-                            <div class="relative flex items-center py-4">
-                                <div class="flex-grow border-t border-slate-100"></div>
-                                <span class="flex-shrink-0 mx-4 text-slate-300 text-[10px] font-black uppercase tracking-widest">Connect with</span>
-                                <div class="flex-grow border-t border-slate-100"></div>
-                            </div>
-
-                            <button onclick="window.app.loginWithGoogle()" id="btn-google-login" class="w-full flex justify-center py-4 px-4 border-2 border-slate-100 rounded-2xl shadow-sm text-sm font-bold text-slate-700 bg-white hover:border-brand-200 transition-all active:scale-95 items-center gap-3">
-                                <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                                Google
-                            </button>
-                        </div>
-
-                        <!-- Email Verification View -->
-                        <div id="view-verify-email" class="hidden text-center space-y-6 py-10 px-6">
-                            <div class="w-20 h-20 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-2 animate-bounce">
-                                <i data-lucide="mail" class="w-10 h-10"></i>
-                            </div>
-                            <h3 class="font-black text-2xl text-slate-900">Verify your email</h3>
-                            <p class="text-sm text-slate-500 leading-relaxed font-medium">Check your inbox for a verification link. We need to know it's really you.</p>
-                            
-                            <div class="space-y-3">
-                                <button onclick="window.app.checkVerification()" class="w-full py-4 rounded-2xl font-bold text-white bg-brand-600 shadow-xl shadow-brand-100">Verified? Tap here</button>
-                                <button onclick="window.app.resendVerification()" class="w-full py-4 rounded-2xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200">Resend Link</button>
-                            </div>
-                            <button onclick="window.app.logout()" class="text-sm text-slate-400 font-bold hover:text-red-500">Sign out and try again</button>
-                        </div>
+                    <div class="space-y-4">
+                        <button onclick="window.app.loginWithGoogle()" id="btn-google-login" class="w-full flex justify-center py-4 px-4 border-2 border-gray-100 rounded-2xl shadow-sm text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 hover:border-brand-200 transition-all active:scale-95 items-center gap-3">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                            Magpatuloy gamit ang Google
+                        </button>
+                        
+                        <p class="text-center text-[11px] text-gray-400 mt-6 px-4 leading-relaxed">
+                            Sa pagpapatuloy, sumasang-ayon ka sa mga Tuntunin ng Serbisyo ng SabayBiyahe at sa pag-verify ng iyong identity gamit ang Google.
+                        </p>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ==========================================
-             VIEW: ROLE SELECTION
-        =========================================== -->
-        <div id="view-role" class="view bg-white">
-            <div class="h-full flex flex-col justify-center px-10 py-12 bg-slate-50">
-                <div class="text-center mb-10">
-                    <h2 class="text-3xl font-black text-slate-900 mb-2">Identify Yourself</h2>
-                    <p class="text-sm text-slate-500 font-medium">Customize your SabayBiyahe experience</p>
-                </div>
-                
-                <div class="space-y-6">
-                    <button onclick="window.app.selectRole('passenger')" class="w-full p-6 text-left border-2 border-brand-100 text-brand-700 rounded-[32px] shadow-soft bg-white hover:border-brand-500 transition-all flex items-center gap-6 active:scale-95 group">
-                        <div class="w-16 h-16 rounded-2xl bg-brand-50 flex items-center justify-center group-hover:bg-brand-600 group-hover:text-white transition-colors">
-                            <i data-lucide="user" class="w-8 h-8"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-xl font-bold">Passenger</h4>
-                            <p class="text-xs text-slate-500 font-medium">I'm looking for rides to share</p>
-                        </div>
-                    </button>
-                    
-                    <button onclick="window.app.selectRole('driver')" class="w-full p-6 text-left border-2 border-blue-100 text-blue-700 rounded-[32px] shadow-soft bg-white hover:border-blue-500 transition-all flex items-center gap-6 active:scale-95 group">
-                        <div class="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                            <i data-lucide="steering-wheel" class="w-8 h-8"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-xl font-bold">Driver</h4>
-                            <p class="text-xs text-slate-500 font-medium">I want to offer empty seats</p>
-                        </div>
-                    </button>
                 </div>
             </div>
         </div>
@@ -297,84 +262,95 @@
         =========================================== -->
         <div id="view-dashboard" class="view">
             <!-- Header -->
-            <div class="bg-slate-900 text-white pt-14 pb-28 px-8 rounded-b-[48px] shadow-2xl relative overflow-hidden">
-                <!-- Abstract BG patterns -->
-                <div class="absolute top-0 right-0 w-40 h-40 bg-brand-600/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                
-                <div class="flex justify-between items-center relative z-10">
+            <div class="bg-gradient-to-b from-brand-700 to-brand-600 text-white pt-10 pb-24 px-6 rounded-b-[40px] shadow-lg relative">
+                <div class="flex justify-between items-center mb-8">
                     <div>
-                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Current Dashboard</p>
-                        <h2 class="text-2xl font-black flex items-center gap-2">
+                        <p class="text-brand-100 text-xs font-medium uppercase tracking-wider mb-1" id="greeting-text">Maligayang pagbabalik,</p>
+                        <h2 class="text-2xl font-bold flex items-center gap-2">
                             <span id="user-display-name">Commuter</span>
-                            <div class="w-5 h-5 bg-brand-500 rounded-full flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-white"></i></div>
+                            <i data-lucide="badge-check" class="w-5 h-5 text-blue-400 fill-white"></i>
                         </h2>
                     </div>
-                    <button onclick="window.app.navigate('profile')" class="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 p-1 active:scale-90 transition-all">
-                        <div id="dashboard-avatar" class="w-full h-full rounded-xl bg-slate-800 flex items-center justify-center overflow-hidden">
+                    <button onclick="window.app.navigate('profile')" class="w-12 h-12 rounded-full bg-white/20 border-2 border-white/50 overflow-hidden backdrop-blur-sm shadow-inner active:scale-95 transition-transform">
+                        <div id="dashboard-avatar" class="w-full h-full flex items-center justify-center bg-brand-800">
                             <i data-lucide="user" class="w-6 h-6 text-white"></i>
                         </div>
                     </button>
                 </div>
 
-                <!-- Impact Cards -->
-                <div class="absolute -bottom-14 left-8 right-8 flex gap-4 relative z-20">
-                    <div class="flex-1 bg-white rounded-3xl p-5 shadow-premium border border-slate-50">
-                        <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-3">
-                            <i data-lucide="droplet" class="w-4 h-4"></i>
+                <!-- Live Data Cards -->
+                <div class="absolute -bottom-12 left-6 right-6 flex gap-4">
+                    <div class="flex-1 bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-blue-50 rounded-full z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-2 text-blue-600 mb-2">
+                                <i data-lucide="droplet" class="w-4 h-4 fill-blue-100"></i>
+                                <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Presyo ng Gas</p>
+                            </div>
+                            <p class="text-2xl font-black text-gray-900" id="dash-fuel-price">₱64.20</p>
+                            <p class="text-[10px] text-gray-400 mt-1">kada Litro</p>
                         </div>
-                        <p class="text-2xl font-black text-slate-900" id="dash-fuel-price">₱64.20</p>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Fuel Price</p>
                     </div>
-                    <div class="flex-1 bg-white rounded-3xl p-5 shadow-premium border border-slate-50">
-                        <div class="w-8 h-8 bg-brand-50 text-brand-600 rounded-xl flex items-center justify-center mb-3">
-                            <i data-lucide="leaf" class="w-4 h-4"></i>
+                    <div class="flex-1 bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-brand-50 rounded-full z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-2 text-brand-600 mb-2">
+                                <i data-lucide="leaf" class="w-4 h-4 fill-brand-100"></i>
+                                <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Naiwasang CO2</p>
+                            </div>
+                            <p class="text-2xl font-black text-gray-900" id="dash-co2">12.4<span class="text-sm font-bold text-gray-500">kg</span></p>
+                            <p class="text-[10px] text-gray-400 mt-1">Kabuuan ng Komunidad</p>
                         </div>
-                        <p class="text-2xl font-black text-slate-900" id="dash-co2">12.4<span class="text-sm text-slate-400">kg</span></p>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CO2 Saved</p>
                     </div>
                 </div>
             </div>
 
-            <div class="px-8 mt-24 pb-8 space-y-8">
-                <!-- Actions -->
-                <div class="space-y-4">
-                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Main Actions</h3>
-                    <div class="grid gap-4">
-                        <button id="dash-action-find" onclick="window.app.navigate('find')" class="action-card w-full bg-slate-900 p-5 rounded-[28px] shadow-premium flex items-center justify-between group">
-                            <div class="flex items-center gap-5">
-                                <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-white">
-                                    <i data-lucide="search" class="w-6 h-6"></i>
+            <div class="px-6 mt-20 pb-8 space-y-6">
+                <!-- Primary Actions -->
+                <div>
+                    <h3 class="text-sm font-bold text-gray-900 mb-3">Saan tayo pupunta?</h3>
+                    <div class="grid gap-3">
+                        <button onclick="window.app.navigate('find')" class="w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center text-white shadow-md">
+                                    <i data-lucide="search" class="w-5 h-5"></i>
                                 </div>
                                 <div class="text-left">
-                                    <h4 class="text-lg font-bold text-white">Find a Ride</h4>
-                                    <p class="text-xs text-slate-400 font-medium">Join a pool today</p>
+                                    <h4 class="text-base font-bold text-gray-900">Maghanap ng Sakay</h4>
+                                    <p class="text-xs text-gray-500 font-medium mt-0.5">Sumabay sa driver na papunta sa ruta mo</p>
                                 </div>
                             </div>
-                            <i data-lucide="arrow-right" class="w-5 h-5 text-slate-600 group-hover:translate-x-1 transition-transform"></i>
+                            <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </div>
                         </button>
 
-                        <button id="dash-action-offer" onclick="window.app.navigate('offer')" class="action-card w-full bg-brand-600 p-5 rounded-[28px] shadow-premium flex items-center justify-between group">
-                            <div class="flex items-center gap-5">
-                                <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center text-white">
-                                    <i data-lucide="steering-wheel" class="w-6 h-6"></i>
+                        <button onclick="window.app.navigate('offer')" class="w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-brand-500 rounded-xl flex items-center justify-center text-white shadow-md shadow-brand-200">
+                                    <i data-lucide="steering-wheel" class="w-5 h-5"></i>
                                 </div>
                                 <div class="text-left">
-                                    <h4 class="text-lg font-bold text-white">Offer a Ride</h4>
-                                    <p class="text-xs text-brand-100 font-medium">Earn and save CO2</p>
+                                    <h4 class="text-base font-bold text-gray-900">Mag-alok ng Sakay</h4>
+                                    <p class="text-xs text-gray-500 font-medium mt-0.5">I-share ang upuan, hatiin ang gastos sa gas</p>
                                 </div>
                             </div>
-                            <i data-lucide="arrow-right" class="w-5 h-5 text-white group-hover:translate-x-1 transition-transform"></i>
+                            <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </div>
                         </button>
                     </div>
                 </div>
 
-                <!-- Active Rides -->
+                <!-- Recent Activity Preview -->
                 <div id="dashboard-recent-activity" class="hidden">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Live Updates</h3>
-                        <button onclick="window.app.navigate('activity')" class="text-[10px] font-black text-brand-600 uppercase">View History</button>
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-sm font-bold text-gray-900">Mga Aktibong Biyahe</h3>
+                        <button onclick="window.app.navigate('activity')" class="text-xs font-bold text-brand-600">Tingnan Lahat</button>
                     </div>
-                    <div id="dash-activity-list" class="space-y-4"></div>
+                    <div id="dash-activity-list" class="space-y-3">
+                        <!-- Pinu-populate ng JS -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -383,61 +359,90 @@
              VIEW: OFFER RIDE
         =========================================== -->
         <div id="view-offer" class="view">
-            <div class="bg-white pt-12 pb-4 px-8 sticky top-0 z-20 border-b border-slate-50 flex items-center gap-4">
-                <button onclick="window.app.navigate('dashboard')" class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
-                <h2 class="text-2xl font-black text-slate-900">Offer Ride</h2>
+            <div class="bg-white pt-10 pb-4 px-6 sticky top-0 z-20 border-b border-gray-100 flex items-center justify-between shadow-sm">
+                <div class="flex items-center gap-3">
+                    <button onclick="window.app.navigate('dashboard')" class="w-10 h-10 flex items-center justify-center -ml-2 text-gray-900 hover:bg-gray-100 rounded-full active:scale-90 transition-all">
+                        <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                    </button>
+                    <h2 class="text-xl font-bold text-gray-900">Mag-alok ng Sakay</h2>
+                </div>
             </div>
 
-            <div class="p-8">
-                <form id="form-offer" onsubmit="event.preventDefault(); window.app.submitOffer();" class="space-y-6">
-                    <div class="bg-white rounded-[32px] p-6 shadow-premium border border-slate-50 relative">
-                        <div class="absolute left-10 top-16 bottom-16 w-0.5 bg-slate-100 rounded-full"></div>
-                        <div class="space-y-8 relative">
+            <div class="p-6">
+                <form id="form-offer" onsubmit="event.preventDefault(); window.app.submitOffer();" class="space-y-5">
+                    
+                    <!-- Route Block -->
+                    <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 relative">
+                        <div class="absolute left-8 top-12 bottom-12 w-0.5 bg-gray-200 rounded-full"></div>
+                        
+                        <div class="space-y-5 relative">
                             <div class="relative">
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-10 mb-2 block">Starting Location</label>
-                                <div class="flex items-center gap-4">
-                                    <div class="w-4 h-4 rounded-full border-[3px] border-brand-500 bg-white z-10 shrink-0"></div>
-                                    <input type="text" id="offer-origin" required autocomplete="off" oninput="window.app.handleAutocomplete(event, 'offer-origin-suggestions')" class="w-full bg-slate-50 form-input rounded-2xl py-3 px-4 text-sm font-bold outline-none" placeholder="Search pick-up...">
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 ml-7">Panggagalingan</label>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-4 h-4 rounded-full border-4 border-brand-500 bg-white z-10 flex-shrink-0 mt-2"></div>
+                                    <div class="flex-1 relative">
+                                        <input type="text" id="offer-origin" required autocomplete="off" oninput="window.app.handleAutocomplete(event, 'offer-origin-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all pr-10" placeholder="Halimbawa: SM Megamall">
+                                        <i data-lucide="map-pin" class="absolute right-3 top-3.5 w-4 h-4 text-gray-400"></i>
+                                    </div>
                                 </div>
                                 <div id="offer-origin-suggestions" class="suggestions-list hidden"></div>
                             </div>
+                            
                             <div class="relative">
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-10 mb-2 block">Destination</label>
-                                <div class="flex items-center gap-4">
-                                    <div class="w-4 h-4 rounded-full bg-slate-900 border-[3px] border-white ring-2 ring-slate-900 z-10 shrink-0"></div>
-                                    <input type="text" id="offer-dest" required autocomplete="off" oninput="window.app.handleAutocomplete(event, 'offer-dest-suggestions')" class="w-full bg-slate-50 form-input rounded-2xl py-3 px-4 text-sm font-bold outline-none" placeholder="Where to?">
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 ml-7">Patutunguhan</label>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-4 h-4 rounded-full bg-gray-900 border-2 border-white shadow-sm z-10 flex-shrink-0 mt-2"></div>
+                                    <div class="flex-1 relative">
+                                        <input type="text" id="offer-dest" required autocomplete="off" oninput="window.app.handleAutocomplete(event, 'offer-dest-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all pr-10" placeholder="Halimbawa: UP Diliman">
+                                        <i data-lucide="flag" class="absolute right-3 top-3.5 w-4 h-4 text-gray-400"></i>
+                                    </div>
                                 </div>
                                 <div id="offer-dest-suggestions" class="suggestions-list hidden"></div>
                             </div>
                         </div>
-                        <div class="mt-8 pt-6 border-t border-slate-50 flex gap-2">
-                            <button type="button" onclick="window.app.useSavedPlace('offer-origin', 'home')" class="px-4 py-2 text-[10px] font-bold text-slate-500 bg-slate-50 rounded-xl flex items-center gap-2 hover:bg-brand-50 hover:text-brand-600 transition-colors"><i data-lucide="home" class="w-3 h-3"></i> Bahay</button>
-                            <button type="button" onclick="window.app.useSavedPlace('offer-dest', 'work')" class="px-4 py-2 text-[10px] font-bold text-slate-500 bg-slate-50 rounded-xl flex items-center gap-2 hover:bg-brand-50 hover:text-brand-600 transition-colors"><i data-lucide="briefcase" class="w-3 h-3"></i> Work</button>
+                        <div class="mt-4 pt-4 border-t border-gray-100 flex gap-3">
+                            <button type="button" onclick="window.app.useSavedPlace('offer-origin', 'home')" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 flex items-center gap-1"><i data-lucide="home" class="w-3 h-3"></i> Bahay</button>
+                            <button type="button" onclick="window.app.useSavedPlace('offer-dest', 'work')" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 flex items-center gap-1"><i data-lucide="briefcase" class="w-3 h-3"></i> Trabaho</button>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-4">
-                        <div class="bg-white rounded-3xl p-5 shadow-premium border border-slate-50">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3">Time & Seats</label>
-                            <div class="space-y-4">
-                                <div class="relative">
-                                    <input type="datetime-local" id="offer-time" required class="w-full bg-slate-50 form-input rounded-2xl py-3 px-4 text-sm font-bold outline-none appearance-none">
-                                    <i data-lucide="calendar" class="absolute right-4 top-3.5 w-4 h-4 text-slate-400 pointer-events-none"></i>
-                                </div>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <select id="offer-seats" class="bg-slate-50 form-input rounded-2xl py-3 px-4 text-sm font-bold outline-none">
-                                        <option value="1">1 Seat</option>
-                                        <option value="2">2 Seats</option>
-                                        <option value="3" selected>3 Seats</option>
-                                        <option value="4">4 Seats</option>
-                                    </select>
-                                    <input type="text" id="offer-car" required class="bg-slate-50 form-input rounded-2xl py-3 px-4 text-sm font-bold outline-none" placeholder="Car model">
-                                </div>
+                    <!-- Details Block -->
+                    <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Araw at Oras ng Pag-alis</label>
+                            <div class="relative">
+                                <input type="datetime-local" id="offer-time" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all appearance-none">
+                                <i data-lucide="calendar" class="absolute right-4 top-3.5 w-5 h-5 text-gray-400 pointer-events-none"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Bakanteng Upuan</label>
+                                <select id="offer-seats" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 transition-all">
+                                    <option value="1">1 Upuan</option>
+                                    <option value="2">2 Upuan</option>
+                                    <option value="3" selected>3 Upuan</option>
+                                    <option value="4">4 Upuan</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Modelo ng Sasakyan</label>
+                                <input type="text" id="offer-car" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 transition-all" placeholder="Halimbawa: Vios '22">
                             </div>
                         </div>
                     </div>
 
-                    <button type="submit" id="btn-submit-offer" class="w-full py-5 rounded-[24px] font-black text-white bg-slate-900 shadow-premium active:scale-95 transition-all">POST TRIP</button>
+                    <div class="bg-brand-50/50 p-4 rounded-2xl border border-brand-100/50 flex gap-3 items-start">
+                        <i data-lucide="info" class="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5"></i>
+                        <p class="text-xs text-brand-800 leading-relaxed font-medium">
+                            Kasama sa kalkulasyon ang standard na ₱50 komisyon bilang tulong sa iyong maintenance at paggamit ng platform.
+                        </p>
+                    </div>
+
+                    <button type="submit" id="btn-submit-offer" class="w-full py-4 rounded-2xl shadow-[0_8px_20px_rgba(22,163,74,0.3)] text-base font-bold text-white bg-brand-600 hover:bg-brand-700 active:scale-95 transition-all flex justify-center items-center gap-2 mt-4">
+                        Kalkulahin at I-post ang Biyahe
+                    </button>
                 </form>
             </div>
         </div>
@@ -446,32 +451,56 @@
              VIEW: FIND RIDE
         =========================================== -->
         <div id="view-find" class="view">
-            <div class="bg-white pt-12 pb-4 px-8 sticky top-0 z-20 border-b border-slate-50 flex items-center gap-4">
-                <button onclick="window.app.navigate('dashboard')" class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
-                <h2 class="text-2xl font-black text-slate-900">Search</h2>
+            <div class="bg-white pt-10 pb-4 px-6 sticky top-0 z-20 border-b border-gray-100 flex items-center justify-between shadow-sm">
+                <div class="flex items-center gap-3">
+                    <button onclick="window.app.navigate('dashboard')" class="w-10 h-10 flex items-center justify-center -ml-2 text-gray-900 hover:bg-gray-100 rounded-full active:scale-90 transition-all">
+                        <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                    </button>
+                    <h2 class="text-xl font-bold text-gray-900">Maghanap ng Sakay</h2>
+                </div>
             </div>
 
-            <div class="p-8">
-                <div class="bg-slate-900 rounded-[32px] p-6 shadow-premium mb-8">
-                    <div class="space-y-4">
+            <div class="p-6">
+                <!-- Search Box -->
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 mb-6 relative">
+                    <div class="absolute left-8 top-12 bottom-12 w-0.5 bg-gray-200 rounded-full"></div>
+                    
+                    <div class="space-y-4 relative">
                         <div class="relative">
-                            <input type="text" id="find-origin" autocomplete="off" oninput="window.app.handleAutocomplete(event, 'find-origin-suggestions')" class="w-full bg-white/10 border border-white/10 rounded-2xl py-3.5 px-5 text-sm font-bold text-white outline-none placeholder-slate-500" placeholder="Origin...">
+                            <div class="flex items-center gap-3">
+                                <div class="w-4 h-4 rounded-full border-4 border-brand-500 bg-white z-10 flex-shrink-0"></div>
+                                <input type="text" id="find-origin" autocomplete="off" oninput="window.app.handleAutocomplete(event, 'find-origin-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500" placeholder="Panggagalingan...">
+                            </div>
                             <div id="find-origin-suggestions" class="suggestions-list hidden"></div>
                         </div>
                         <div class="relative">
-                            <input type="text" id="find-dest" autocomplete="off" oninput="window.app.handleAutocomplete(event, 'find-dest-suggestions')" class="w-full bg-white/10 border border-white/10 rounded-2xl py-3.5 px-5 text-sm font-bold text-white outline-none placeholder-slate-500" placeholder="Destination...">
+                            <div class="flex items-center gap-3">
+                                <div class="w-4 h-4 rounded-full bg-gray-900 border-2 border-white shadow-sm z-10 flex-shrink-0"></div>
+                                <input type="text" id="find-dest" autocomplete="off" oninput="window.app.handleAutocomplete(event, 'find-dest-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500" placeholder="Patutunguhan...">
+                            </div>
                             <div id="find-dest-suggestions" class="suggestions-list hidden"></div>
                         </div>
                     </div>
-                    <button onclick="window.app.searchRides()" id="btn-search-rides" class="w-full mt-6 py-4 rounded-2xl font-black text-slate-900 bg-brand-400 hover:bg-brand-500 shadow-xl transition-all active:scale-95">SEARCH ROUTES</button>
+                    <div class="mt-3 flex gap-3">
+                        <button type="button" onclick="window.app.useSavedPlace('find-origin', 'home')" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 flex items-center gap-1"><i data-lucide="home" class="w-3 h-3"></i> Bahay</button>
+                        <button type="button" onclick="window.app.useSavedPlace('find-dest', 'work')" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 flex items-center gap-1"><i data-lucide="briefcase" class="w-3 h-3"></i> Trabaho</button>
+                    </div>
+                    
+                    <button onclick="window.app.searchRides()" id="btn-search-rides" class="w-full mt-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gray-900 hover:bg-black active:scale-95 transition-all flex justify-center items-center gap-2">
+                        <i data-lucide="search" class="w-4 h-4"></i> Maghanap ng Ruta
+                    </button>
                 </div>
 
+                <!-- Results -->
                 <div id="search-results-container">
-                    <div class="flex justify-between items-center mb-6 px-1">
-                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Available Pools</h3>
-                        <span class="text-[10px] font-black text-brand-600 bg-brand-50 px-3 py-1 rounded-full uppercase" id="search-count">Live</span>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold text-gray-900" id="search-title">Mga Available na Sakay</h3>
+                        <span class="text-[10px] font-bold text-brand-600 bg-brand-50 px-2 py-1 rounded-md" id="search-count">Live</span>
                     </div>
-                    <div id="search-results-list" class="space-y-6 pb-12"></div>
+                    
+                    <div id="search-results-list" class="space-y-4 pb-10">
+                        <!-- Pinu-populate ng JS -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -479,80 +508,78 @@
         <!-- ==========================================
              VIEW: RIDE DETAILS
         =========================================== -->
-        <div id="view-details" class="view bg-slate-50">
-            <div id="detail-map" class="h-64 w-full bg-slate-200 relative z-0"></div>
+        <div id="view-details" class="view bg-gray-50">
+            <!-- Map Container -->
+            <div id="detail-map" class="h-56 w-full bg-gray-200 relative z-0"></div>
             
-            <button onclick="window.app.navigate('find')" class="absolute top-14 left-6 w-12 h-12 bg-white/90 backdrop-blur-md rounded-2xl shadow-premium text-slate-900 flex items-center justify-center active:scale-90 transition-all z-20">
-                <i data-lucide="chevron-left" class="w-8 h-8"></i>
+            <button onclick="window.app.navigate('find')" class="absolute top-12 left-4 w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-lg text-gray-900 flex items-center justify-center active:scale-90 transition-transform z-20">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
             </button>
 
-            <div class="relative -mt-10 bg-white rounded-t-[48px] px-8 pt-10 pb-12 shadow-[0_-20px_50px_rgba(0,0,0,0.1)] z-10 min-h-[50vh]">
-                <div class="flex justify-between items-start mb-8">
+            <div class="relative -mt-6 bg-white rounded-t-[32px] px-6 pt-8 pb-10 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-10 min-h-[50vh]">
+                
+                <div class="flex justify-between items-start mb-6">
                     <div class="flex-1 pr-4">
-                        <h2 id="detail-route" class="text-2xl font-black text-slate-900 leading-tight mb-2">Route Details</h2>
-                        <div class="flex flex-wrap gap-2 items-center">
-                            <p id="detail-time" class="text-xs font-bold text-slate-500 flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl">
-                                <i data-lucide="clock" class="w-3.5 h-3.5"></i> <span>00:00</span>
-                            </p>
-                            <span id="detail-surge-badge" class="hidden text-[9px] font-black bg-orange-100 text-orange-600 px-3 py-1.5 rounded-xl uppercase tracking-wider">⚡ Surge Price</span>
-                        </div>
+                        <h2 id="detail-route" class="text-xl font-black text-gray-900 leading-tight mb-2">Ruta</h2>
+                        <p id="detail-time" class="text-sm font-medium text-brand-600 flex items-center gap-1.5 bg-brand-50 inline-flex px-2.5 py-1 rounded-lg">
+                            <i data-lucide="clock" class="w-4 h-4"></i> <span>Oras</span>
+                        </p>
                     </div>
                     <div class="flex flex-col items-center">
-                        <div class="w-16 h-16 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-xl shadow-premium" id="detail-avatar"></div>
-                        <p id="detail-driver" class="text-[10px] font-black mt-2 text-slate-400 uppercase tracking-widest"></p>
+                        <div class="w-14 h-14 rounded-full border-2 border-brand-100 bg-brand-50 text-brand-700 flex items-center justify-center font-bold text-lg shadow-sm" id="detail-avatar"></div>
+                        <p id="detail-driver" class="text-[10px] font-bold mt-1.5 text-gray-700 max-w-[60px] truncate text-center"></p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-3 mb-10">
-                    <div class="bg-slate-50 p-4 rounded-[24px] text-center">
-                        <i data-lucide="car" class="w-5 h-5 text-slate-400 mx-auto mb-2"></i>
-                        <p id="detail-car" class="text-[10px] font-black text-slate-900 uppercase truncate">---</p>
+                <div class="flex gap-2 mb-6 overflow-x-auto hide-scrollbar pb-1">
+                    <div class="bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 flex items-center gap-2 flex-shrink-0">
+                        <i data-lucide="car" class="w-4 h-4 text-gray-500"></i>
+                        <span id="detail-car" class="text-xs font-semibold text-gray-700">Kotse</span>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-[24px] text-center">
-                        <i data-lucide="users" class="w-5 h-5 text-slate-400 mx-auto mb-2"></i>
-                        <p id="detail-seats" class="text-[10px] font-black text-slate-900 uppercase">---</p>
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl px-3 py-2 flex items-center gap-2 flex-shrink-0">
+                        <i data-lucide="users" class="w-4 h-4 text-blue-500"></i>
+                        <span id="detail-seats" class="text-xs font-semibold text-blue-700">Upuan</span>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-[24px] text-center">
-                        <i data-lucide="route" class="w-5 h-5 text-slate-400 mx-auto mb-2"></i>
-                        <p id="detail-distance" class="text-[10px] font-black text-slate-900 uppercase">---</p>
+                    <div class="bg-orange-50 border border-orange-100 rounded-xl px-3 py-2 flex items-center gap-2 flex-shrink-0">
+                        <i data-lucide="route" class="w-4 h-4 text-orange-500"></i>
+                        <span id="detail-distance" class="text-xs font-semibold text-orange-700">Layo</span>
                     </div>
                 </div>
 
-                <!-- Calculator -->
-                <div class="bg-brand-600 rounded-[32px] p-6 text-white shadow-premium mb-8 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8"></div>
-                    <div class="flex items-center gap-3 mb-6 relative z-10">
-                        <div class="p-2 bg-white/20 rounded-xl"><i data-lucide="credit-card" class="w-5 h-5"></i></div>
-                        <h3 class="text-sm font-black uppercase tracking-widest">Fair Share Estimation</h3>
+                <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-[0_4px_20px_rgba(0,0,0,0.03)] mb-8">
+                    <div class="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
+                        <div class="bg-brand-100 p-1.5 rounded-lg text-brand-600"><i data-lucide="calculator" class="w-4 h-4"></i></div>
+                        <h3 class="text-sm font-bold text-gray-900">Pagtatantiya ng Hati</h3>
                     </div>
 
-                    <div class="space-y-4 relative z-10">
-                        <div class="flex justify-between items-center text-xs font-bold text-brand-100">
-                            <span>Base Fuel Share</span>
-                            <span id="detail-total-cost">₱0.00</span>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-gray-500 font-medium">Kalkulasyon sa Hati sa Gas</span>
+                            <span id="detail-total-cost" class="font-bold text-gray-800">₱0.00</span>
                         </div>
-                        <div class="flex justify-between items-center text-xs font-bold text-brand-100">
-                            <span>Driver Fee</span>
-                            <span>₱50.00</span>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-gray-500 font-medium">+ Komisyon ng Driver</span>
+                            <span class="font-bold text-brand-600">₱50.00</span>
                         </div>
-                        <div id="detail-surge-row" class="hidden justify-between items-center text-xs font-black text-orange-200">
-                            <span>Rush Hour Surge (30%)</span>
-                            <span id="detail-surge-cost">₱0.00</span>
-                        </div>
-                        <div class="pt-4 border-t border-white/20 flex justify-between items-end">
-                            <span class="text-sm font-black uppercase tracking-widest">Total to Pay</span>
-                            <span id="detail-exact-share" class="text-4xl font-black tracking-tighter">₱0</span>
+                        
+                        <div class="pt-3 mt-1 border-t border-dashed border-gray-200 flex justify-between items-end">
+                            <div>
+                                <span class="block text-[10px] font-bold text-brand-600 uppercase tracking-wider">Kabuuan ng Iyong Hati</span>
+                            </div>
+                            <span id="detail-exact-share" class="text-3xl font-black text-gray-900 tracking-tight">₱0</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="flex gap-4">
-                    <button onclick="window.app.requestRide()" id="btn-request" class="flex-1 py-5 rounded-3xl font-black text-white bg-slate-900 shadow-premium active:scale-95 transition-all">JOIN RIDE</button>
-                    <button id="btn-sos-detail" onclick="window.app.shareRideSOS()" class="hidden w-16 h-16 rounded-3xl bg-red-50 text-red-600 flex items-center justify-center shadow-soft active:scale-90 transition-all">
-                        <i data-lucide="shield-alert" class="w-7 h-7"></i>
+                    <button onclick="window.app.requestRide()" id="btn-request" class="flex-1 py-4 rounded-2xl shadow-[0_8px_20px_rgba(17,24,39,0.2)] text-base font-bold text-white bg-gray-900 hover:bg-black active:scale-95 transition-all flex justify-center items-center gap-2">
+                        Mag-request Makisakay
                     </button>
-                    <button id="btn-chat-detail" onclick="window.app.openChat(window.app.selectedRide.id)" class="hidden w-16 h-16 rounded-3xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-soft active:scale-90 transition-all">
-                        <i data-lucide="message-circle" class="w-7 h-7"></i>
+                    <button id="btn-sos-detail" onclick="window.app.shareRideSOS()" class="hidden py-4 px-6 rounded-2xl border-2 border-red-100 text-red-600 bg-red-50 hover:bg-red-100 active:scale-95 transition-all flex justify-center items-center gap-2">
+                        <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                    </button>
+                    <button id="btn-chat-detail" onclick="window.app.openChat(window.app.selectedRide.id)" class="hidden py-4 px-6 rounded-2xl border-2 border-gray-100 text-gray-900 hover:bg-gray-50 active:scale-95 transition-all flex justify-center items-center gap-2">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i>
                     </button>
                 </div>
             </div>
@@ -562,18 +589,18 @@
              VIEW: ACTIVITY
         =========================================== -->
         <div id="view-activity" class="view">
-            <div class="bg-white pt-14 pb-4 px-8 sticky top-0 z-20 border-b border-slate-50">
-                <h2 class="text-3xl font-black text-slate-900 mb-6">Activity</h2>
+            <div class="bg-white pt-10 pb-4 px-6 sticky top-0 z-20 border-b border-gray-100 shadow-sm">
+                <h2 class="text-xl font-bold text-gray-900">Aking Aktibidad</h2>
                 
-                <div class="flex bg-slate-100 p-1.5 rounded-[20px]">
-                    <button onclick="window.app.switchActivityTab('joined')" id="tab-joined" class="flex-1 py-3 text-xs font-black uppercase rounded-2xl bg-white shadow-premium text-slate-900 transition-all">Requests</button>
-                    <button onclick="window.app.switchActivityTab('offered')" id="tab-offered" class="flex-1 py-3 text-xs font-black uppercase rounded-2xl text-slate-500 hover:text-slate-900 transition-all">Driving</button>
+                <div class="flex mt-4 bg-gray-100 p-1 rounded-xl">
+                    <button onclick="window.app.switchActivityTab('joined')" id="tab-joined" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-gray-900 transition-all">Mga Request</button>
+                    <button onclick="window.app.switchActivityTab('offered')" id="tab-offered" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">Nagmamaneho</button>
                 </div>
             </div>
 
-            <div class="p-8 space-y-6">
-                <div id="activity-joined-list" class="space-y-6"></div>
-                <div id="activity-offered-list" class="space-y-6 hidden"></div>
+            <div class="p-6">
+                <div id="activity-joined-list" class="space-y-4"></div>
+                <div id="activity-offered-list" class="space-y-4 hidden"></div>
             </div>
         </div>
 
@@ -581,115 +608,103 @@
              VIEW: CHAT
         =========================================== -->
         <div id="view-chat" class="view bg-white">
-            <div class="bg-white pt-14 pb-4 px-8 sticky top-0 z-20 border-b border-slate-50 flex items-center gap-4">
-                <button onclick="window.app.closeChat()" class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
+            <div class="bg-white pt-10 pb-4 px-6 sticky top-0 z-20 border-b border-gray-100 flex items-center gap-3 shadow-sm">
+                <button onclick="window.app.closeChat()" class="w-10 h-10 flex items-center justify-center -ml-2 text-gray-900 hover:bg-gray-100 rounded-full active:scale-90 transition-all">
+                    <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                </button>
                 <div class="flex-1">
-                    <h2 id="chat-title" class="text-lg font-black text-slate-900 truncate">Chat Room</h2>
-                    <p id="chat-subtitle" class="text-[10px] font-bold text-brand-600 uppercase tracking-widest">Active Pool Chat</p>
+                    <h2 id="chat-title" class="text-base font-bold text-gray-900 truncate">Chat</h2>
+                    <p id="chat-subtitle" class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Group Chat ng Biyahe</p>
                 </div>
             </div>
 
-            <div id="chat-messages" class="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-50/50"></div>
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50"></div>
 
-            <div class="p-6 bg-white border-t border-slate-50 flex items-center gap-3">
-                <input type="text" id="chat-input" class="flex-1 bg-slate-100 form-input rounded-2xl py-4 px-5 text-sm font-bold outline-none" placeholder="Message participants...">
-                <button onclick="window.app.sendMessage()" class="w-14 h-14 bg-brand-600 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-brand-100 active:scale-90 transition-all">
-                    <i data-lucide="send" class="w-6 h-6"></i>
+            <div class="p-4 bg-white border-t border-gray-100 flex items-center gap-2">
+                <input type="text" id="chat-input" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500" placeholder="Mag-type ng mensahe...">
+                <button onclick="window.app.sendMessage()" class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand-200 active:scale-90 transition-transform">
+                    <i data-lucide="send" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>
 
         <!-- ==========================================
-             VIEW: PROFILE & RATING
+             VIEW: PROFILE & RATING MODAL (NEW)
         =========================================== -->
-        <div id="view-profile" class="view bg-white">
-            <div class="bg-slate-900 pt-16 pb-24 px-10 rounded-b-[48px] shadow-2xl relative text-white">
-                <button onclick="window.app.navigate('dashboard')" class="absolute top-14 left-6 w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
-                
+        <div id="view-profile" class="view bg-gray-50">
+            <div class="bg-brand-600 pt-10 pb-20 px-6 rounded-b-[40px] shadow-lg relative text-white">
+                <div class="flex items-center gap-3 mb-6">
+                    <button onclick="window.app.navigate('dashboard')" class="w-10 h-10 flex items-center justify-center -ml-2 text-white hover:bg-white/20 rounded-full active:scale-90 transition-all">
+                        <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                    </button>
+                    <h2 class="text-xl font-bold">Aking Profile</h2>
+                </div>
                 <div class="flex flex-col items-center text-center">
-                    <div id="profile-avatar-large" class="w-28 h-28 rounded-3xl bg-white/10 border-4 border-white/20 flex items-center justify-center mb-6 shadow-premium overflow-hidden"></div>
-                    <h3 id="profile-name-large" class="text-2xl font-black mb-2">User Name</h3>
-                    <div class="flex gap-4">
-                        <div class="bg-white/10 px-4 py-2 rounded-2xl border border-white/10">
-                            <p class="text-[10px] font-black uppercase text-slate-400 mb-0.5">Rating</p>
-                            <div class="flex items-center gap-1">
-                                <i data-lucide="star" class="w-3 h-3 fill-yellow-400 text-yellow-400"></i>
-                                <span id="profile-rating-display" class="text-sm font-black">---</span>
-                            </div>
-                        </div>
-                        <div class="bg-white/10 px-4 py-2 rounded-2xl border border-white/10">
-                            <p class="text-[10px] font-black uppercase text-slate-400 mb-0.5">Trips</p>
-                            <span id="profile-rides-display" class="text-sm font-black">---</span>
-                        </div>
+                    <div id="profile-avatar-large" class="w-20 h-20 rounded-full border-4 border-white bg-brand-800 flex items-center justify-center mb-3 shadow-md overflow-hidden"></div>
+                    <h3 id="profile-name-large" class="text-xl font-bold">Commuter</h3>
+                    <div class="flex items-center gap-1 text-brand-100 text-sm mt-1">
+                        <i data-lucide="star" class="w-4 h-4 fill-yellow-400 text-yellow-400"></i>
+                        <span id="profile-rating-display" class="font-bold">Bago</span>
+                        <span class="opacity-50 mx-2">|</span>
+                        <span id="profile-rides-display">0 Biyahe</span>
                     </div>
                 </div>
             </div>
 
-            <div class="px-8 -mt-12 relative z-10 space-y-6 pb-12">
+            <div class="px-6 -mt-10 relative z-10 space-y-4 pb-8">
                 <!-- Saved Places -->
-                <div class="bg-white rounded-[32px] p-7 shadow-premium border border-slate-50">
-                    <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Saved Locations</h4>
-                    <div class="space-y-6">
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
+                    <h4 class="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-brand-500"></i> Mga Naka-save na Lugar</h4>
+                    <div class="space-y-3">
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400"><i data-lucide="home" class="w-5 h-5"></i></div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500"><i data-lucide="home" class="w-5 h-5"></i></div>
                                 <div>
-                                    <p class="text-sm font-bold text-slate-900">Home</p>
-                                    <p id="profile-home-text" class="text-[10px] text-slate-400 w-36 truncate font-medium">Add home address</p>
+                                    <p class="text-xs font-bold text-gray-800">Bahay</p>
+                                    <p id="profile-home-text" class="text-[10px] text-gray-500 w-32 truncate">Hindi pa naka-set</p>
                                 </div>
                             </div>
-                            <button onclick="window.app.setSavedPlace('home')" class="w-10 h-10 rounded-xl bg-slate-50 text-slate-900 flex items-center justify-center"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                            <button onclick="window.app.setSavedPlace('home')" class="text-[10px] font-bold text-brand-600 bg-brand-50 px-3 py-1.5 rounded-lg">I-set</button>
                         </div>
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400"><i data-lucide="briefcase" class="w-5 h-5"></i></div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500"><i data-lucide="briefcase" class="w-5 h-5"></i></div>
                                 <div>
-                                    <p class="text-sm font-bold text-slate-900">Work</p>
-                                    <p id="profile-work-text" class="text-[10px] text-slate-400 w-36 truncate font-medium">Add work address</p>
+                                    <p class="text-xs font-bold text-gray-800">Trabaho</p>
+                                    <p id="profile-work-text" class="text-[10px] text-gray-500 w-32 truncate">Hindi pa naka-set</p>
                                 </div>
                             </div>
-                            <button onclick="window.app.setSavedPlace('work')" class="w-10 h-10 rounded-xl bg-slate-50 text-slate-900 flex items-center justify-center"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                            <button onclick="window.app.setSavedPlace('work')" class="text-[10px] font-bold text-brand-600 bg-brand-50 px-3 py-1.5 rounded-lg">I-set</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Transaction History -->
-                <div class="bg-slate-900 rounded-[32px] p-7 shadow-premium text-white">
-                    <div class="flex justify-between items-center mb-6">
-                        <h4 class="text-xs font-black uppercase tracking-widest text-slate-500">Wallet Balance</h4>
-                        <p id="profile-net-balance" class="text-xl font-black text-brand-400">₱0.00</p>
-                    </div>
-                    <div id="transaction-list" class="space-y-4 max-h-56 overflow-y-auto hide-scrollbar px-1">
-                        <!-- Transactions injected by JS -->
-                    </div>
-                </div>
-
-                <button onclick="window.app.logout()" class="w-full py-5 rounded-3xl font-black text-red-600 bg-red-50 hover:bg-red-100 transition-all flex justify-center items-center gap-3">
-                    <i data-lucide="log-out" class="w-5 h-5"></i> SIGN OUT
+                <button onclick="window.app.logout()" class="w-full py-4 rounded-2xl border border-red-100 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 active:scale-95 transition-all flex justify-center items-center gap-2">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Mag-sign Out
                 </button>
             </div>
         </div>
 
         <!-- Rating Modal -->
-        <div id="modal-rating" class="fixed inset-0 bg-slate-900/60 z-[100] hidden items-center justify-center px-6 backdrop-blur-md">
-            <div class="bg-white w-full max-w-sm rounded-[40px] p-8 shadow-premium text-center">
-                <div class="w-20 h-20 bg-yellow-50 text-yellow-500 rounded-[28px] flex items-center justify-center mx-auto mb-6 transform -rotate-3 shadow-lg">
-                    <i data-lucide="star" class="w-10 h-10 fill-yellow-500"></i>
+        <div id="modal-rating" class="fixed inset-0 bg-black/60 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
+            <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl transform transition-transform text-center relative">
+                <div class="w-16 h-16 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="star" class="w-8 h-8 fill-brand-600"></i>
                 </div>
-                <h3 class="text-2xl font-black text-slate-900 mb-2">Rate Driver</h3>
-                <p id="rating-driver-name" class="text-sm font-medium text-slate-400 mb-8"></p>
+                <h3 class="text-xl font-black text-gray-900 mb-1">I-rate ang iyong Driver</h3>
+                <p id="rating-driver-name" class="text-sm font-medium text-gray-500 mb-6">Kumusta ang iyong biyahe?</p>
                 
-                <div class="flex justify-center gap-3 mb-10" id="rating-stars-container">
-                    <i data-lucide="star" class="w-10 h-10 star-rating" data-val="1" onclick="window.app.setRatingValue(1)"></i>
-                    <i data-lucide="star" class="w-10 h-10 star-rating" data-val="2" onclick="window.app.setRatingValue(2)"></i>
-                    <i data-lucide="star" class="w-10 h-10 star-rating" data-val="3" onclick="window.app.setRatingValue(3)"></i>
-                    <i data-lucide="star" class="w-10 h-10 star-rating" data-val="4" onclick="window.app.setRatingValue(4)"></i>
-                    <i data-lucide="star" class="w-10 h-10 star-rating" data-val="5" onclick="window.app.setRatingValue(5)"></i>
+                <div class="flex justify-center gap-2 mb-6" id="rating-stars-container">
+                    <i data-lucide="star" class="w-8 h-8 star-rating" data-val="1" onclick="window.app.setRatingValue(1)"></i>
+                    <i data-lucide="star" class="w-8 h-8 star-rating" data-val="2" onclick="window.app.setRatingValue(2)"></i>
+                    <i data-lucide="star" class="w-8 h-8 star-rating" data-val="3" onclick="window.app.setRatingValue(3)"></i>
+                    <i data-lucide="star" class="w-8 h-8 star-rating" data-val="4" onclick="window.app.setRatingValue(4)"></i>
+                    <i data-lucide="star" class="w-8 h-8 star-rating" data-val="5" onclick="window.app.setRatingValue(5)"></i>
                 </div>
                 
-                <div class="flex gap-4">
-                    <button onclick="window.app.closeRatingModal()" class="flex-1 py-4 rounded-2xl font-bold text-slate-400 bg-slate-100">Skip</button>
-                    <button onclick="window.app.submitRating()" class="flex-1 py-4 rounded-2xl font-black text-white bg-slate-900 shadow-xl">SUBMIT</button>
+                <div class="flex gap-3">
+                    <button onclick="window.app.closeRatingModal()" class="flex-1 py-3 rounded-xl font-bold text-gray-500 bg-gray-100">Laktawan</button>
+                    <button onclick="window.app.submitRating()" class="flex-1 py-3 rounded-xl font-bold text-white bg-brand-600 shadow-md shadow-brand-200">I-submit</button>
                 </div>
             </div>
         </div>
@@ -697,26 +712,26 @@
         <!-- ==========================================
              BOTTOM NAVIGATION
         =========================================== -->
-        <div id="bottom-nav" class="fixed bottom-0 w-full max-w-[414px] h-[80px] glass-nav flex justify-around items-center pb-safe hidden z-50">
-            <button id="nav-home" onclick="window.app.navigate('dashboard')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 transition-all nav-btn group" data-target="dashboard">
-                <div class="p-2 rounded-xl group-hover:bg-brand-50 transition-colors"><i data-lucide="layout-grid" class="w-6 h-6"></i></div>
-                <span class="text-[9px] font-black uppercase tracking-widest opacity-60">Home</span>
+        <div id="bottom-nav" class="fixed bottom-0 w-full max-w-[414px] bg-white/90 backdrop-blur-md border-t border-gray-200 flex justify-around items-center pb-safe hidden z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.03)]">
+            <button onclick="window.app.navigate('dashboard')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-brand-600 transition-colors nav-btn group" data-target="dashboard">
+                <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
+                <span class="text-[10px] font-bold">Home</span>
             </button>
-            <button id="nav-find" onclick="window.app.navigate('find')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 transition-all nav-btn group" data-target="find">
-                <div class="p-2 rounded-xl group-hover:bg-brand-50 transition-colors"><i data-lucide="search" class="w-6 h-6"></i></div>
-                <span class="text-[9px] font-black uppercase tracking-widest opacity-60">Search</span>
+            <button onclick="window.app.navigate('find')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="find">
+                <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors"><i data-lucide="search" class="w-5 h-5"></i></div>
+                <span class="text-[10px] font-bold">Maghanap</span>
             </button>
-            <button id="nav-offer" onclick="window.app.navigate('offer')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 transition-all nav-btn group" data-target="offer">
-                <div class="absolute -top-6 bg-brand-600 text-white p-4 rounded-[22px] shadow-premium transform hover:-translate-y-1 transition-transform border-[6px] border-white"><i data-lucide="plus" class="w-6 h-6"></i></div>
-                <div class="h-6"></div>
-                <span class="text-[9px] font-black uppercase tracking-widest opacity-60 mt-2">Offer</span>
+            <button onclick="window.app.navigate('offer')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group relative" data-target="offer">
+                <div class="absolute -top-4 bg-gray-900 text-white p-3 rounded-full shadow-lg transform group-hover:-translate-y-1 transition-transform border-4 border-white"><i data-lucide="plus" class="w-5 h-5"></i></div>
+                <div class="h-8"></div>
+                <span class="text-[10px] font-bold mt-1">Mag-alok</span>
             </button>
-            <button id="nav-activity" onclick="window.app.navigate('activity')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 transition-all nav-btn group" data-target="activity">
-                <div class="p-2 rounded-xl group-hover:bg-brand-50 transition-colors relative">
-                    <i data-lucide="activity" class="w-6 h-6"></i>
-                    <span id="activity-badge" class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white hidden"></span>
+            <button onclick="window.app.navigate('activity')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="activity">
+                <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors relative">
+                    <i data-lucide="list-todo" class="w-5 h-5"></i>
+                    <span id="activity-badge" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full hidden"></span>
                 </div>
-                <span class="text-[9px] font-black uppercase tracking-widest opacity-60">Activity</span>
+                <span class="text-[10px] font-bold">Aktibidad</span>
             </button>
         </div>
 
@@ -725,7 +740,7 @@
     <!-- Application Logic & Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithCustomToken, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, getDocs, setDoc, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -748,8 +763,6 @@
 
         window.app = {
             user: null,
-            userRole: null,
-            authMode: 'login',
             allRides: [],
             allRequests: [],
             previousRequests: [],
@@ -774,7 +787,7 @@
 
             async init() {
                 lucide.createIcons();
-                this.setLoading(true, "Connecting...");
+                this.setLoading(true, "Kumokonekta sa SabayBiyahe...");
 
                 try {
                     appInstance = initializeApp(firebaseConfig);
@@ -792,27 +805,30 @@
                             try {
                                 await signInWithCustomToken(auth, __initial_auth_token);
                             } catch (tokenErr) {
-                                console.warn("Token mismatch");
+                                console.warn("Initial token mismatched, trying anonymous");
                                 await signInAnonymously(auth).catch(() => {});
                             }
                         } else {
                             await signInAnonymously(auth).catch(() => {});
                         }
-                    } catch(e) { console.error("Auth failed:", e); }
+                    } catch(e) { console.error("Initial auth failed:", e); }
                 };
 
                 await initAuth();
 
                 onAuthStateChanged(auth, async (user) => {
+                    this.setLoading(false);
                     if (user && !user.isAnonymous) {
                         this.user = user;
-                        this.routeUser(user);
+                        this.updateProfileUI(user);
+                        this.navigate('dashboard');
+                        document.getElementById('bottom-nav').classList.remove('hidden');
+                        this.setupDatabaseListeners();
+                        this.setupPrivateListeners();
                     } else {
                         this.user = null;
-                        this.userRole = null;
                         this.navigate('login');
                         document.getElementById('bottom-nav').classList.add('hidden');
-                        this.setLoading(false);
                     }
                 });
 
@@ -822,130 +838,34 @@
                 document.getElementById('offer-time').value = now.toISOString().slice(0, 16);
             },
 
-            switchAuthTab(mode) {
-                this.authMode = mode;
-                const isLogin = mode === 'login';
-                document.getElementById('tab-login').className = isLogin ? 'flex-1 py-3 text-sm font-bold rounded-2xl bg-slate-900 text-white shadow-lg transition-all' : 'flex-1 py-3 text-sm font-bold rounded-2xl text-slate-500 hover:bg-slate-50 transition-all';
-                document.getElementById('tab-signup').className = !isLogin ? 'flex-1 py-3 text-sm font-bold rounded-2xl bg-slate-900 text-white shadow-lg transition-all' : 'flex-1 py-3 text-sm font-bold rounded-2xl text-slate-500 hover:bg-slate-50 transition-all';
-                document.getElementById('btn-email-auth').textContent = isLogin ? 'Login to Account' : 'Create New Account';
-            },
-
-            async handleEmailAuth() {
-                const email = document.getElementById('auth-email').value;
-                const password = document.getElementById('auth-password').value;
-                if(!email || !password) return this.showToast("Fields required", "error");
-
-                this.setLoading(true, "Authenticating...");
-                try {
-                    if(this.authMode === 'login') {
-                        await signInWithEmailAndPassword(auth, email, password);
-                    } else {
-                        const cred = await createUserWithEmailAndPassword(auth, email, password);
-                        await sendEmailVerification(cred.user);
-                        this.showToast("Check your email to verify!");
-                    }
-                } catch(e) {
-                    this.showToast(e.message.replace('Firebase:', '').trim(), "error");
-                }
-                this.setLoading(false);
-            },
-
-            async loginWithGoogle() {
-                const provider = new GoogleAuthProvider();
-                const btn = document.getElementById('btn-google-login');
-                btn.disabled = true;
-                try { await signInWithPopup(auth, provider); } catch (e) {
-                    btn.disabled = false;
-                    this.showToast("Google login failed", "error");
-                }
-            },
-
-            async resendVerification() {
-                if(this.user) {
-                    this.setLoading(true);
-                    try { await sendEmailVerification(this.user); this.showToast("Link sent!"); } catch (e) { this.showToast("Rate limit hit", "error"); }
-                    this.setLoading(false);
-                }
-            },
-
-            async checkVerification() {
-                if(this.user) {
-                    this.setLoading(true);
-                    await this.user.reload();
-                    if(this.user.emailVerified) this.routeUser(this.user);
-                    else this.showToast("Verification still pending", "error");
-                    this.setLoading(false);
-                }
-            },
-
-            async logout() {
-                if(this.unsubRides) this.unsubRides();
-                if(this.unsubRequests) this.unsubRequests();
-                if(this.unsubMessages) this.unsubMessages();
-                if(this.unsubRatings) this.unsubRatings();
-                if(this.unsubProfile) this.unsubProfile();
-                await signOut(auth);
-            },
-
-            routeUser(user) {
-                if (!user.emailVerified) {
-                    document.getElementById('auth-forms').classList.add('hidden');
-                    document.getElementById('view-verify-email').classList.remove('hidden');
-                    this.navigate('login');
-                    document.getElementById('bottom-nav').classList.add('hidden');
-                    this.setLoading(false);
-                    return;
-                }
-                document.getElementById('auth-forms').classList.remove('hidden');
-                document.getElementById('view-verify-email').classList.add('hidden');
-                this.updateProfileUI(user);
-                this.setupDatabaseListeners();
-                this.setupPrivateListeners(); 
-            },
-
-            async selectRole(role) {
-                this.setLoading(true);
-                try {
-                    const profileRef = doc(db, 'artifacts', appId, 'users', this.user.uid, 'settings', 'profile');
-                    await setDoc(profileRef, { role: role }, { merge: true });
-                    this.userRole = role;
-                    this.updateRoleUI();
-                    this.navigate('dashboard');
-                    document.getElementById('bottom-nav').classList.remove('hidden');
-                } catch(e) { this.showToast("Error", "error"); }
-                this.setLoading(false);
-            },
-
-            updateRoleUI() {
-                const isPass = this.userRole === 'passenger';
-                document.getElementById('dash-action-find').classList.toggle('hidden', !isPass);
-                document.getElementById('dash-action-offer').classList.toggle('hidden', isPass);
-                document.getElementById('nav-find').classList.toggle('hidden', !isPass);
-                document.getElementById('nav-offer').classList.toggle('hidden', isPass);
-                document.getElementById('tab-joined').classList.toggle('hidden', !isPass);
-                document.getElementById('tab-offered').classList.toggle('hidden', isPass);
-                this.switchActivityTab(isPass ? 'joined' : 'offered');
-            },
-
+            // Autocomplete Logic
             handleAutocomplete(event, suggestionsId) {
                 const query = event.target.value;
                 const container = document.getElementById(suggestionsId);
+                
                 clearTimeout(this.autocompleteTimer);
-                if (query.length < 3) { container.classList.add('hidden'); return; }
+                if (query.length < 3) {
+                    container.classList.add('hidden');
+                    return;
+                }
+
                 this.autocompleteTimer = setTimeout(async () => {
                     try {
                         const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ', Philippines')}&limit=5`);
                         const data = await res.json();
+                        
                         if (data && data.length > 0) {
                             container.innerHTML = data.map(place => `
                                 <div class="suggestion-item" onclick="window.app.selectSuggestion('${event.target.id}', '${suggestionsId}', '${place.display_name.replace(/'/g, "\\'")}', ${place.lat}, ${place.lon})">
-                                    <p class="font-bold text-slate-800 text-sm">${place.display_name.split(',')[0]}</p>
-                                    <p class="text-[10px] text-slate-400 truncate">${place.display_name}</p>
+                                    <p class="font-bold text-gray-800">${place.display_name.split(',')[0]}</p>
+                                    <p class="text-[10px] text-gray-500 truncate">${place.display_name}</p>
                                 </div>
                             `).join('');
                             container.classList.remove('hidden');
-                        } else { container.classList.add('hidden'); }
-                    } catch (e) { }
+                        } else {
+                            container.classList.add('hidden');
+                        }
+                    } catch (e) { console.error(e); }
                 }, 500);
             },
 
@@ -953,7 +873,11 @@
                 const input = document.getElementById(inputId);
                 input.value = fullName.split(',')[0];
                 document.getElementById(suggestionsId).classList.add('hidden');
-                input.dataset.lat = lat; input.dataset.lon = lon; input.dataset.fullName = fullName;
+                
+                // Store temporary data on element
+                input.dataset.lat = lat;
+                input.dataset.lon = lon;
+                input.dataset.fullName = fullName;
             },
 
             setLoading(isActive, text = "Loading...") {
@@ -965,9 +889,9 @@
             showToast(msg, type = 'success') {
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
-                toast.className = 'toast rounded-2xl shadow-premium border border-slate-50';
+                toast.className = 'toast';
                 const icon = type === 'success' ? '<i data-lucide="check-circle" class="w-5 h-5 text-brand-500"></i>' : '<i data-lucide="alert-circle" class="w-5 h-5 text-red-500"></i>';
-                toast.innerHTML = `${icon} <span class="text-xs font-bold text-slate-800">${msg}</span>`;
+                toast.innerHTML = `${icon} <span class="text-sm font-semibold text-gray-800">${msg}</span>`;
                 container.appendChild(toast);
                 lucide.createIcons();
                 setTimeout(() => { if(toast.parentNode) toast.remove(); }, 3500);
@@ -981,7 +905,7 @@
                 document.querySelectorAll('.nav-btn').forEach(btn => {
                     const isActive = btn.dataset.target === viewId;
                     btn.classList.toggle('text-brand-600', isActive);
-                    btn.classList.toggle('text-slate-400', !isActive);
+                    btn.classList.toggle('text-gray-400', !isActive);
                 });
 
                 if(viewId === 'dashboard') this.renderDashboardActivity();
@@ -992,16 +916,21 @@
             },
 
             updateProfileUI(user) {
-                const name = user.displayName || user.email?.split('@')[0] || "User";
+                const name = user.displayName ? user.displayName.split(' ')[0] : "Commuter";
                 document.getElementById('user-display-name').textContent = name;
-                const profileNameLarge = document.getElementById('profile-name-large');
-                if(profileNameLarge) profileNameLarge.textContent = name;
                 
-                const imgHtml = user.photoURL ? `<img src="${user.photoURL}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-8 h-8 text-white/50"></i>`;
-                document.getElementById('dashboard-avatar').innerHTML = imgHtml;
-                const largeAvatar = document.getElementById('profile-avatar-large');
-                if(largeAvatar) largeAvatar.innerHTML = imgHtml;
-                lucide.createIcons();
+                const profileNameLarge = document.getElementById('profile-name-large');
+                if(profileNameLarge) profileNameLarge.textContent = user.displayName || "Commuter";
+                
+                if (user.photoURL) {
+                    const imgHtml = `<img src="${user.photoURL}" class="w-full h-full object-cover" referrerpolicy="no-referrer">`;
+                    document.getElementById('dashboard-avatar').innerHTML = imgHtml;
+                    const largeAvatar = document.getElementById('profile-avatar-large');
+                    if(largeAvatar) largeAvatar.innerHTML = imgHtml;
+                } else {
+                    const largeAvatar = document.getElementById('profile-avatar-large');
+                    if(largeAvatar) largeAvatar.innerHTML = `<i data-lucide="user" class="w-10 h-10 text-white"></i>`;
+                }
             },
 
             formatDate(timestampStr) {
@@ -1011,6 +940,28 @@
                 } catch(e) { return timestampStr; }
             },
 
+            async loginWithGoogle() {
+                const provider = new GoogleAuthProvider();
+                const btn = document.getElementById('btn-google-login');
+                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Sine-verify...';
+                btn.disabled = true;
+                lucide.createIcons();
+                try { await signInWithPopup(auth, provider); } catch (error) {
+                    btn.innerHTML = `Magpatuloy gamit ang Google`;
+                    btn.disabled = false;
+                    this.showToast("Bigo ang pag-sign in. Gumamit ng Chrome/Safari.", "error");
+                }
+            },
+
+            async logout() {
+                if(this.unsubRides) this.unsubRides();
+                if(this.unsubRequests) this.unsubRequests();
+                if(this.unsubMessages) this.unsubMessages();
+                if(this.unsubRatings) this.unsubRatings();
+                if(this.unsubProfile) this.unsubProfile();
+                await signOut(auth);
+            },
+
             async getRouteInfo(originCoords, destCoords) {
                 try {
                     const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${originCoords.lon},${originCoords.lat};${destCoords.lon},${destCoords.lat}?overview=full&geometries=geojson`);
@@ -1018,8 +969,8 @@
                     if(data.code === 'Ok' && data.routes.length > 0) {
                         return { distanceKm: (data.routes[0].distance / 1000).toFixed(1), geometry: data.routes[0].geometry };
                     }
-                } catch(e) { }
-                return null;
+                    return null;
+                } catch(e) { return null; }
             },
 
             setupDatabaseListeners() {
@@ -1031,25 +982,43 @@
 
                 this.unsubRides = onSnapshot(ridesRef, (snap) => {
                     this.allRides = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    this.renderDashboardActivity(); this.renderActivity(); this.updateProfileStats();
+                    this.renderDashboardActivity();
+                    this.renderActivity();
+                    this.updateProfileStats();
                     if(document.getElementById('view-find').classList.contains('active')) this.searchRides();
+                    
                     if(document.getElementById('view-details').classList.contains('active') && this.selectedRide) {
-                        const updated = this.allRides.find(r => r.id === this.selectedRide.id);
-                        if(updated) { this.selectedRide = updated; this.updateDriverMarker(updated); }
+                        const updatedRide = this.allRides.find(r => r.id === this.selectedRide.id);
+                        if(updatedRide) {
+                            this.selectedRide = updatedRide;
+                            this.updateDriverMarker(updatedRide);
+                        }
                     }
                 });
                 
                 this.unsubRequests = onSnapshot(requestsRef, (snap) => {
                     const newRequests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    
                     if (this.previousRequests.length > 0 && this.user) {
-                        newRequests.forEach(nr => {
-                            const old = this.previousRequests.find(or => or.id === nr.id);
-                            if (old && old.status !== nr.status && nr.passengerId === this.user.uid && nr.status === 'accepted') this.showToast(`Ride accepted!`, 'success');
-                            else if (!old && nr.driverId === this.user.uid && nr.status === 'pending') this.showToast(`New ride request!`, 'success');
+                        newRequests.forEach(newReq => {
+                            const oldReq = this.previousRequests.find(r => r.id === newReq.id);
+                            if (oldReq && oldReq.status !== newReq.status) {
+                                if (newReq.passengerId === this.user.uid && newReq.status === 'accepted') {
+                                    this.showToast(`Tinanggap ang request! Pwede mo nang i-chat ang driver.`, 'success');
+                                } else if (newReq.passengerId === this.user.uid && newReq.status === 'rejected') {
+                                    this.showToast(`Ang iyong request ay tinanggihan.`, 'error');
+                                }
+                            } else if (!oldReq && newReq.driverId === this.user.uid && newReq.status === 'pending') {
+                                this.showToast(`Bagong request mula kay ${newReq.passengerName}!`, 'success');
+                            }
                         });
                     }
-                    this.allRequests = newRequests; this.previousRequests = [...newRequests];
-                    this.renderActivity(); this.updateProfileStats(); this.updateActivityBadge();
+                    
+                    this.allRequests = newRequests;
+                    this.previousRequests = [...newRequests];
+                    this.renderActivity();
+                    this.updateProfileStats();
+                    this.updateActivityBadge();
                 });
                 
                 this.unsubMessages = onSnapshot(messagesRef, (snap) => {
@@ -1064,282 +1033,544 @@
 
             setupPrivateListeners() {
                 if(!db || !this.user) return;
-                const profileRef = doc(db, 'artifacts', appId, 'users', this.user.uid, 'settings', 'profile');
+                const profileRef = collection(db, 'artifacts', appId, 'users', this.user.uid, 'settings');
                 this.unsubProfile = onSnapshot(profileRef, (snap) => {
-                    if (snap.exists()) {
-                        const data = snap.data(); this.userProfileData = data; this.userRole = data.role;
-                        if (this.userRole && document.getElementById('view-role').classList.contains('active')) {
-                            this.navigate('dashboard'); document.getElementById('bottom-nav').classList.remove('hidden');
-                        } else if (!this.userRole) { this.navigate('role'); document.getElementById('bottom-nav').classList.add('hidden'); }
-                        this.updateRoleUI();
-                        if(document.getElementById('profile-home-text')) {
-                            document.getElementById('profile-home-text').textContent = data.home?.name || "Not set";
-                            document.getElementById('profile-work-text').textContent = data.work?.name || "Not set";
+                    snap.docs.forEach(d => {
+                        if(d.id === 'places') {
+                            this.userProfileData = d.data();
+                            if(document.getElementById('profile-home-text')) {
+                                document.getElementById('profile-home-text').textContent = this.userProfileData.home?.name || "Hindi pa naka-set";
+                                document.getElementById('profile-work-text').textContent = this.userProfileData.work?.name || "Hindi pa naka-set";
+                            }
                         }
-                    } else this.navigate('role');
-                    this.setLoading(false);
+                    });
                 });
             },
 
             async setSavedPlace(type) {
-                const placeName = prompt(`Enter ${type} address:`);
+                const label = type === 'home' ? 'Bahay' : 'Trabaho';
+                const placeName = prompt(`Maglagay ng landmark o siyudad para sa iyong ${label} (hal. UP Diliman):`);
                 if(!placeName) return;
-                this.setLoading(true);
+                
+                this.setLoading(true, "Sini-save ang lokasyon...");
                 try {
-                    const coords = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(placeName + ', Philippines')}&limit=1`).then(r => r.json());
-                    if(coords.length) {
-                        const loc = { lat: parseFloat(coords[0].lat), lon: parseFloat(coords[0].lon), name: placeName };
-                        await setDoc(doc(db, 'artifacts', appId, 'users', this.user.uid, 'settings', 'profile'), { [type]: loc }, { merge: true });
-                        this.showToast("Saved!");
-                    } else throw new Error("Not found");
-                } catch(e) { this.showToast(e.message, "error"); }
-                this.setLoading(false);
+                    const coords = await this.geocode(placeName);
+                    if(!coords) throw new Error("Hindi nahanap ang lokasyon");
+                    
+                    const profileRef = doc(db, 'artifacts', appId, 'users', this.user.uid, 'settings', 'places');
+                    await setDoc(profileRef, { [type]: coords }, { merge: true });
+                    
+                    this.showToast(`Na-update ang ${label}!`);
+                } catch(e) {
+                    this.showToast(e.message, "error");
+                } finally {
+                    this.setLoading(false);
+                }
             },
 
             useSavedPlace(inputId, type) {
+                const label = type === 'home' ? 'Bahay' : 'Trabaho';
                 const place = this.userProfileData[type];
-                if(!place) { this.showToast("Set in profile first", "error"); return; }
+                if(!place) {
+                    this.showToast(`I-set muna ang iyong ${label} sa iyong Profile.`, "error");
+                    return;
+                }
                 const input = document.getElementById(inputId);
-                input.value = place.name.split(',')[0]; input.dataset.lat = place.lat; input.dataset.lon = place.lon; input.dataset.fullName = place.name;
+                input.value = place.name.split(',')[0];
+                input.dataset.lat = place.lat;
+                input.dataset.lon = place.lon;
+                input.dataset.fullName = place.name;
+                this.showToast(`Ginagamit ang naka-save na ${label}`);
             },
 
             updateProfileStats() {
                 if(!this.user || !document.getElementById('profile-rides-display')) return;
                 const myDriven = this.allRides.filter(r => r.driverId === this.user.uid && r.status === 'completed').length;
                 const myJoined = this.allRequests.filter(req => req.passengerId === this.user.uid && req.status === 'completed').length;
-                document.getElementById('profile-rides-display').textContent = `${myDriven + myJoined} Trips`;
-                const myRatings = this.allRatings.filter(r => r.targetId === this.user.uid);
-                document.getElementById('profile-rating-display').textContent = myRatings.length ? (myRatings.reduce((sum, r) => sum + r.value, 0) / myRatings.length).toFixed(1) : "New";
-                this.renderTransactions();
-            },
+                document.getElementById('profile-rides-display').textContent = `${myDriven + myJoined} Biyahe`;
 
-            renderTransactions() {
-                if(!this.user) return;
-                const list = document.getElementById('transaction-list');
-                let transactions = [], netBalance = 0;
-                this.allRequests.filter(req => req.passengerId === this.user.uid && req.status === 'completed').forEach(req => {
-                    const ride = this.allRides.find(r => r.id === req.rideId);
-                    if(ride) { transactions.push({ amount: ride.pricePerSeat, desc: `Expense: ${ride.destName.split(',')[0]}`, date: ride.createdAt, neg: true }); netBalance -= ride.pricePerSeat; }
-                });
-                this.allRides.filter(r => r.driverId === this.user.uid && r.status === 'completed').forEach(ride => {
-                    const passCount = this.allRequests.filter(req => req.rideId === ride.id && req.status === 'completed').length;
-                    if(passCount > 0) { const earned = ride.pricePerSeat * passCount; transactions.push({ amount: earned, desc: `Earned: ${ride.destName.split(',')[0]}`, date: ride.createdAt, neg: false }); netBalance += earned; }
-                });
-                transactions.sort((a,b) => b.date - a.date);
-                document.getElementById('profile-net-balance').textContent = `₱${netBalance.toFixed(2)}`;
-                list.innerHTML = transactions.length ? transactions.map(t => `<div class="flex justify-between items-center bg-white/5 p-3 rounded-2xl border border-white/5"><div><p class="text-[10px] font-bold">${t.desc}</p><p class="text-[8px] text-slate-500">${this.formatDate(t.date)}</p></div><p class="text-xs font-black ${t.neg ? 'text-red-400' : 'text-brand-400'}">${t.neg ? '-' : '+'}₱${t.amount}</p></div>`).join('') : '<p class="text-center text-[10px] opacity-40">No activity</p>';
+                const myRatings = this.allRatings.filter(r => r.targetId === this.user.uid);
+                if(myRatings.length > 0) {
+                    const avg = myRatings.reduce((sum, r) => sum + r.value, 0) / myRatings.length;
+                    document.getElementById('profile-rating-display').textContent = avg.toFixed(1);
+                } else {
+                    document.getElementById('profile-rating-display').textContent = "Bago";
+                }
             },
 
             shareRideSOS() {
-                const ride = this.selectedRide; if(!ride) return;
-                const text = `🚨 SabayBiyahe Alert:\nDriver: ${ride.driverName}\nCar: ${ride.carModel}\nRoute: ${ride.originName.split(',')[0]} to ${ride.destName.split(',')[0]}`;
-                if (navigator.share) navigator.share({ title: 'SabayBiyahe SOS', text }).catch(() => {});
-                else this.showToast("Copied to clipboard!");
+                if(!this.selectedRide) return;
+                const ride = this.selectedRide;
+                const text = `🚨 SabayBiyahe Ride Info:\nDriver: ${ride.driverName}\nKotse: ${ride.carModel}\nRuta: ${ride.originName.split(',')[0]} hanggang ${ride.destName.split(',')[0]}`;
+                
+                if (navigator.share) {
+                    navigator.share({ title: 'SabayBiyahe SOS', text: text }).catch(() => {});
+                } else {
+                    const tempInput = document.createElement("textarea");
+                    tempInput.value = text;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(tempInput);
+                    this.showToast("Na-copy sa clipboard ang detalye ng biyahe!");
+                }
             },
 
             openRatingModal(driverId, driverName, rideId) {
                 if(driverId === this.user.uid) return;
-                this.ratingRideId = rideId; this.ratingDriverId = driverId;
-                document.getElementById('rating-driver-name').textContent = `Rate your ride with ${driverName}`;
+                this.ratingRideId = rideId;
+                this.ratingDriverId = driverId;
+                this.currentRatingValue = 0;
+                document.getElementById('rating-driver-name').textContent = `Kumusta ang biyahe mo kasama si ${driverName}?`;
                 this.setRatingValue(0);
-                document.getElementById('modal-rating').classList.remove('hidden'); document.getElementById('modal-rating').classList.add('flex');
+                document.getElementById('modal-rating').classList.remove('hidden');
+                document.getElementById('modal-rating').classList.add('flex');
             },
 
-            closeRatingModal() { document.getElementById('modal-rating').classList.add('hidden'); document.getElementById('modal-rating').classList.remove('flex'); },
+            closeRatingModal() {
+                document.getElementById('modal-rating').classList.add('hidden');
+                document.getElementById('modal-rating').classList.remove('flex');
+            },
 
             setRatingValue(val) {
                 this.currentRatingValue = val;
-                document.querySelectorAll('.star-rating').forEach((star, i) => star.classList.toggle('active', i < val));
+                document.querySelectorAll('.star-rating').forEach((star, index) => {
+                    if (index < val) star.classList.add('active');
+                    else star.classList.remove('active');
+                });
             },
 
             async submitRating() {
-                if(!this.currentRatingValue) return this.showToast("Select stars", "error");
+                if(this.currentRatingValue === 0) {
+                    this.showToast("Pumili ng rating", "error");
+                    return;
+                }
                 try {
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'ratings'), { rideId: this.ratingRideId, targetId: this.ratingDriverId, raterId: this.user.uid, value: this.currentRatingValue, timestamp: Date.now() });
-                    this.showToast("Thank you!"); this.closeRatingModal();
-                } catch(e) { }
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'ratings'), {
+                        rideId: this.ratingRideId,
+                        targetId: this.ratingDriverId,
+                        raterId: this.user.uid,
+                        value: this.currentRatingValue,
+                        timestamp: Date.now()
+                    });
+                    this.showToast("Salamat sa pag-rate!");
+                    this.closeRatingModal();
+                } catch(e) {
+                    this.showToast("Bigo ang pag-submit ng rating", "error");
+                }
             },
 
             async submitOffer() {
                 if(!db || !this.user) return;
-                const origin = document.getElementById('offer-origin'), dest = document.getElementById('offer-dest'), time = document.getElementById('offer-time').value, seats = parseInt(document.getElementById('offer-seats').value), car = document.getElementById('offer-car').value;
-                if(!origin.value || !dest.value) return this.showToast("Routes required", "error");
-                this.setLoading(true);
+                const originInput = document.getElementById('offer-origin');
+                const destInput = document.getElementById('offer-dest');
+                const timeStr = document.getElementById('offer-time').value;
+                const seats = parseInt(document.getElementById('offer-seats').value);
+                const car = document.getElementById('offer-car').value;
+
+                if(!originInput.value || !destInput.value) {
+                    this.showToast("Ilagay ang lokasyon ng ruta", "error");
+                    return;
+                }
+
+                const btn = document.getElementById('btn-submit-offer');
+                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Pinoproseso...';
+                btn.disabled = true;
+                lucide.createIcons();
+
                 try {
-                    const route = await this.getRouteInfo({ lat: parseFloat(origin.dataset.lat), lon: parseFloat(origin.dataset.lon) }, { lat: parseFloat(dest.dataset.lat), lon: parseFloat(dest.dataset.lon) });
-                    const dist = route ? route.distanceKm : 10;
-                    const hour = new Date(time).getHours();
-                    const surge = (hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 19) ? 1.3 : 1.0;
-                    const fuelSplit = Math.ceil(((dist / CONSTANTS.AVG_KM_PER_LITER) * CONSTANTS.FUEL_PRICE_PER_LITER) / (seats + 1));
-                    const total = Math.ceil((fuelSplit + CONSTANTS.DRIVER_COMMISSION) * surge);
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'rides'), { driverId: this.user.uid, driverName: this.user.displayName || "User", originName: origin.value, destName: dest.value, originCoords: {lat: origin.dataset.lat, lon: origin.dataset.lon}, destCoords: {lat: dest.dataset.lat, lon: dest.dataset.lon}, time, seatsAvailable: seats, totalSeats: seats, carModel: car, distanceKm: dist, pricePerSeat: total, surgeMultiplier: surge, fuelSplit, status: 'active', createdAt: Date.now() });
-                    this.showToast("Pool created!"); document.getElementById('form-offer').reset(); this.navigate('dashboard');
-                } catch(e) { this.showToast("Error", "error"); }
-                this.setLoading(false);
+                    let originCoords = originInput.dataset.lat ? { lat: parseFloat(originInput.dataset.lat), lon: parseFloat(originInput.dataset.lon), name: originInput.value } : null;
+                    let destCoords = destInput.dataset.lat ? { lat: parseFloat(destInput.dataset.lat), lon: parseFloat(destInput.dataset.lon), name: destInput.value } : null;
+
+                    if (!originCoords || !destCoords) {
+                         const resO = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(originInput.value + ', Philippines')}&limit=1`).then(r => r.json());
+                         const resD = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destInput.value + ', Philippines')}&limit=1`).then(r => r.json());
+                         if(resO.length && resD.length) {
+                             originCoords = { lat: parseFloat(resO[0].lat), lon: parseFloat(resO[0].lon), name: originInput.value };
+                             destCoords = { lat: parseFloat(resD[0].lat), lon: parseFloat(resD[0].lon), name: destInput.value };
+                         }
+                    }
+
+                    if(!originCoords || !destCoords) throw new Error("Hindi nahanap ang lokasyon. Gumamit ng suggestions.");
+
+                    const route = await this.getRouteInfo(originCoords, destCoords);
+                    const distanceKm = route ? route.distanceKm : 10.0;
+                    const fuelCostPerSeat = Math.ceil(((parseFloat(distanceKm) / CONSTANTS.AVG_KM_PER_LITER) * CONSTANTS.FUEL_PRICE_PER_LITER) / (seats + 1));
+                    const pricePerSeat = fuelCostPerSeat + CONSTANTS.DRIVER_COMMISSION;
+
+                    const ridesRef = collection(db, 'artifacts', appId, 'public', 'data', 'rides');
+                    await addDoc(ridesRef, {
+                        driverId: this.user.uid,
+                        driverName: this.user.displayName || "Commuter",
+                        originName: originCoords.name,
+                        destName: destCoords.name,
+                        originCoords, destCoords,
+                        time: timeStr,
+                        seatsAvailable: seats,
+                        totalSeats: seats,
+                        carModel: car,
+                        distanceKm,
+                        pricePerSeat,
+                        fuelSplit: fuelCostPerSeat,
+                        status: 'active',
+                        createdAt: Date.now()
+                    });
+
+                    this.showToast("Na-post na ang biyahe!");
+                    document.getElementById('form-offer').reset();
+                    this.navigate('dashboard');
+                } catch (error) { this.showToast(error.message, "error"); } finally {
+                    btn.innerHTML = 'Kalkulahin at I-post ang Biyahe';
+                    btn.disabled = false;
+                }
             },
 
             searchRides() {
-                const o = document.getElementById('find-origin').value.toLowerCase(), d = document.getElementById('find-dest').value.toLowerCase();
-                const res = this.allRides.filter(r => r.status === 'active' && r.seatsAvailable > 0 && r.driverId !== this.user?.uid && (r.originName.toLowerCase().includes(o) || r.destName.toLowerCase().includes(d)));
-                this.renderSearchResults(res);
+                const originQ = document.getElementById('find-origin').value.toLowerCase();
+                const destQ = document.getElementById('find-dest').value.toLowerCase();
+                let results = this.allRides.filter(r => r.status === 'active' && r.seatsAvailable > 0 && r.driverId !== this.user?.uid);
+                if(originQ || destQ) {
+                    results = results.filter(r => r.originName.toLowerCase().includes(originQ) || r.destName.toLowerCase().includes(destQ));
+                }
+                this.renderSearchResults(results);
             },
 
             renderSearchResults(rides) {
                 const list = document.getElementById('search-results-list');
-                document.getElementById('search-count').textContent = `${rides.length} Pools`;
-                list.innerHTML = rides.length ? rides.map(ride => `
-                    <div onclick="window.app.openDetails('${ride.id}')" class="bg-white rounded-[32px] border border-slate-100 shadow-soft p-5 active:scale-95 transition-all">
-                        <div class="flex justify-between items-start mb-5">
-                            <div class="flex gap-4">
-                                <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black">${ride.driverName[0]}</div>
-                                <div><h4 class="font-black text-slate-900 text-sm">${ride.driverName}</h4><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${this.formatDate(ride.time)}</p></div>
+                document.getElementById('search-count').textContent = `${rides.length} Live`;
+                if (rides.length === 0) {
+                    list.innerHTML = `<div class="bg-gray-50 rounded-2xl p-8 text-center text-xs text-gray-500 font-bold border-2 border-dashed border-gray-100">WALANG MATCH NA AKTIBONG BIYAHE</div>`;
+                    return;
+                }
+                list.innerHTML = rides.map(ride => `
+                    <div onclick="window.app.openDetails('${ride.id}')" class="bg-white rounded-3xl border border-gray-100 shadow-sm p-4 cursor-pointer hover:border-brand-400 hover:shadow-md transition-all active:scale-[0.98]">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex gap-3">
+                                <div class="w-12 h-12 rounded-full bg-brand-50 text-brand-700 flex items-center justify-center font-bold text-lg border border-brand-100">${ride.driverName.substring(0,1).toUpperCase()}</div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-900">${ride.driverName}</h4>
+                                    <p class="text-[10px] text-gray-500 font-bold">${this.formatDate(ride.time)}</p>
+                                </div>
                             </div>
-                            <div class="text-right">
-                                ${ride.surgeMultiplier > 1 ? '<span class="text-[8px] font-black text-orange-500 bg-orange-50 px-2 py-1 rounded-lg uppercase mb-1 inline-block">⚡ Surge</span>' : ''}
-                                <p class="text-xl font-black text-slate-900">₱${ride.pricePerSeat}</p>
-                            </div>
+                            <div class="text-right"><p class="text-xl font-black text-brand-600">₱${ride.pricePerSeat}</p></div>
                         </div>
-                        <div class="space-y-3 mb-5 pl-4 border-l-2 border-slate-50">
-                            <p class="text-xs font-bold text-slate-600 truncate">${ride.originName}</p>
-                            <p class="text-xs font-black text-slate-900 truncate">${ride.destName}</p>
+                        <div class="pl-3 border-l-2 border-gray-100 space-y-3 ml-2 mb-4">
+                            <p class="text-xs font-bold text-gray-800 truncate">${ride.originName}</p>
+                            <p class="text-xs font-bold text-gray-800 truncate">${ride.destName}</p>
                         </div>
-                        <div class="flex gap-2">
-                            <span class="text-[9px] font-black uppercase tracking-widest bg-slate-50 px-3 py-1.5 rounded-xl text-slate-500">${ride.carModel}</span>
-                            <span class="text-[9px] font-black uppercase tracking-widest bg-brand-50 px-3 py-1.5 rounded-xl text-brand-600">${ride.seatsAvailable} Left</span>
+                        <div class="flex gap-2 text-[10px] font-bold">
+                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-md flex items-center gap-1"><i data-lucide="car" class="w-3 h-3"></i> ${ride.carModel}</span>
+                            <span class="bg-blue-50 text-blue-600 px-2 py-1 rounded-md flex items-center gap-1"><i data-lucide="users" class="w-3 h-3"></i> ${ride.seatsAvailable} upuan</span>
                         </div>
-                    </div>
-                `).join('') : '<p class="text-center py-10 opacity-40 text-sm font-bold">No pools found</p>';
-            },
-
-            openDetails(rideId) {
-                const r = this.allRides.find(ride => ride.id === rideId); if(!r) return;
-                this.selectedRide = r;
-                document.getElementById('detail-route').textContent = `${r.originName.split(',')[0]} to ${r.destName.split(',')[0]}`;
-                document.getElementById('detail-time').innerHTML = `<span>${this.formatDate(r.time)}</span>`;
-                document.getElementById('detail-avatar').textContent = r.driverName[0];
-                document.getElementById('detail-driver').textContent = r.driverName;
-                document.getElementById('detail-car').textContent = r.carModel;
-                document.getElementById('detail-seats').textContent = `${r.seatsAvailable} Seats`;
-                document.getElementById('detail-distance').textContent = `${r.distanceKm}km`;
-                document.getElementById('detail-total-cost').textContent = `₱${r.fuelSplit.toFixed(2)}`;
-                document.getElementById('detail-exact-share').textContent = `₱${r.pricePerSeat}`;
-                const row = document.getElementById('detail-surge-row'), badge = document.getElementById('detail-surge-badge');
-                if(r.surgeMultiplier > 1) { badge.classList.remove('hidden'); row.classList.remove('hidden'); document.getElementById('detail-surge-cost').textContent = `₱${(r.pricePerSeat - (r.fuelSplit + 50)).toFixed(2)}`; }
-                else { badge.classList.add('hidden'); row.classList.add('hidden'); }
-                const req = this.allRequests.find(req => req.rideId === rideId && req.passengerId === this.user.uid);
-                const b = document.getElementById('btn-request'), c = document.getElementById('btn-chat-detail'), s = document.getElementById('btn-sos-detail');
-                if(req) { b.disabled = true; b.textContent = `Pending (${req.status})`; c.classList.toggle('hidden', req.status !== 'accepted'); s.classList.toggle('hidden', req.status !== 'accepted'); }
-                else if(r.driverId === this.user.uid) { b.disabled = true; b.textContent = 'My Drive'; c.classList.remove('hidden'); s.classList.remove('hidden'); }
-                else { b.disabled = false; b.textContent = 'JOIN RIDE'; c.classList.add('hidden'); s.classList.add('hidden'); }
-                this.navigate('details'); lucide.createIcons();
-            },
-
-            async renderMap(o, d) {
-                if(!window.L || !document.getElementById('detail-map')) return;
-                if(this.map) this.map.remove();
-                this.map = L.map('detail-map', { zoomControl: false }).setView([o.lat, o.lon], 13);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(this.map);
-                L.marker([o.lat, o.lon], {icon: L.divIcon({className:'w-4 h-4 bg-brand-500 rounded-full border-2 border-white shadow-lg'})}).addTo(this.map);
-                L.marker([d.lat, d.lon], {icon: L.divIcon({className:'w-4 h-4 bg-slate-900 rounded-full border-2 border-white shadow-lg'})}).addTo(this.map);
-                const route = await this.getRouteInfo(o, d);
-                if(route) { this.routeLayer = L.geoJSON(route.geometry, {style: {color:'#16a34a', weight:4, opacity:0.8}}).addTo(this.map); this.map.fitBounds(this.routeLayer.getBounds(), {padding:[40,40]}); }
-            },
-
-            async requestRide() {
-                if(!this.selectedRide || !this.user) return;
-                try {
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'requests'), { rideId: this.selectedRide.id, driverId: this.selectedRide.driverId, passengerId: this.user.uid, passengerName: this.user.displayName || "User", status: 'pending', timestamp: Date.now() });
-                    this.showToast("Request Sent!"); this.navigate('dashboard');
-                } catch(e) { }
-            },
-
-            switchActivityTab(tab) {
-                const isJoined = tab === 'joined';
-                document.getElementById('tab-joined').className = isJoined ? 'flex-1 py-3 text-xs font-black uppercase rounded-2xl bg-white shadow-premium text-slate-900 transition-all' : 'flex-1 py-3 text-xs font-black uppercase rounded-2xl text-slate-500 hover:text-slate-900 transition-all';
-                document.getElementById('tab-offered').className = !isJoined ? 'flex-1 py-3 text-xs font-black uppercase rounded-2xl bg-white shadow-premium text-slate-900 transition-all' : 'flex-1 py-3 text-xs font-black uppercase rounded-2xl text-slate-500 hover:text-slate-900 transition-all';
-                document.getElementById('activity-joined-list').classList.toggle('hidden', !isJoined);
-                document.getElementById('activity-offered-list').classList.toggle('hidden', isJoined);
-            },
-
-            updateActivityBadge() {
-                const pend = this.allRequests.filter(req => req.driverId === this.user?.uid && req.status === 'pending');
-                document.getElementById('activity-badge').classList.toggle('hidden', !pend.length);
-            },
-
-            renderActivity() {
-                if(!this.user) return;
-                const jr = document.getElementById('activity-joined-list'), or = document.getElementById('activity-offered-list');
-                const myReqs = this.allRequests.filter(r => r.passengerId === this.user.uid);
-                jr.innerHTML = myReqs.length ? myReqs.map(req => {
-                    const ride = this.allRides.find(r => r.id === req.rideId); if(!ride) return '';
-                    const col = req.status === 'accepted' ? 'bg-brand-50 text-brand-600' : 'bg-slate-50 text-slate-500';
-                    return `<div class="bg-white p-5 rounded-[28px] shadow-soft border border-slate-50" onclick="window.app.openDetails('${ride.id}')">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-[9px] font-black uppercase tracking-widest ${col} px-3 py-1 rounded-xl">${req.status}</span>
-                            <span class="text-[10px] font-bold text-slate-400">${this.formatDate(ride.time)}</span>
-                        </div>
-                        <h4 class="font-black text-slate-900 text-sm mb-3">${ride.originName.split(',')[0]} → ${ride.destName.split(',')[0]}</h4>
-                        ${req.status === 'accepted' ? `<button onclick="event.stopPropagation(); window.app.openChat('${ride.id}')" class="w-full py-3 bg-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-200 transition-colors">Open Chat</button>` : ''}
-                        ${req.status === 'completed' ? `<button onclick="event.stopPropagation(); window.app.openRatingModal('${ride.driverId}', '${ride.driverName}', '${ride.id}')" class="w-full py-3 bg-yellow-50 text-yellow-600 rounded-xl text-[10px] font-black uppercase tracking-widest">Rate Driver</button>` : ''}
-                    </div>`;
-                }).join('') : '<p class="text-center py-10 opacity-40 font-bold text-xs">No requests yet</p>';
-
-                const myDriven = this.allRides.filter(r => r.driverId === this.user.uid);
-                or.innerHTML = myDriven.length ? myDriven.map(ride => {
-                    const rs = this.allRequests.filter(req => req.rideId === ride.id);
-                    return `<div class="bg-white p-5 rounded-[28px] shadow-soft border border-slate-50" onclick="window.app.openDetails('${ride.id}')">
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="font-black text-slate-900 text-sm">${ride.originName.split(',')[0]} → ${ride.destName.split(',')[0]}</h4>
-                            <button onclick="event.stopPropagation(); window.app.openChat('${ride.id}')" class="p-2 bg-slate-50 text-slate-400 rounded-xl"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
-                        </div>
-                        <div class="space-y-2 mt-4">
-                            ${rs.length ? rs.map(req => `<div class="flex justify-between items-center bg-slate-50 p-3 rounded-2xl">
-                                <span class="text-xs font-bold text-slate-700">${req.passengerName}</span>
-                                ${req.status === 'pending' ? `<div class="flex gap-2"><button onclick="event.stopPropagation(); window.app.handleRequest('${req.id}','accepted','${ride.id}')" class="text-[9px] font-black bg-slate-900 text-white px-3 py-1.5 rounded-lg uppercase">Accept</button></div>` : `<span class="text-[9px] font-black uppercase text-slate-400">${req.status}</span>`}
-                            </div>`).join('') : '<p class="text-[10px] text-slate-400 italic">No passengers yet</p>'}
-                        </div>
-                        ${ride.status === 'active' ? `<button onclick="event.stopPropagation(); window.app.completeRide('${ride.id}')" class="w-full mt-4 py-3 bg-brand-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-brand-100">Finish Trip</button>` : ''}
-                    </div>`;
-                }).join('') : '<p class="text-center py-10 opacity-40 font-bold text-xs">Not driving</p>';
-                lucide.createIcons();
-            },
-
-            async handleRequest(rid, s, rideId) { try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'requests', rid), { status: s }); if(s === 'accepted') { const r = this.allRides.find(ri => ri.id === rideId); if(r && r.seatsAvailable > 0) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rides', rideId), { seatsAvailable: r.seatsAvailable - 1 }); } this.showToast(`Request ${s}`); } catch(e) { } },
-            async completeRide(rid) { if(!confirm("Mark trip as completed?")) return; try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rides', rid), { status: 'completed' }); const rs = this.allRequests.filter(r => r.rideId === rid && r.status === 'accepted'); for(let r of rs) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'requests', r.id), { status: 'completed' }); this.showToast("Completed!"); } catch(e) { } },
-
-            renderDashboardActivity() {
-                const list = document.getElementById('dash-activity-list');
-                const myAccepted = this.allRequests.filter(r => r.passengerId === this.user?.uid && r.status === 'accepted').map(r => r.rideId);
-                const rel = this.allRides.filter(r => r.driverId === this.user?.uid || myAccepted.includes(r.id)).slice(0, 2);
-                document.getElementById('dashboard-recent-activity').classList.toggle('hidden', !rel.length);
-                list.innerHTML = rel.map(r => `
-                    <div class="bg-white p-4 rounded-3xl border border-slate-50 shadow-soft flex justify-between items-center" onclick="window.app.openDetails('${r.id}')">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl ${r.driverId === this.user?.uid ? 'bg-slate-900 text-white' : 'bg-brand-50 text-brand-600'} flex items-center justify-center font-black text-xs">${r.driverId === this.user?.uid ? 'DRV' : 'SALI'}</div>
-                            <div><p class="text-sm font-black text-slate-900">${r.destName.split(',')[0]}</p><p class="text-[10px] font-bold text-slate-400">${this.formatDate(r.time)}</p></div>
-                        </div>
-                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-200"></i>
                     </div>
                 `).join('');
                 lucide.createIcons();
             },
 
-            openChat(rid) { const r = this.allRides.find(ride => ride.id === rid); if(!r) return; this.activeChatRideId = rid; document.getElementById('chat-title').textContent = `${r.originName.split(',')[0]} to ${r.destName.split(',')[0]}`; document.getElementById('chat-subtitle').textContent = `Driver: ${r.driverName}`; this.navigate('chat'); document.getElementById('bottom-nav').classList.add('hidden'); this.renderChat(); },
-            closeChat() { this.activeChatRideId = null; this.navigate('activity'); document.getElementById('bottom-nav').classList.remove('hidden'); },
-            async sendMessage() { const i = document.getElementById('chat-input'), t = i.value.trim(); if(!t || !this.activeChatRideId) return; i.value = ''; try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), { rideId: this.activeChatRideId, senderId: this.user.uid, senderName: this.user.displayName || "User", text: t, timestamp: Date.now() }); } catch(e) { } },
+            openDetails(rideId) {
+                const ride = this.allRides.find(r => r.id === rideId);
+                if(!ride) return;
+                this.selectedRide = ride;
+                document.getElementById('detail-route').textContent = `${ride.originName.split(',')[0]} → ${ride.destName.split(',')[0]}`;
+                document.getElementById('detail-time').innerHTML = `<i data-lucide="clock" class="w-4 h-4"></i> <span>${this.formatDate(ride.time)}</span>`;
+                document.getElementById('detail-avatar').textContent = ride.driverName.substring(0,1).toUpperCase();
+                document.getElementById('detail-driver').textContent = ride.driverName;
+                document.getElementById('detail-car').textContent = ride.carModel;
+                document.getElementById('detail-seats').textContent = `${ride.seatsAvailable} Upuan`;
+                document.getElementById('detail-distance').textContent = `${ride.distanceKm}km`;
+                document.getElementById('detail-total-cost').textContent = `₱${(ride.fuelSplit || 0).toFixed(2)}`;
+                document.getElementById('detail-exact-share').textContent = `₱${ride.pricePerSeat}`;
+
+                const existingReq = this.allRequests.find(req => req.rideId === rideId && req.passengerId === this.user.uid);
+                const btn = document.getElementById('btn-request');
+                const chatBtn = document.getElementById('btn-chat-detail');
+                const sosBtn = document.getElementById('btn-sos-detail');
+                
+                if(existingReq) {
+                    btn.disabled = true;
+                    btn.innerHTML = `<i data-lucide="check" class="w-5 h-5"></i> Na-request (${existingReq.status})`;
+                    if(existingReq.status === 'accepted' || existingReq.status === 'completed') {
+                        chatBtn.classList.remove('hidden');
+                        sosBtn.classList.remove('hidden');
+                    } else {
+                        chatBtn.classList.add('hidden');
+                        sosBtn.classList.add('hidden');
+                    }
+                } else if (ride.driverId === this.user.uid) {
+                    btn.disabled = true;
+                    btn.innerHTML = 'Iyong Biyahe';
+                    chatBtn.classList.remove('hidden');
+                    sosBtn.classList.remove('hidden');
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Mag-request Makisakay';
+                    chatBtn.classList.add('hidden');
+                    sosBtn.classList.add('hidden');
+                }
+                this.navigate('details');
+                lucide.createIcons();
+            },
+
+            async renderMap(origin, dest) {
+                if(!window.L || !document.getElementById('detail-map')) return;
+                if(this.map) this.map.remove();
+                
+                this.driverMarker = null;
+                this.map = L.map('detail-map', { zoomControl: false }).setView([origin.lat, origin.lon], 13);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(this.map);
+                L.marker([origin.lat, origin.lon], {icon: L.divIcon({ className: 'bg-brand-500 w-4 h-4 rounded-full border-4 border-white' })}).addTo(this.map);
+                L.marker([dest.lat, dest.lon], {icon: L.divIcon({ className: 'bg-gray-900 w-4 h-4 rounded-full border-4 border-white' })}).addTo(this.map);
+                
+                const routeInfo = await this.getRouteInfo(origin, dest);
+                if(routeInfo) {
+                    this.routeLayer = L.geoJSON(routeInfo.geometry, { style: { color: '#16a34a', weight: 4, dashArray: '10, 10' } }).addTo(this.map);
+                    this.map.fitBounds(this.routeLayer.getBounds(), { padding: [30, 30] });
+                }
+
+                if(this.selectedRide && this.selectedRide.currentLocation) {
+                    this.updateDriverMarker(this.selectedRide);
+                }
+            },
+            
+            updateDriverMarker(ride) {
+                if(!this.map || !ride.currentLocation) return;
+                
+                if(this.driverMarker) {
+                    this.driverMarker.setLatLng([ride.currentLocation.lat, ride.currentLocation.lon]);
+                } else {
+                    const carIco = L.divIcon({ 
+                        className: 'custom-driver-marker',
+                        html: '<div class="w-6 h-6 bg-blue-600 rounded-full border-2 border-white shadow-xl flex items-center justify-center text-white transition-all"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg></div>',
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    });
+                    this.driverMarker = L.marker([ride.currentLocation.lat, ride.currentLocation.lon], {icon: carIco, zIndexOffset: 1000}).addTo(this.map);
+                }
+            },
+
+            async requestRide() {
+                if(!db || !this.user || !this.selectedRide) return;
+                const btn = document.getElementById('btn-request');
+                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Pinoproseso...';
+                btn.disabled = true;
+                try {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'requests'), {
+                        rideId: this.selectedRide.id,
+                        driverId: this.selectedRide.driverId,
+                        passengerId: this.user.uid,
+                        passengerName: this.user.displayName || "Commuter",
+                        status: 'pending',
+                        timestamp: Date.now()
+                    });
+                    this.showToast("Naipadala na ang Request!");
+                    this.navigate('dashboard');
+                } catch(e) { this.showToast("Bigo ang pag-request", "error"); }
+            },
+
+            switchActivityTab(tab) {
+                document.getElementById('tab-joined').classList.toggle('bg-white', tab === 'joined');
+                document.getElementById('tab-offered').classList.toggle('bg-white', tab === 'offered');
+                document.getElementById('activity-joined-list').classList.toggle('hidden', tab !== 'joined');
+                document.getElementById('activity-offered-list').classList.toggle('hidden', tab !== 'offered');
+            },
+
+            updateActivityBadge() {
+                const pend = this.allRequests.filter(req => req.driverId === this.user?.uid && req.status === 'pending');
+                document.getElementById('activity-badge').classList.toggle('hidden', pend.length === 0);
+            },
+
+            renderActivity() {
+                if(!this.user) return;
+                const myReqs = this.allRequests.filter(req => req.passengerId === this.user.uid);
+                const joinedList = document.getElementById('activity-joined-list');
+                joinedList.innerHTML = myReqs.length === 0 ? `<p class="text-center py-10 text-gray-400 font-bold text-xs">WALA PANG REQUESTS</p>` : myReqs.map(req => {
+                    const ride = this.allRides.find(r => r.id === req.rideId);
+                    if(!ride) return '';
+                    const col = req.status === 'accepted' ? 'text-brand-600 bg-brand-50' : req.status === 'completed' ? 'text-gray-600 bg-gray-100' : 'text-orange-600 bg-orange-50';
+                    return `<div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm cursor-pointer" onclick="window.app.openDetails('${ride.id}')">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold uppercase ${col} px-2 py-1 rounded-md">${req.status}</span>
+                            <span class="text-[10px] text-gray-500 font-bold">${this.formatDate(ride.time)}</span>
+                        </div>
+                        <h4 class="font-bold text-gray-900 text-sm">${ride.originName.split(',')[0]} → ${ride.destName.split(',')[0]}</h4>
+                        <div class="mt-3 flex justify-end gap-2">
+                            ${req.status === 'accepted' ? `<button onclick="event.stopPropagation(); window.app.openChat('${ride.id}')" class="text-brand-600 font-bold text-xs flex items-center gap-1"><i data-lucide="message-circle" class="w-3 h-3"></i> Mensahe</button>` : ''}
+                            ${req.status === 'completed' ? `<button onclick="event.stopPropagation(); window.app.openRatingModal('${ride.driverId}', '${ride.driverName}', '${ride.id}')" class="text-yellow-600 bg-yellow-50 px-3 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1"><i data-lucide="star" class="w-3 h-3"></i> I-rate ang Driver</button>` : ''}
+                        </div>
+                    </div>`;
+                }).join('');
+
+                const myOffered = this.allRides.filter(r => r.driverId === this.user.uid);
+                const offeredList = document.getElementById('activity-offered-list');
+                offeredList.innerHTML = myOffered.length === 0 ? `<p class="text-center py-10 text-gray-400 font-bold text-xs">WALANG MINAMANEHONG BIYAHE</p>` : myOffered.map(ride => {
+                    const reqs = this.allRequests.filter(req => req.rideId === ride.id);
+                    const isTracking = this.watchPositionId && this.selectedRide?.id === ride.id;
+                    
+                    return `<div class="bg-white rounded-2xl p-4 border border-gray-100 relative cursor-pointer" onclick="window.app.openDetails('${ride.id}')">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="font-bold text-gray-900 text-sm">${ride.originName.split(',')[0]} → ${ride.destName.split(',')[0]}</h4>
+                            <div class="flex gap-2">
+                                <button onclick="event.stopPropagation(); window.app.openChat('${ride.id}')" class="p-2 bg-brand-50 text-brand-600 rounded-lg"><i data-lucide="message-circle" class="w-4 h-4"></i></button>
+                                ${ride.status === 'active' ? `
+                                    <button id="track-btn-${ride.id}" onclick="event.stopPropagation(); window.app.toggleLiveLocation('${ride.id}')" class="p-2 ${isTracking ? 'bg-red-100 text-red-600' : 'bg-blue-50 text-blue-600'} rounded-lg transition-colors" title="I-broadcast ang Lokasyon">
+                                        <i data-lucide="${isTracking ? 'stop-circle' : 'navigation'}" class="w-4 h-4"></i>
+                                    </button>
+                                    <button onclick="event.stopPropagation(); window.app.completeRide('${ride.id}')" class="bg-brand-600 text-white text-[10px] px-3 py-2 rounded-lg font-bold">Tapusin ang Biyahe</button>
+                                ` : `<span class="text-[10px] font-bold text-gray-400 uppercase flex items-center">Tapos Na</span>`}
+                            </div>
+                        </div>
+                        <div class="mt-4 space-y-2">
+                            ${reqs.map(req => `<div class="flex justify-between items-center bg-gray-50 p-2 rounded-xl">
+                                <span class="text-xs font-bold">${req.passengerName}</span>
+                                ${req.status === 'pending' && ride.status === 'active' ? `<div class="flex gap-2">
+                                    <button onclick="event.stopPropagation(); window.app.handleRequest('${req.id}', 'accepted', '${ride.id}')" class="text-[10px] bg-brand-600 text-white px-2 py-1 rounded-lg font-bold">Tanggapin</button>
+                                    <button onclick="event.stopPropagation(); window.app.handleRequest('${req.id}', 'rejected', null)" class="text-[10px] bg-gray-200 text-gray-700 px-2 py-1 rounded-lg font-bold">Tanggihan</button>
+                                </div>` : `<span class="text-[10px] font-bold uppercase text-gray-400">${req.status}</span>`}
+                            </div>`).join('') || '<p class="text-[10px] italic text-gray-400">Wala pang requests</p>'}
+                        </div>
+                    </div>`;
+                }).join('');
+                lucide.createIcons();
+            },
+
+            async toggleLiveLocation(rideId) {
+                if (this.watchPositionId) {
+                    navigator.geolocation.clearWatch(this.watchPositionId);
+                    this.watchPositionId = null;
+                    this.showToast("Itinigil ang pag-broadcast ng live location.");
+                    
+                    const btn = document.getElementById(`track-btn-${rideId}`);
+                    if(btn) {
+                        btn.classList.remove('bg-red-100', 'text-red-600');
+                        btn.classList.add('bg-blue-50', 'text-blue-600');
+                        btn.innerHTML = `<i data-lucide="navigation" class="w-4 h-4"></i>`;
+                        lucide.createIcons();
+                    }
+                    return;
+                }
+
+                if (!navigator.geolocation) {
+                    this.showToast("Hindi supported ng browser ang Geolocation", "error");
+                    return;
+                }
+
+                this.showToast("Bino-broadcast ang live location sa mga pasahero...");
+                const btn = document.getElementById(`track-btn-${rideId}`);
+                if(btn) {
+                    btn.classList.remove('bg-blue-50', 'text-blue-600');
+                    btn.classList.add('bg-red-100', 'text-red-600');
+                    btn.innerHTML = `<i data-lucide="stop-circle" class="w-4 h-4"></i>`;
+                    lucide.createIcons();
+                }
+
+                this.selectedRide = this.allRides.find(r => r.id === rideId);
+
+                this.watchPositionId = navigator.geolocation.watchPosition(
+                    async (position) => {
+                        try {
+                            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rides', rideId), {
+                                currentLocation: {
+                                    lat: position.coords.latitude,
+                                    lon: position.coords.longitude
+                                }
+                            });
+                        } catch(e) { console.error("Error sa pag-update ng lokasyon", e); }
+                    },
+                    (error) => {
+                        this.showToast("Error sa pagkuha ng lokasyon: " + error.message, "error");
+                        this.toggleLiveLocation(rideId); // Auto toggle off pag may error
+                    },
+                    { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+                );
+            },
+
+            async handleRequest(reqId, newStatus, rideId) {
+                try {
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'requests', reqId), { status: newStatus });
+                    if(newStatus === 'accepted' && rideId) {
+                        const ride = this.allRides.find(r => r.id === rideId);
+                        if(ride && ride.seatsAvailable > 0) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rides', rideId), { seatsAvailable: ride.seatsAvailable - 1 });
+                    }
+                    this.showToast(`Request ${newStatus}`);
+                } catch(e) { this.showToast("Bigo ang aksyon", "error"); }
+            },
+
+            async completeRide(rideId) {
+                if(!confirm("Gawing completed ang biyaheng ito? Papayagan nitong i-rate ka ng mga pasahero.")) return;
+                try {
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rides', rideId), { status: 'completed' });
+                    const acceptedReqs = this.allRequests.filter(req => req.rideId === rideId && req.status === 'accepted');
+                    for(let req of acceptedReqs) {
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'requests', req.id), { status: 'completed' });
+                    }
+                    this.showToast("Natapos na ang biyahe!");
+                } catch(e) { this.showToast("Bigo ang aksyon", "error"); }
+            },
+
+            renderDashboardActivity() {
+                const list = document.getElementById('dash-activity-list');
+                const myAccepted = this.allRequests.filter(req => req.passengerId === this.user?.uid && req.status === 'accepted').map(r => r.rideId);
+                const relevant = this.allRides.filter(r => r.driverId === this.user?.uid || myAccepted.includes(r.id)).slice(0, 2);
+                document.getElementById('dashboard-recent-activity').classList.toggle('hidden', relevant.length === 0);
+                list.innerHTML = relevant.map(ride => `<div class="bg-white rounded-2xl p-3 border border-gray-100 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg ${ride.driverId === this.user?.uid ? 'bg-brand-50 text-brand-600' : 'bg-blue-50 text-blue-600'} flex items-center justify-center font-bold text-[10px]">${ride.driverId === this.user?.uid ? 'DRV' : 'SALI'}</div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-900">${ride.destName.split(',')[0]}</p>
+                            <p class="text-[10px] text-gray-500 font-bold">${this.formatDate(ride.time)}</p>
+                        </div>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300"></i>
+                </div>`).join('');
+                lucide.createIcons();
+            },
+
+            openChat(rideId) {
+                const ride = this.allRides.find(r => r.id === rideId);
+                if(!ride) return;
+                this.activeChatRideId = rideId;
+                document.getElementById('chat-title').textContent = `${ride.originName.split(',')[0]} → ${ride.destName.split(',')[0]}`;
+                document.getElementById('chat-subtitle').textContent = `Driver: ${ride.driverName}`;
+                this.navigate('chat');
+                document.getElementById('bottom-nav').classList.add('hidden');
+                this.renderChat();
+            },
+
+            closeChat() {
+                this.activeChatRideId = null;
+                this.navigate('activity');
+                document.getElementById('bottom-nav').classList.remove('hidden');
+            },
+
+            async sendMessage() {
+                const input = document.getElementById('chat-input');
+                const text = input.value.trim();
+                if(!text || !this.activeChatRideId || !this.user) return;
+                input.value = '';
+                try {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), {
+                        rideId: this.activeChatRideId,
+                        senderId: this.user.uid,
+                        senderName: this.user.displayName || "Commuter",
+                        text, timestamp: Date.now()
+                    });
+                } catch(e) { this.showToast("Bigo ang pagpadala", "error"); }
+            },
+
             renderChat() {
-                const c = document.getElementById('chat-messages');
-                const ms = this.allMessages.filter(m => m.rideId === this.activeChatRideId).sort((a,b) => a.timestamp - b.timestamp);
-                c.innerHTML = ms.length ? ms.map(m => {
+                const container = document.getElementById('chat-messages');
+                const rideMessages = this.allMessages.filter(m => m.rideId === this.activeChatRideId).sort((a, b) => a.timestamp - b.timestamp);
+                container.innerHTML = rideMessages.length === 0 ? `<div class="flex flex-col items-center justify-center h-full opacity-40"><p class="text-xs font-bold uppercase">Wala pang mensahe</p></div>` : rideMessages.map(m => {
                     const isMe = m.senderId === this.user?.uid;
                     return `<div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                        ${!isMe ? `<span class="text-[8px] font-black text-slate-400 mb-1 ml-2 uppercase tracking-widest">${m.senderName}</span>` : ''}
-                        <div class="${isMe ? 'bg-slate-900 text-white rounded-l-2xl rounded-tr-2xl' : 'bg-white text-slate-800 border border-slate-100 rounded-r-2xl rounded-tl-2xl'} px-4 py-3 shadow-soft max-w-[85%]">
+                        ${!isMe ? `<span class="text-[9px] font-black text-gray-400 mb-1 ml-1 uppercase">${m.senderName}</span>` : ''}
+                        <div class="${isMe ? 'bg-brand-600 text-white rounded-l-2xl rounded-tr-2xl' : 'bg-white text-gray-800 border border-gray-200 rounded-r-2xl rounded-tl-2xl'} p-3 shadow-sm max-w-[80%]">
                             <p class="text-sm font-medium leading-relaxed">${m.text}</p>
                         </div>
                     </div>`;
-                }).join('') : '<p class="text-center py-10 opacity-40 font-black text-[10px] uppercase tracking-widest">Start the conversation</p>';
-                c.scrollTop = c.scrollHeight;
+                }).join('');
+                lucide.createIcons();
+                container.scrollTop = container.scrollHeight;
             }
         };
 
