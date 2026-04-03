@@ -49,7 +49,7 @@
     </script>
     <style>
         body {
-            background-color: #f3f4f6;
+            background-color: #f9fafb;
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
             margin: 0;
@@ -70,16 +70,15 @@
         
         .view {
             display: none;
-            flex: 1;
             width: 100%;
+            height: 100%;
             overflow-y: auto;
             position: absolute;
             top: 0;
             left: 0;
-            bottom: 70px;
             background: #f9fafb;
             animation: fadeIn 0.2s ease-out;
-            padding-bottom: env(safe-area-inset-bottom);
+            padding-bottom: 90px; /* Space for bottom nav */
         }
         
         .view.active {
@@ -87,19 +86,23 @@
             z-index: 10;
         }
 
-        #view-login.active, #view-role.active {
-            bottom: 0;
+        /* Views that hide the bottom nav shouldn't have padding at the bottom */
+        #view-login, #view-role, #view-chat {
+            padding-bottom: 0;
             z-index: 60;
         }
 
         #view-chat {
             display: none;
             flex-direction: column;
-            bottom: 0;
             z-index: 70;
         }
         #view-chat.active {
             display: flex;
+        }
+
+        #bottom-nav {
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         @keyframes fadeIn {
@@ -312,10 +315,10 @@
              VIEW: DASHBOARD
         =========================================== -->
         <div id="view-dashboard" class="view">
-            <!-- Header -->
-            <div class="bg-gradient-to-b from-brand-700 to-brand-600 text-white pt-10 pb-24 shadow-lg relative">
-                <div class="max-w-3xl mx-auto px-6 w-full h-full relative">
-                    <div class="flex justify-between items-center mb-8">
+            <!-- Header Background Area -->
+            <div class="bg-gradient-to-b from-brand-700 to-brand-600 text-white pt-10 pb-20 shadow-lg">
+                <div class="max-w-3xl mx-auto px-6 w-full relative">
+                    <div class="flex justify-between items-center">
                         <div>
                             <p class="text-brand-100 text-xs font-medium uppercase tracking-wider mb-1" id="greeting-text">Welcome back,</p>
                             <h2 class="text-2xl font-bold flex items-center gap-2">
@@ -323,42 +326,44 @@
                                 <i data-lucide="badge-check" class="w-5 h-5 text-teal-400 fill-white"></i>
                             </h2>
                         </div>
-                        <button onclick="window.app.navigate('profile')" class="w-12 h-12 rounded-full bg-white/20 border-2 border-white/50 overflow-hidden backdrop-blur-sm shadow-inner active:scale-95 transition-transform">
+                        <button onclick="window.app.navigate('profile')" class="w-12 h-12 rounded-full bg-white/20 border-2 border-white/50 overflow-hidden backdrop-blur-sm shadow-inner active:scale-95 transition-transform md:hidden">
                             <div id="dashboard-avatar" class="w-full h-full flex items-center justify-center bg-brand-800">
                                 <i data-lucide="user" class="w-6 h-6 text-white"></i>
                             </div>
                         </button>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Live Data Cards -->
-                    <div class="absolute -bottom-12 left-6 right-6 md:left-6 md:right-6 lg:left-0 lg:right-0 flex gap-4">
-                        <div class="flex-1 bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 relative overflow-hidden">
-                            <div class="absolute -right-4 -top-4 w-16 h-16 bg-teal-50 rounded-full z-0"></div>
-                            <div class="relative z-10">
-                                <div class="flex items-center gap-2 text-teal-600 mb-2">
-                                    <i data-lucide="droplet" class="w-4 h-4 fill-teal-100"></i>
-                                    <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Gas Price</p>
-                                </div>
-                                <p class="text-2xl font-black text-gray-900" id="dash-fuel-price">₱64.20</p>
-                                <p class="text-[10px] text-gray-400 mt-1">per Liter</p>
+            <!-- Overlapping Live Data Cards -->
+            <div class="max-w-3xl mx-auto px-6 w-full -mt-12 relative z-10">
+                <div class="flex gap-4">
+                    <div class="flex-1 bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-teal-50 rounded-full z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-2 text-teal-600 mb-2">
+                                <i data-lucide="droplet" class="w-4 h-4 fill-teal-100"></i>
+                                <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Gas Price</p>
                             </div>
+                            <p class="text-2xl font-black text-gray-900" id="dash-fuel-price">₱64.20</p>
+                            <p class="text-[10px] text-gray-400 mt-1">per Liter</p>
                         </div>
-                        <div class="flex-1 bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 relative overflow-hidden">
-                            <div class="absolute -right-4 -top-4 w-16 h-16 bg-brand-50 rounded-full z-0"></div>
-                            <div class="relative z-10">
-                                <div class="flex items-center gap-2 text-brand-600 mb-2">
-                                    <i data-lucide="leaf" class="w-4 h-4 fill-brand-100"></i>
-                                    <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">CO2 Saved</p>
-                                </div>
-                                <p class="text-2xl font-black text-gray-900" id="dash-co2">12.4<span class="text-sm font-bold text-gray-500">kg</span></p>
-                                <p class="text-[10px] text-gray-400 mt-1">Community Total</p>
+                    </div>
+                    <div class="flex-1 bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-brand-50 rounded-full z-0"></div>
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-2 text-brand-600 mb-2">
+                                <i data-lucide="leaf" class="w-4 h-4 fill-brand-100"></i>
+                                <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">CO2 Saved</p>
                             </div>
+                            <p class="text-2xl font-black text-gray-900" id="dash-co2">12.4<span class="text-sm font-bold text-gray-500">kg</span></p>
+                            <p class="text-[10px] text-gray-400 mt-1">Community Total</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="max-w-3xl mx-auto w-full px-6 mt-20 pb-8 space-y-6">
+            <div class="max-w-3xl mx-auto w-full px-6 mt-8 pb-8 space-y-6">
                 <!-- Primary Actions (Roles limit these) -->
                 <div>
                     <h3 class="text-sm font-bold text-gray-900 mb-3">Where are we heading?</h3>
@@ -555,7 +560,7 @@
                         <span class="text-[10px] font-bold text-brand-600 bg-brand-50 px-2 py-1 rounded-md" id="search-count">Live</span>
                     </div>
                     
-                    <div id="search-results-list" class="space-y-4 pb-10 grid md:grid-cols-2 gap-4">
+                    <div id="search-results-list" class="space-y-4 pb-10 grid md:grid-cols-2 gap-4 md:space-y-0">
                         <!-- Populated dynamically -->
                     </div>
                 </div>
@@ -566,78 +571,86 @@
              VIEW: RIDE DETAILS
         =========================================== -->
         <div id="view-details" class="view bg-gray-50">
-            <!-- Map Container -->
-            <div id="detail-map" class="h-64 md:h-96 w-full bg-gray-200 relative z-0"></div>
-            
-            <button onclick="window.app.navigate('find')" class="absolute top-12 left-4 md:left-10 w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-lg text-gray-900 flex items-center justify-center active:scale-90 transition-transform z-20">
-                <i data-lucide="arrow-left" class="w-5 h-5"></i>
-            </button>
-
-            <div class="relative -mt-6 bg-white rounded-t-[32px] px-6 pt-8 pb-10 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-10 min-h-[50vh] max-w-3xl mx-auto w-full">
-                
-                <div class="flex justify-between items-start mb-6">
-                    <div class="flex-1 pr-4">
-                        <h2 id="detail-route" class="text-xl font-black text-gray-900 leading-tight mb-2">Route</h2>
-                        <p id="detail-time" class="text-sm font-medium text-brand-600 flex items-center gap-1.5 bg-brand-50 inline-flex px-2.5 py-1 rounded-lg">
-                            <i data-lucide="clock" class="w-4 h-4"></i> <span>Time</span>
-                        </p>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <div class="w-14 h-14 rounded-full border-2 border-brand-100 bg-brand-50 text-brand-700 flex items-center justify-center font-bold text-lg shadow-sm" id="detail-avatar"></div>
-                        <p id="detail-driver" class="text-[10px] font-bold mt-1.5 text-gray-700 max-w-[60px] truncate text-center"></p>
+            <!-- Map Container with Absolute Header for Layout Control -->
+            <div class="relative w-full">
+                <div id="detail-map" class="h-64 md:h-[400px] w-full bg-gray-200 z-0"></div>
+                <div class="absolute top-0 left-0 w-full p-6 z-20 pointer-events-none mt-4">
+                    <div class="max-w-3xl mx-auto w-full">
+                        <button onclick="window.app.navigate('find')" class="w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-lg text-gray-900 flex items-center justify-center active:scale-90 transition-transform pointer-events-auto">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        </button>
                     </div>
                 </div>
+            </div>
 
-                <div class="flex gap-2 mb-6 overflow-x-auto hide-scrollbar pb-1">
-                    <div class="bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 flex items-center gap-2 flex-shrink-0">
-                        <i data-lucide="car" class="w-4 h-4 text-gray-500"></i>
-                        <span id="detail-car" class="text-xs font-semibold text-gray-700">Car</span>
-                    </div>
-                    <div class="bg-teal-50 border border-teal-100 rounded-xl px-3 py-2 flex items-center gap-2 flex-shrink-0">
-                        <i data-lucide="users" class="w-4 h-4 text-teal-500"></i>
-                        <span id="detail-seats" class="text-xs font-semibold text-teal-700">Seats</span>
-                    </div>
-                    <div class="bg-orange-50 border border-orange-100 rounded-xl px-3 py-2 flex items-center gap-2 flex-shrink-0">
-                        <i data-lucide="route" class="w-4 h-4 text-orange-500"></i>
-                        <span id="detail-distance" class="text-xs font-semibold text-orange-700">Distance</span>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-[0_4px_20px_rgba(0,0,0,0.03)] mb-8">
-                    <div class="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
-                        <div class="bg-brand-100 p-1.5 rounded-lg text-brand-600"><i data-lucide="calculator" class="w-4 h-4"></i></div>
-                        <h3 class="text-sm font-bold text-gray-900">Fair-Share Estimate</h3>
-                    </div>
-
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center text-xs">
-                            <span class="text-gray-500 font-medium">Fuel Share Calculation</span>
-                            <span id="detail-total-cost" class="font-bold text-gray-800">₱0.00</span>
+            <!-- Detail Card overlaying the map smoothly -->
+            <div class="max-w-3xl mx-auto px-4 md:px-6 relative -mt-10 md:-mt-16 z-10 pb-10 w-full">
+                <div class="bg-white rounded-3xl p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] min-h-[50vh]">
+                    
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex-1 pr-4">
+                            <h2 id="detail-route" class="text-xl font-black text-gray-900 leading-tight mb-2">Route</h2>
+                            <p id="detail-time" class="text-sm font-medium text-brand-600 flex items-center gap-1.5 bg-brand-50 inline-flex px-2.5 py-1 rounded-lg">
+                                <i data-lucide="clock" class="w-4 h-4"></i> <span>Time</span>
+                            </p>
                         </div>
-                        <div class="flex justify-between items-center text-xs">
-                            <span class="text-gray-500 font-medium">+ Driver Commission</span>
-                            <span class="font-bold text-brand-600">₱50.00</span>
+                        <div class="flex flex-col items-center">
+                            <div class="w-14 h-14 rounded-full border-2 border-brand-100 bg-brand-50 text-brand-700 flex items-center justify-center font-bold text-lg shadow-sm" id="detail-avatar"></div>
+                            <p id="detail-driver" class="text-[10px] font-bold mt-1.5 text-gray-700 max-w-[60px] truncate text-center"></p>
                         </div>
-                        
-                        <div class="pt-3 mt-1 border-t border-dashed border-gray-200 flex justify-between items-end">
-                            <div>
-                                <span class="block text-[10px] font-bold text-brand-600 uppercase tracking-wider">Your Total Split</span>
+                    </div>
+
+                    <div class="flex gap-2 mb-6 overflow-x-auto hide-scrollbar pb-1">
+                        <div class="bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 flex items-center gap-2 flex-shrink-0">
+                            <i data-lucide="car" class="w-4 h-4 text-gray-500"></i>
+                            <span id="detail-car" class="text-xs font-semibold text-gray-700">Car</span>
+                        </div>
+                        <div class="bg-teal-50 border border-teal-100 rounded-xl px-3 py-2 flex items-center gap-2 flex-shrink-0">
+                            <i data-lucide="users" class="w-4 h-4 text-teal-500"></i>
+                            <span id="detail-seats" class="text-xs font-semibold text-teal-700">Seats</span>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-100 rounded-xl px-3 py-2 flex items-center gap-2 flex-shrink-0">
+                            <i data-lucide="route" class="w-4 h-4 text-orange-500"></i>
+                            <span id="detail-distance" class="text-xs font-semibold text-orange-700">Distance</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-[0_4px_20px_rgba(0,0,0,0.03)] mb-8">
+                        <div class="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
+                            <div class="bg-brand-100 p-1.5 rounded-lg text-brand-600"><i data-lucide="calculator" class="w-4 h-4"></i></div>
+                            <h3 class="text-sm font-bold text-gray-900">Fair-Share Estimate</h3>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-gray-500 font-medium">Fuel Share Calculation</span>
+                                <span id="detail-total-cost" class="font-bold text-gray-800">₱0.00</span>
                             </div>
-                            <span id="detail-exact-share" class="text-3xl font-black text-gray-900 tracking-tight">₱0</span>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-gray-500 font-medium">+ Driver Commission</span>
+                                <span class="font-bold text-brand-600">₱50.00</span>
+                            </div>
+                            
+                            <div class="pt-3 mt-1 border-t border-dashed border-gray-200 flex justify-between items-end">
+                                <div>
+                                    <span class="block text-[10px] font-bold text-brand-600 uppercase tracking-wider">Your Total Split</span>
+                                </div>
+                                <span id="detail-exact-share" class="text-3xl font-black text-gray-900 tracking-tight">₱0</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="flex gap-4">
-                    <button onclick="window.app.requestRide()" id="btn-request" class="flex-1 py-4 rounded-2xl shadow-[0_8px_20px_rgba(17,24,39,0.2)] text-base font-bold text-white bg-gray-900 hover:bg-black active:scale-95 transition-all flex justify-center items-center gap-2">
-                        Request to Join
-                    </button>
-                    <button id="btn-sos-detail" onclick="window.app.shareRideSOS()" class="hidden py-4 px-6 rounded-2xl border-2 border-red-100 text-red-600 bg-red-50 hover:bg-red-100 active:scale-95 transition-all flex justify-center items-center gap-2">
-                        <i data-lucide="shield-alert" class="w-5 h-5"></i>
-                    </button>
-                    <button id="btn-chat-detail" onclick="window.app.openChat(window.app.selectedRide.id)" class="hidden py-4 px-6 rounded-2xl border-2 border-gray-100 text-gray-900 hover:bg-gray-50 active:scale-95 transition-all flex justify-center items-center gap-2">
-                        <i data-lucide="message-circle" class="w-5 h-5"></i>
-                    </button>
+                    <div class="flex gap-4">
+                        <button onclick="window.app.requestRide()" id="btn-request" class="flex-1 py-4 rounded-2xl shadow-[0_8px_20px_rgba(17,24,39,0.2)] text-base font-bold text-white bg-gray-900 hover:bg-black active:scale-95 transition-all flex justify-center items-center gap-2">
+                            Request to Join
+                        </button>
+                        <button id="btn-sos-detail" onclick="window.app.shareRideSOS()" class="hidden py-4 px-6 rounded-2xl border-2 border-red-100 text-red-600 bg-red-50 hover:bg-red-100 active:scale-95 transition-all flex justify-center items-center gap-2">
+                            <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                        </button>
+                        <button id="btn-chat-detail" onclick="window.app.openChat(window.app.selectedRide.id)" class="hidden py-4 px-6 rounded-2xl border-2 border-gray-100 text-gray-900 hover:bg-gray-50 active:scale-95 transition-all flex justify-center items-center gap-2">
+                            <i data-lucide="message-circle" class="w-5 h-5"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -695,18 +708,14 @@
              VIEW: PROFILE & RATING MODAL
         =========================================== -->
         <div id="view-profile" class="view bg-gray-50">
-            <div class="bg-brand-600 pt-10 pb-20 shadow-lg relative text-white">
-                <div class="max-w-3xl mx-auto px-6 w-full">
-                    <div class="flex items-center gap-3 mb-6">
-                        <button onclick="window.app.navigate('dashboard')" class="w-10 h-10 flex items-center justify-center -ml-2 text-white hover:bg-white/20 rounded-full active:scale-90 transition-all">
-                            <i data-lucide="arrow-left" class="w-6 h-6"></i>
-                        </button>
-                        <h2 class="text-xl font-bold">My Profile</h2>
-                    </div>
+            <div class="bg-brand-600 pt-16 pb-20 shadow-lg relative text-white">
+                <div class="max-w-3xl mx-auto px-6 w-full text-center">
+                    <h2 class="text-2xl font-bold mb-6">My Profile</h2>
+                    
                     <div class="flex flex-col items-center text-center">
-                        <div id="profile-avatar-large" class="w-20 h-20 rounded-full border-4 border-white bg-brand-800 flex items-center justify-center mb-3 shadow-md overflow-hidden"></div>
-                        <h3 id="profile-name-large" class="text-xl font-bold">Commuter</h3>
-                        <div class="flex items-center gap-1 text-brand-100 text-sm mt-1">
+                        <div id="profile-avatar-large" class="w-24 h-24 rounded-full border-4 border-white bg-brand-800 flex items-center justify-center mb-4 shadow-md overflow-hidden"></div>
+                        <h3 id="profile-name-large" class="text-2xl font-bold">Commuter</h3>
+                        <div class="flex items-center gap-1.5 text-brand-100 text-sm mt-2 bg-brand-800/30 px-3 py-1 rounded-full">
                             <i data-lucide="star" class="w-4 h-4 fill-yellow-400 text-yellow-400"></i>
                             <span id="profile-rating-display" class="font-bold">New</span>
                             <span class="opacity-50 mx-2">|</span>
@@ -718,34 +727,35 @@
 
             <div class="px-6 -mt-10 relative z-10 space-y-4 pb-8 max-w-3xl mx-auto w-full">
                 <!-- Saved Places -->
-                <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
-                    <h4 class="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-brand-500"></i> Saved Places</h4>
-                    <div class="space-y-3">
+                <div class="bg-white rounded-3xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-100">
+                    <h4 class="text-sm font-bold text-gray-900 mb-5 flex items-center gap-2"><i data-lucide="map-pin" class="w-5 h-5 text-brand-500"></i> Saved Places</h4>
+                    <div class="space-y-4">
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500"><i data-lucide="home" class="w-5 h-5"></i></div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-500"><i data-lucide="home" class="w-6 h-6"></i></div>
                                 <div>
-                                    <p class="text-xs font-bold text-gray-800">Home</p>
-                                    <p id="profile-home-text" class="text-[10px] text-gray-500 w-32 truncate">Not set</p>
+                                    <p class="text-sm font-bold text-gray-800">Home</p>
+                                    <p id="profile-home-text" class="text-xs text-gray-500 w-32 md:w-64 truncate">Not set</p>
                                 </div>
                             </div>
-                            <button onclick="window.app.setSavedPlace('home')" class="text-[10px] font-bold text-brand-600 bg-brand-50 px-3 py-1.5 rounded-lg">Set</button>
+                            <button onclick="window.app.setSavedPlace('home')" class="text-xs font-bold text-brand-600 bg-brand-50 px-4 py-2 rounded-xl hover:bg-brand-100 transition-colors">Set</button>
                         </div>
+                        <div class="w-full border-t border-gray-100"></div>
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500"><i data-lucide="briefcase" class="w-5 h-5"></i></div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-500"><i data-lucide="briefcase" class="w-6 h-6"></i></div>
                                 <div>
-                                    <p class="text-xs font-bold text-gray-800">Work</p>
-                                    <p id="profile-work-text" class="text-[10px] text-gray-500 w-32 truncate">Not set</p>
+                                    <p class="text-sm font-bold text-gray-800">Work</p>
+                                    <p id="profile-work-text" class="text-xs text-gray-500 w-32 md:w-64 truncate">Not set</p>
                                 </div>
                             </div>
-                            <button onclick="window.app.setSavedPlace('work')" class="text-[10px] font-bold text-brand-600 bg-brand-50 px-3 py-1.5 rounded-lg">Set</button>
+                            <button onclick="window.app.setSavedPlace('work')" class="text-xs font-bold text-brand-600 bg-brand-50 px-4 py-2 rounded-xl hover:bg-brand-100 transition-colors">Set</button>
                         </div>
                     </div>
                 </div>
 
-                <button onclick="window.app.logout()" class="w-full py-4 rounded-2xl border border-red-100 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 active:scale-95 transition-all flex justify-center items-center gap-2">
-                    <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
+                <button onclick="window.app.logout()" class="w-full py-4 mt-6 rounded-2xl border border-red-100 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 active:scale-95 transition-all flex justify-center items-center gap-2">
+                    <i data-lucide="log-out" class="w-5 h-5"></i> Sign Out
                 </button>
             </div>
         </div>
@@ -778,26 +788,30 @@
              BOTTOM NAVIGATION
         =========================================== -->
         <div id="bottom-nav" class="fixed bottom-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-200 z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] hidden">
-            <div class="max-w-3xl mx-auto w-full flex justify-around items-center pb-safe">
-                <button id="nav-home" onclick="window.app.navigate('dashboard')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-brand-600 transition-colors nav-btn group" data-target="dashboard">
-                    <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
-                    <span class="text-[10px] font-bold">Home</span>
+            <div class="max-w-3xl mx-auto w-full flex justify-around items-center pt-2 pb-4 md:pb-2">
+                <button id="nav-home" onclick="window.app.navigate('dashboard')" class="flex-1 py-2 flex flex-col items-center gap-1.5 text-brand-600 transition-colors nav-btn group" data-target="dashboard">
+                    <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors"><i data-lucide="layout-dashboard" class="w-5 h-5 md:w-6 md:h-6"></i></div>
+                    <span class="text-[10px] md:text-xs font-bold">Home</span>
                 </button>
-                <button id="nav-find" onclick="window.app.navigate('find')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="find">
-                    <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors"><i data-lucide="search" class="w-5 h-5"></i></div>
-                    <span class="text-[10px] font-bold">Find</span>
+                <button id="nav-find" onclick="window.app.navigate('find')" class="flex-1 py-2 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="find">
+                    <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors"><i data-lucide="search" class="w-5 h-5 md:w-6 md:h-6"></i></div>
+                    <span class="text-[10px] md:text-xs font-bold">Find</span>
                 </button>
-                <button id="nav-offer" onclick="window.app.navigate('offer')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group relative" data-target="offer">
-                    <div class="absolute -top-4 bg-gray-900 text-white p-3 rounded-full shadow-lg transform group-hover:-translate-y-1 transition-transform border-4 border-white"><i data-lucide="plus" class="w-5 h-5"></i></div>
-                    <div class="h-8"></div>
-                    <span class="text-[10px] font-bold mt-1">Offer</span>
+                <button id="nav-offer" onclick="window.app.navigate('offer')" class="flex-1 py-2 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group relative" data-target="offer">
+                    <div class="absolute -top-6 bg-gray-900 text-white p-3.5 rounded-full shadow-xl transform group-hover:-translate-y-1 transition-transform border-4 border-white"><i data-lucide="plus" class="w-5 h-5 md:w-6 md:h-6"></i></div>
+                    <div class="h-8 md:h-10"></div>
+                    <span class="text-[10px] md:text-xs font-bold mt-1">Offer</span>
                 </button>
-                <button id="nav-activity" onclick="window.app.navigate('activity')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="activity">
+                <button id="nav-activity" onclick="window.app.navigate('activity')" class="flex-1 py-2 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="activity">
                     <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors relative">
-                        <i data-lucide="list-todo" class="w-5 h-5"></i>
-                        <span id="activity-badge" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full hidden"></span>
+                        <i data-lucide="list-todo" class="w-5 h-5 md:w-6 md:h-6"></i>
+                        <span id="activity-badge" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white hidden"></span>
                     </div>
-                    <span class="text-[10px] font-bold">Activity</span>
+                    <span class="text-[10px] md:text-xs font-bold">Activity</span>
+                </button>
+                <button id="nav-profile" onclick="window.app.navigate('profile')" class="flex-1 py-2 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="profile">
+                    <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors"><i data-lucide="user" class="w-5 h-5 md:w-6 md:h-6"></i></div>
+                    <span class="text-[10px] md:text-xs font-bold">Profile</span>
                 </button>
             </div>
         </div>
@@ -1469,7 +1483,7 @@
                 const list = document.getElementById('search-results-list');
                 document.getElementById('search-count').textContent = `${rides.length} Live`;
                 if (rides.length === 0) {
-                    list.innerHTML = `<div class="bg-gray-50 rounded-2xl p-8 text-center text-xs text-gray-500 font-bold border-2 border-dashed border-gray-100">NO ACTIVE RIDES MATCHING</div>`;
+                    list.innerHTML = `<div class="bg-gray-50 rounded-2xl p-8 text-center text-xs text-gray-500 font-bold border-2 border-dashed border-gray-100 col-span-full">NO ACTIVE RIDES MATCHING</div>`;
                     return;
                 }
                 list.innerHTML = rides.map(ride => `
