@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-title" content="SabayBiyahe">
     <link rel="manifest" id="manifest-link">
     
-    <title>SabayBiyahe - Micro-Carpooling</title>
+    <title>SabayBiyahe - Responsive</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -52,34 +52,20 @@
             background-color: #f3f4f6;
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             margin: 0;
+            padding: 0;
             overscroll-behavior-y: none;
         }
         
         #app-container {
             width: 100%;
-            max-width: 414px;
             height: 100vh;
             height: 100dvh;
             background-color: #ffffff;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             display: flex;
             flex-direction: column;
-        }
-        
-        @media (min-width: 420px) {
-            #app-container {
-                height: 90vh;
-                max-height: 896px;
-                border-radius: 40px;
-                border: 8px solid #1f2937;
-            }
         }
         
         .view {
@@ -144,6 +130,7 @@
             transform: translateX(-50%);
             z-index: 1000;
             width: 90%;
+            max-width: 768px;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -233,65 +220,66 @@
              VIEW: LOGIN & SIGNUP
         =========================================== -->
         <div id="view-login" class="view bg-white active">
-            <div class="h-full flex flex-col px-8 py-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-gray-50 overflow-y-auto hide-scrollbar">
+            <div class="h-full w-full flex flex-col px-6 py-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-gray-50 overflow-y-auto hide-scrollbar">
                 
-                <div class="text-center mb-8 mt-4">
-                    <div class="mx-auto w-16 h-16 bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl flex items-center justify-center shadow-lg shadow-brand-200 mb-4 transform -rotate-3">
-                        <i data-lucide="car-front" class="w-8 h-8 text-white"></i>
+                <div class="w-full max-w-md mx-auto my-auto flex flex-col justify-center min-h-[80vh]">
+                    <div class="text-center mb-8 mt-4">
+                        <div class="mx-auto w-16 h-16 bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl flex items-center justify-center shadow-lg shadow-brand-200 mb-4 transform -rotate-3">
+                            <i data-lucide="car-front" class="w-8 h-8 text-white"></i>
+                        </div>
+                        <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 mb-1">SabayBiyahe</h1>
+                        <p class="text-gray-500 text-xs font-medium">Join a ride. Save the environment.</p>
                     </div>
-                    <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 mb-1">SabayBiyahe</h1>
-                    <p class="text-gray-500 text-xs font-medium">Join a ride. Save the environment.</p>
-                </div>
 
-                <div class="bg-white/90 backdrop-blur-xl p-6 rounded-3xl shadow-xl border border-white">
-                    
-                    <!-- Auth Forms -->
-                    <div id="auth-forms" class="space-y-4">
-                        <!-- Tabs -->
-                        <div class="flex bg-gray-100 p-1 rounded-xl mb-4">
-                            <button id="tab-login" onclick="window.app.switchAuthTab('login')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-gray-900 transition-all">Login</button>
-                            <button id="tab-signup" onclick="window.app.switchAuthTab('signup')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">Sign Up</button>
-                        </div>
-
-                        <!-- Email/Password Form -->
-                        <form onsubmit="event.preventDefault(); window.app.handleEmailAuth();" class="space-y-3">
-                            <input type="email" id="auth-email" required placeholder="Email address" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                            <input type="password" id="auth-password" required placeholder="Password" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                            <button type="submit" id="btn-email-auth" class="w-full py-3.5 rounded-xl font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-md shadow-brand-200 transition-all">Login</button>
-                        </form>
-
-                        <div class="relative flex items-center py-2">
-                            <div class="flex-grow border-t border-gray-200"></div>
-                            <span class="flex-shrink-0 mx-4 text-gray-400 text-[10px] font-bold uppercase tracking-widest">OR</span>
-                            <div class="flex-grow border-t border-gray-200"></div>
-                        </div>
-
-                        <!-- Google Auth -->
-                        <button onclick="window.app.loginWithGoogle()" id="btn-google-login" class="w-full flex justify-center py-3.5 px-4 border-2 border-gray-100 rounded-xl shadow-sm text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 hover:border-brand-200 transition-all active:scale-95 items-center gap-3">
-                            <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                            Continue with Google
-                        </button>
+                    <div class="bg-white/90 backdrop-blur-xl p-6 rounded-3xl shadow-xl border border-white">
                         
-                        <p class="text-center text-[10px] text-gray-400 mt-4 leading-relaxed">
-                            By continuing, you agree to SabayBiyahe's Terms of Service.
-                        </p>
-                    </div>
+                        <!-- Auth Forms -->
+                        <div id="auth-forms" class="space-y-4">
+                            <!-- Tabs -->
+                            <div class="flex bg-gray-100 p-1 rounded-xl mb-4">
+                                <button id="tab-login" onclick="window.app.switchAuthTab('login')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-gray-900 transition-all">Login</button>
+                                <button id="tab-signup" onclick="window.app.switchAuthTab('signup')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">Sign Up</button>
+                            </div>
 
-                    <!-- Email Verification Notice -->
-                    <div id="view-verify-email" class="hidden text-center space-y-4 py-4">
-                        <div class="w-16 h-16 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                            <i data-lucide="mail-warning" class="w-8 h-8"></i>
-                        </div>
-                        <h3 class="font-bold text-xl text-gray-900">Verify your email</h3>
-                        <p class="text-sm text-gray-500 font-medium">We've sent a verification link to your email. Please verify your account to continue using the app.</p>
-                        
-                        <div class="pt-4 space-y-3">
-                            <button onclick="window.app.checkVerification()" class="w-full py-3.5 rounded-xl font-bold text-white bg-brand-600 shadow-md hover:bg-brand-700 transition-all">I've verified my email</button>
-                            <button onclick="window.app.resendVerification()" class="w-full py-3 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200">Resend Link</button>
-                        </div>
-                        <button onclick="window.app.logout()" class="text-xs text-red-500 underline font-bold mt-4 block mx-auto">Sign out</button>
-                    </div>
+                            <!-- Email/Password Form -->
+                            <form onsubmit="event.preventDefault(); window.app.handleEmailAuth();" class="space-y-3">
+                                <input type="email" id="auth-email" required placeholder="Email address" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                                <input type="password" id="auth-password" required placeholder="Password" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                                <button type="submit" id="btn-email-auth" class="w-full py-3.5 rounded-xl font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-md shadow-brand-200 transition-all">Login</button>
+                            </form>
 
+                            <div class="relative flex items-center py-2">
+                                <div class="flex-grow border-t border-gray-200"></div>
+                                <span class="flex-shrink-0 mx-4 text-gray-400 text-[10px] font-bold uppercase tracking-widest">OR</span>
+                                <div class="flex-grow border-t border-gray-200"></div>
+                            </div>
+
+                            <!-- Google Auth -->
+                            <button onclick="window.app.loginWithGoogle()" id="btn-google-login" class="w-full flex justify-center py-3.5 px-4 border-2 border-gray-100 rounded-xl shadow-sm text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 hover:border-brand-200 transition-all active:scale-95 items-center gap-3">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                                Continue with Google
+                            </button>
+                            
+                            <p class="text-center text-[10px] text-gray-400 mt-4 leading-relaxed">
+                                By continuing, you agree to SabayBiyahe's Terms of Service.
+                            </p>
+                        </div>
+
+                        <!-- Email Verification Notice -->
+                        <div id="view-verify-email" class="hidden text-center space-y-4 py-4">
+                            <div class="w-16 h-16 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i data-lucide="mail-warning" class="w-8 h-8"></i>
+                            </div>
+                            <h3 class="font-bold text-xl text-gray-900">Verify your email</h3>
+                            <p class="text-sm text-gray-500 font-medium">We've sent a verification link to your email. Please verify your account to continue using the app.</p>
+                            
+                            <div class="pt-4 space-y-3">
+                                <button onclick="window.app.checkVerification()" class="w-full py-3.5 rounded-xl font-bold text-white bg-brand-600 shadow-md hover:bg-brand-700 transition-all">I've verified my email</button>
+                                <button onclick="window.app.resendVerification()" class="w-full py-3 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200">Resend Link</button>
+                            </div>
+                            <button onclick="window.app.logout()" class="text-xs text-red-500 underline font-bold mt-4 block mx-auto">Sign out</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -300,8 +288,8 @@
              VIEW: ROLE SELECTION
         =========================================== -->
         <div id="view-role" class="view bg-white">
-            <div class="h-full flex flex-col justify-center px-8 py-12 bg-gray-50">
-                <div class="bg-white p-8 rounded-3xl shadow-xl text-center border border-gray-100">
+            <div class="h-full flex flex-col justify-center px-6 py-12 bg-gray-50">
+                <div class="bg-white p-8 rounded-3xl shadow-xl text-center border border-gray-100 w-full max-w-md mx-auto">
                     <h2 class="text-2xl font-bold text-gray-900 mb-2">Welcome!</h2>
                     <p class="text-sm text-gray-500 mb-8 font-medium">How would you like to use SabayBiyahe?</p>
                     <div class="space-y-4">
@@ -325,54 +313,56 @@
         =========================================== -->
         <div id="view-dashboard" class="view">
             <!-- Header -->
-            <div class="bg-gradient-to-b from-brand-700 to-brand-600 text-white pt-10 pb-24 px-6 rounded-b-[40px] shadow-lg relative">
-                <div class="flex justify-between items-center mb-8">
-                    <div>
-                        <p class="text-brand-100 text-xs font-medium uppercase tracking-wider mb-1" id="greeting-text">Welcome back,</p>
-                        <h2 class="text-2xl font-bold flex items-center gap-2">
-                            <span id="user-display-name">Commuter</span>
-                            <i data-lucide="badge-check" class="w-5 h-5 text-teal-400 fill-white"></i>
-                        </h2>
-                    </div>
-                    <button onclick="window.app.navigate('profile')" class="w-12 h-12 rounded-full bg-white/20 border-2 border-white/50 overflow-hidden backdrop-blur-sm shadow-inner active:scale-95 transition-transform">
-                        <div id="dashboard-avatar" class="w-full h-full flex items-center justify-center bg-brand-800">
-                            <i data-lucide="user" class="w-6 h-6 text-white"></i>
+            <div class="bg-gradient-to-b from-brand-700 to-brand-600 text-white pt-10 pb-24 shadow-lg relative">
+                <div class="max-w-3xl mx-auto px-6 w-full h-full relative">
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <p class="text-brand-100 text-xs font-medium uppercase tracking-wider mb-1" id="greeting-text">Welcome back,</p>
+                            <h2 class="text-2xl font-bold flex items-center gap-2">
+                                <span id="user-display-name">Commuter</span>
+                                <i data-lucide="badge-check" class="w-5 h-5 text-teal-400 fill-white"></i>
+                            </h2>
                         </div>
-                    </button>
-                </div>
+                        <button onclick="window.app.navigate('profile')" class="w-12 h-12 rounded-full bg-white/20 border-2 border-white/50 overflow-hidden backdrop-blur-sm shadow-inner active:scale-95 transition-transform">
+                            <div id="dashboard-avatar" class="w-full h-full flex items-center justify-center bg-brand-800">
+                                <i data-lucide="user" class="w-6 h-6 text-white"></i>
+                            </div>
+                        </button>
+                    </div>
 
-                <!-- Live Data Cards -->
-                <div class="absolute -bottom-12 left-6 right-6 flex gap-4">
-                    <div class="flex-1 bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 relative overflow-hidden">
-                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-teal-50 rounded-full z-0"></div>
-                        <div class="relative z-10">
-                            <div class="flex items-center gap-2 text-teal-600 mb-2">
-                                <i data-lucide="droplet" class="w-4 h-4 fill-teal-100"></i>
-                                <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Gas Price</p>
+                    <!-- Live Data Cards -->
+                    <div class="absolute -bottom-12 left-6 right-6 md:left-6 md:right-6 lg:left-0 lg:right-0 flex gap-4">
+                        <div class="flex-1 bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 relative overflow-hidden">
+                            <div class="absolute -right-4 -top-4 w-16 h-16 bg-teal-50 rounded-full z-0"></div>
+                            <div class="relative z-10">
+                                <div class="flex items-center gap-2 text-teal-600 mb-2">
+                                    <i data-lucide="droplet" class="w-4 h-4 fill-teal-100"></i>
+                                    <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Gas Price</p>
+                                </div>
+                                <p class="text-2xl font-black text-gray-900" id="dash-fuel-price">₱64.20</p>
+                                <p class="text-[10px] text-gray-400 mt-1">per Liter</p>
                             </div>
-                            <p class="text-2xl font-black text-gray-900" id="dash-fuel-price">₱64.20</p>
-                            <p class="text-[10px] text-gray-400 mt-1">per Liter</p>
                         </div>
-                    </div>
-                    <div class="flex-1 bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 relative overflow-hidden">
-                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-brand-50 rounded-full z-0"></div>
-                        <div class="relative z-10">
-                            <div class="flex items-center gap-2 text-brand-600 mb-2">
-                                <i data-lucide="leaf" class="w-4 h-4 fill-brand-100"></i>
-                                <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">CO2 Saved</p>
+                        <div class="flex-1 bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 relative overflow-hidden">
+                            <div class="absolute -right-4 -top-4 w-16 h-16 bg-brand-50 rounded-full z-0"></div>
+                            <div class="relative z-10">
+                                <div class="flex items-center gap-2 text-brand-600 mb-2">
+                                    <i data-lucide="leaf" class="w-4 h-4 fill-brand-100"></i>
+                                    <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">CO2 Saved</p>
+                                </div>
+                                <p class="text-2xl font-black text-gray-900" id="dash-co2">12.4<span class="text-sm font-bold text-gray-500">kg</span></p>
+                                <p class="text-[10px] text-gray-400 mt-1">Community Total</p>
                             </div>
-                            <p class="text-2xl font-black text-gray-900" id="dash-co2">12.4<span class="text-sm font-bold text-gray-500">kg</span></p>
-                            <p class="text-[10px] text-gray-400 mt-1">Community Total</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="px-6 mt-20 pb-8 space-y-6">
+            <div class="max-w-3xl mx-auto w-full px-6 mt-20 pb-8 space-y-6">
                 <!-- Primary Actions (Roles limit these) -->
                 <div>
                     <h3 class="text-sm font-bold text-gray-900 mb-3">Where are we heading?</h3>
-                    <div class="grid gap-3">
+                    <div class="grid md:grid-cols-2 gap-3">
                         <button id="dash-action-find" onclick="window.app.navigate('find')" class="w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between group active:scale-[0.98] transition-transform">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center text-white shadow-md">
@@ -411,7 +401,7 @@
                         <h3 class="text-sm font-bold text-gray-900">Active Rides</h3>
                         <button onclick="window.app.navigate('activity')" class="text-xs font-bold text-brand-600">View All</button>
                     </div>
-                    <div id="dash-activity-list" class="space-y-3">
+                    <div id="dash-activity-list" class="grid md:grid-cols-2 gap-3">
                         <!-- Populated by JS -->
                     </div>
                 </div>
@@ -422,16 +412,18 @@
              VIEW: OFFER RIDE
         =========================================== -->
         <div id="view-offer" class="view">
-            <div class="bg-white pt-10 pb-4 px-6 sticky top-0 z-20 border-b border-gray-100 flex items-center justify-between shadow-sm">
-                <div class="flex items-center gap-3">
-                    <button onclick="window.app.navigate('dashboard')" class="w-10 h-10 flex items-center justify-center -ml-2 text-gray-900 hover:bg-gray-100 rounded-full active:scale-90 transition-all">
-                        <i data-lucide="arrow-left" class="w-6 h-6"></i>
-                    </button>
-                    <h2 class="text-xl font-bold text-gray-900">Offer a Ride</h2>
+            <div class="bg-white pt-10 pb-4 px-6 sticky top-0 z-20 border-b border-gray-100 shadow-sm">
+                <div class="max-w-3xl mx-auto w-full flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <button onclick="window.app.navigate('dashboard')" class="w-10 h-10 flex items-center justify-center -ml-2 text-gray-900 hover:bg-gray-100 rounded-full active:scale-90 transition-all">
+                            <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                        </button>
+                        <h2 class="text-xl font-bold text-gray-900">Offer a Ride</h2>
+                    </div>
                 </div>
             </div>
 
-            <div class="p-6">
+            <div class="p-6 max-w-3xl mx-auto w-full">
                 <form id="form-offer" onsubmit="event.preventDefault(); window.app.submitOffer();" class="space-y-5">
                     
                     <!-- Route Block -->
@@ -514,16 +506,18 @@
              VIEW: FIND RIDE
         =========================================== -->
         <div id="view-find" class="view">
-            <div class="bg-white pt-10 pb-4 px-6 sticky top-0 z-20 border-b border-gray-100 flex items-center justify-between shadow-sm">
-                <div class="flex items-center gap-3">
-                    <button onclick="window.app.navigate('dashboard')" class="w-10 h-10 flex items-center justify-center -ml-2 text-gray-900 hover:bg-gray-100 rounded-full active:scale-90 transition-all">
-                        <i data-lucide="arrow-left" class="w-6 h-6"></i>
-                    </button>
-                    <h2 class="text-xl font-bold text-gray-900">Find a Ride</h2>
+            <div class="bg-white pt-10 pb-4 px-6 sticky top-0 z-20 border-b border-gray-100 shadow-sm">
+                <div class="max-w-3xl mx-auto w-full flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <button onclick="window.app.navigate('dashboard')" class="w-10 h-10 flex items-center justify-center -ml-2 text-gray-900 hover:bg-gray-100 rounded-full active:scale-90 transition-all">
+                            <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                        </button>
+                        <h2 class="text-xl font-bold text-gray-900">Find a Ride</h2>
+                    </div>
                 </div>
             </div>
 
-            <div class="p-6">
+            <div class="p-6 max-w-3xl mx-auto w-full">
                 <!-- Search Box -->
                 <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 mb-6 relative">
                     <div class="absolute left-8 top-12 bottom-12 w-0.5 bg-gray-200 rounded-full"></div>
@@ -561,7 +555,7 @@
                         <span class="text-[10px] font-bold text-brand-600 bg-brand-50 px-2 py-1 rounded-md" id="search-count">Live</span>
                     </div>
                     
-                    <div id="search-results-list" class="space-y-4 pb-10">
+                    <div id="search-results-list" class="space-y-4 pb-10 grid md:grid-cols-2 gap-4">
                         <!-- Populated dynamically -->
                     </div>
                 </div>
@@ -573,13 +567,13 @@
         =========================================== -->
         <div id="view-details" class="view bg-gray-50">
             <!-- Map Container -->
-            <div id="detail-map" class="h-56 w-full bg-gray-200 relative z-0"></div>
+            <div id="detail-map" class="h-64 md:h-96 w-full bg-gray-200 relative z-0"></div>
             
-            <button onclick="window.app.navigate('find')" class="absolute top-12 left-4 w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-lg text-gray-900 flex items-center justify-center active:scale-90 transition-transform z-20">
+            <button onclick="window.app.navigate('find')" class="absolute top-12 left-4 md:left-10 w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-lg text-gray-900 flex items-center justify-center active:scale-90 transition-transform z-20">
                 <i data-lucide="arrow-left" class="w-5 h-5"></i>
             </button>
 
-            <div class="relative -mt-6 bg-white rounded-t-[32px] px-6 pt-8 pb-10 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-10 min-h-[50vh]">
+            <div class="relative -mt-6 bg-white rounded-t-[32px] px-6 pt-8 pb-10 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-10 min-h-[50vh] max-w-3xl mx-auto w-full">
                 
                 <div class="flex justify-between items-start mb-6">
                     <div class="flex-1 pr-4">
@@ -653,17 +647,19 @@
         =========================================== -->
         <div id="view-activity" class="view">
             <div class="bg-white pt-10 pb-4 px-6 sticky top-0 z-20 border-b border-gray-100 shadow-sm">
-                <h2 class="text-xl font-bold text-gray-900">My Activity</h2>
-                
-                <div class="flex mt-4 bg-gray-100 p-1 rounded-xl">
-                    <button onclick="window.app.switchActivityTab('joined')" id="tab-joined" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-gray-900 transition-all">Requests</button>
-                    <button onclick="window.app.switchActivityTab('offered')" id="tab-offered" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">Driving</button>
+                <div class="max-w-3xl mx-auto w-full">
+                    <h2 class="text-xl font-bold text-gray-900">My Activity</h2>
+                    
+                    <div class="flex mt-4 bg-gray-100 p-1 rounded-xl">
+                        <button onclick="window.app.switchActivityTab('joined')" id="tab-joined" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-gray-900 transition-all">Requests</button>
+                        <button onclick="window.app.switchActivityTab('offered')" id="tab-offered" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">Driving</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="p-6">
-                <div id="activity-joined-list" class="space-y-4"></div>
-                <div id="activity-offered-list" class="space-y-4 hidden"></div>
+            <div class="p-6 max-w-3xl mx-auto w-full">
+                <div id="activity-joined-list" class="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0"></div>
+                <div id="activity-offered-list" class="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 hidden"></div>
             </div>
         </div>
 
@@ -671,23 +667,27 @@
              VIEW: CHAT
         =========================================== -->
         <div id="view-chat" class="view bg-white">
-            <div class="bg-white pt-10 pb-4 px-6 sticky top-0 z-20 border-b border-gray-100 flex items-center gap-3 shadow-sm">
-                <button onclick="window.app.closeChat()" class="w-10 h-10 flex items-center justify-center -ml-2 text-gray-900 hover:bg-gray-100 rounded-full active:scale-90 transition-all">
-                    <i data-lucide="arrow-left" class="w-6 h-6"></i>
-                </button>
-                <div class="flex-1">
-                    <h2 id="chat-title" class="text-base font-bold text-gray-900 truncate">Chat</h2>
-                    <p id="chat-subtitle" class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Ride Group Chat</p>
+            <div class="bg-white pt-10 pb-4 px-6 sticky top-0 z-20 border-b border-gray-100 shadow-sm">
+                <div class="max-w-3xl mx-auto w-full flex items-center gap-3">
+                    <button onclick="window.app.closeChat()" class="w-10 h-10 flex items-center justify-center -ml-2 text-gray-900 hover:bg-gray-100 rounded-full active:scale-90 transition-all">
+                        <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                    </button>
+                    <div class="flex-1">
+                        <h2 id="chat-title" class="text-base font-bold text-gray-900 truncate">Chat</h2>
+                        <p id="chat-subtitle" class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Ride Group Chat</p>
+                    </div>
                 </div>
             </div>
 
-            <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50"></div>
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50 max-w-3xl mx-auto w-full"></div>
 
-            <div class="p-4 bg-white border-t border-gray-100 flex items-center gap-2">
-                <input type="text" id="chat-input" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500" placeholder="Type a message...">
-                <button onclick="window.app.sendMessage()" class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand-200 active:scale-90 transition-transform">
-                    <i data-lucide="send" class="w-5 h-5"></i>
-                </button>
+            <div class="bg-white border-t border-gray-100 w-full mt-auto">
+                <div class="p-4 max-w-3xl mx-auto w-full flex items-center gap-2">
+                    <input type="text" id="chat-input" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500" placeholder="Type a message...">
+                    <button onclick="window.app.sendMessage()" class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand-200 active:scale-90 transition-transform">
+                        <i data-lucide="send" class="w-5 h-5"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -695,26 +695,28 @@
              VIEW: PROFILE & RATING MODAL
         =========================================== -->
         <div id="view-profile" class="view bg-gray-50">
-            <div class="bg-brand-600 pt-10 pb-20 px-6 rounded-b-[40px] shadow-lg relative text-white">
-                <div class="flex items-center gap-3 mb-6">
-                    <button onclick="window.app.navigate('dashboard')" class="w-10 h-10 flex items-center justify-center -ml-2 text-white hover:bg-white/20 rounded-full active:scale-90 transition-all">
-                        <i data-lucide="arrow-left" class="w-6 h-6"></i>
-                    </button>
-                    <h2 class="text-xl font-bold">My Profile</h2>
-                </div>
-                <div class="flex flex-col items-center text-center">
-                    <div id="profile-avatar-large" class="w-20 h-20 rounded-full border-4 border-white bg-brand-800 flex items-center justify-center mb-3 shadow-md overflow-hidden"></div>
-                    <h3 id="profile-name-large" class="text-xl font-bold">Commuter</h3>
-                    <div class="flex items-center gap-1 text-brand-100 text-sm mt-1">
-                        <i data-lucide="star" class="w-4 h-4 fill-yellow-400 text-yellow-400"></i>
-                        <span id="profile-rating-display" class="font-bold">New</span>
-                        <span class="opacity-50 mx-2">|</span>
-                        <span id="profile-rides-display">0 Rides</span>
+            <div class="bg-brand-600 pt-10 pb-20 shadow-lg relative text-white">
+                <div class="max-w-3xl mx-auto px-6 w-full">
+                    <div class="flex items-center gap-3 mb-6">
+                        <button onclick="window.app.navigate('dashboard')" class="w-10 h-10 flex items-center justify-center -ml-2 text-white hover:bg-white/20 rounded-full active:scale-90 transition-all">
+                            <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                        </button>
+                        <h2 class="text-xl font-bold">My Profile</h2>
+                    </div>
+                    <div class="flex flex-col items-center text-center">
+                        <div id="profile-avatar-large" class="w-20 h-20 rounded-full border-4 border-white bg-brand-800 flex items-center justify-center mb-3 shadow-md overflow-hidden"></div>
+                        <h3 id="profile-name-large" class="text-xl font-bold">Commuter</h3>
+                        <div class="flex items-center gap-1 text-brand-100 text-sm mt-1">
+                            <i data-lucide="star" class="w-4 h-4 fill-yellow-400 text-yellow-400"></i>
+                            <span id="profile-rating-display" class="font-bold">New</span>
+                            <span class="opacity-50 mx-2">|</span>
+                            <span id="profile-rides-display">0 Rides</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="px-6 -mt-10 relative z-10 space-y-4 pb-8">
+            <div class="px-6 -mt-10 relative z-10 space-y-4 pb-8 max-w-3xl mx-auto w-full">
                 <!-- Saved Places -->
                 <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
                     <h4 class="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-brand-500"></i> Saved Places</h4>
@@ -775,27 +777,29 @@
         <!-- ==========================================
              BOTTOM NAVIGATION
         =========================================== -->
-        <div id="bottom-nav" class="fixed bottom-0 w-full max-w-[414px] bg-white/90 backdrop-blur-md border-t border-gray-200 flex justify-around items-center pb-safe hidden z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.03)]">
-            <button id="nav-home" onclick="window.app.navigate('dashboard')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-brand-600 transition-colors nav-btn group" data-target="dashboard">
-                <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
-                <span class="text-[10px] font-bold">Home</span>
-            </button>
-            <button id="nav-find" onclick="window.app.navigate('find')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="find">
-                <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors"><i data-lucide="search" class="w-5 h-5"></i></div>
-                <span class="text-[10px] font-bold">Find</span>
-            </button>
-            <button id="nav-offer" onclick="window.app.navigate('offer')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group relative" data-target="offer">
-                <div class="absolute -top-4 bg-gray-900 text-white p-3 rounded-full shadow-lg transform group-hover:-translate-y-1 transition-transform border-4 border-white"><i data-lucide="plus" class="w-5 h-5"></i></div>
-                <div class="h-8"></div>
-                <span class="text-[10px] font-bold mt-1">Offer</span>
-            </button>
-            <button id="nav-activity" onclick="window.app.navigate('activity')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="activity">
-                <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors relative">
-                    <i data-lucide="list-todo" class="w-5 h-5"></i>
-                    <span id="activity-badge" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full hidden"></span>
-                </div>
-                <span class="text-[10px] font-bold">Activity</span>
-            </button>
+        <div id="bottom-nav" class="fixed bottom-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-200 z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] hidden">
+            <div class="max-w-3xl mx-auto w-full flex justify-around items-center pb-safe">
+                <button id="nav-home" onclick="window.app.navigate('dashboard')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-brand-600 transition-colors nav-btn group" data-target="dashboard">
+                    <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
+                    <span class="text-[10px] font-bold">Home</span>
+                </button>
+                <button id="nav-find" onclick="window.app.navigate('find')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="find">
+                    <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors"><i data-lucide="search" class="w-5 h-5"></i></div>
+                    <span class="text-[10px] font-bold">Find</span>
+                </button>
+                <button id="nav-offer" onclick="window.app.navigate('offer')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group relative" data-target="offer">
+                    <div class="absolute -top-4 bg-gray-900 text-white p-3 rounded-full shadow-lg transform group-hover:-translate-y-1 transition-transform border-4 border-white"><i data-lucide="plus" class="w-5 h-5"></i></div>
+                    <div class="h-8"></div>
+                    <span class="text-[10px] font-bold mt-1">Offer</span>
+                </button>
+                <button id="nav-activity" onclick="window.app.navigate('activity')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="activity">
+                    <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors relative">
+                        <i data-lucide="list-todo" class="w-5 h-5"></i>
+                        <span id="activity-badge" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full hidden"></span>
+                    </div>
+                    <span class="text-[10px] font-bold">Activity</span>
+                </button>
+            </div>
         </div>
 
     </div>
@@ -1609,7 +1613,7 @@
                 if(!this.user) return;
                 const myReqs = this.allRequests.filter(req => req.passengerId === this.user.uid);
                 const joinedList = document.getElementById('activity-joined-list');
-                joinedList.innerHTML = myReqs.length === 0 ? `<p class="text-center py-10 text-gray-400 font-bold text-xs">NO REQUESTS YET</p>` : myReqs.map(req => {
+                joinedList.innerHTML = myReqs.length === 0 ? `<p class="text-center py-10 text-gray-400 font-bold text-xs col-span-full">NO REQUESTS YET</p>` : myReqs.map(req => {
                     const ride = this.allRides.find(r => r.id === req.rideId);
                     if(!ride) return '';
                     const col = req.status === 'accepted' ? 'text-brand-600 bg-brand-50' : req.status === 'completed' ? 'text-gray-600 bg-gray-100' : 'text-orange-600 bg-orange-50';
@@ -1628,7 +1632,7 @@
 
                 const myOffered = this.allRides.filter(r => r.driverId === this.user.uid);
                 const offeredList = document.getElementById('activity-offered-list');
-                offeredList.innerHTML = myOffered.length === 0 ? `<p class="text-center py-10 text-gray-400 font-bold text-xs">NOT DRIVING ANY TRIPS</p>` : myOffered.map(ride => {
+                offeredList.innerHTML = myOffered.length === 0 ? `<p class="text-center py-10 text-gray-400 font-bold text-xs col-span-full">NOT DRIVING ANY TRIPS</p>` : myOffered.map(ride => {
                     const reqs = this.allRequests.filter(req => req.rideId === ride.id);
                     const isTracking = this.watchPositionId && this.selectedRide?.id === ride.id;
                     
