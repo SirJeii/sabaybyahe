@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Setup ng PWA -->
+    <!-- PWA Setup -->
     <meta name="theme-color" content="#16a34a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -90,7 +91,7 @@
             position: absolute;
             top: 0;
             left: 0;
-            bottom: 70px; /* Espasyo para sa bottom nav */
+            bottom: 70px;
             background: #f9fafb;
             animation: fadeIn 0.2s ease-out;
             padding-bottom: env(safe-area-inset-bottom);
@@ -101,7 +102,7 @@
             z-index: 10;
         }
 
-        #view-login.active {
+        #view-login.active, #view-role.active {
             bottom: 0;
             z-index: 60;
         }
@@ -183,7 +184,7 @@
             width: auto;
         }
 
-        /* Estilo para sa Autocomplete */
+        /* Autocomplete Styles */
         .suggestions-list {
             position: absolute;
             top: 100%;
@@ -207,7 +208,7 @@
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:hover { background: #f9fafb; }
         
-        /* Bituin para sa Rating */
+        /* Stars for Rating */
         .star-rating { color: #d1d5db; cursor: pointer; transition: color 0.2s; }
         .star-rating.active { color: #f59e0b; fill: #f59e0b; }
     </style>
@@ -223,7 +224,7 @@
                 <div class="absolute inset-0 border-4 border-brand-600 rounded-full border-t-transparent animate-spin"></div>
                 <i data-lucide="car" class="absolute inset-0 m-auto w-6 h-6 text-brand-600 animate-pulse"></i>
             </div>
-            <p class="text-sm font-bold text-gray-800 tracking-wide" id="loading-text">Sinisimulan ang SabayBiyahe...</p>
+            <p class="text-sm font-bold text-gray-800 tracking-wide" id="loading-text">Starting SabayBiyahe...</p>
         </div>
 
         <!-- Toast Container -->
@@ -240,18 +241,42 @@
                             <i data-lucide="car-front" class="w-10 h-10 text-white"></i>
                         </div>
                         <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 mb-2">SabayBiyahe</h1>
-                        <p class="text-gray-500 text-sm font-medium">Maki-ride. I-save ang kalikasan.</p>
+                        <p class="text-gray-500 text-sm font-medium">Join a ride. Save the environment.</p>
                     </div>
 
                     <div class="space-y-4">
                         <button onclick="window.app.loginWithGoogle()" id="btn-google-login" class="w-full flex justify-center py-4 px-4 border-2 border-gray-100 rounded-2xl shadow-sm text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 hover:border-brand-200 transition-all active:scale-95 items-center gap-3">
                             <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                            Magpatuloy gamit ang Google
+                            Continue with Google
                         </button>
                         
                         <p class="text-center text-[11px] text-gray-400 mt-6 px-4 leading-relaxed">
-                            Sa pagpapatuloy, sumasang-ayon ka sa mga Tuntunin ng Serbisyo ng SabayBiyahe at sa pag-verify ng iyong identity gamit ang Google.
+                            By continuing, you agree to SabayBiyahe's Terms of Service and verify your identity via Google.
                         </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             VIEW: ROLE SELECTION
+        =========================================== -->
+        <div id="view-role" class="view bg-white">
+            <div class="h-full flex flex-col justify-center px-8 py-12 bg-gray-50">
+                <div class="bg-white p-8 rounded-3xl shadow-xl text-center border border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Welcome!</h2>
+                    <p class="text-sm text-gray-500 mb-8 font-medium">How would you like to use SabayBiyahe?</p>
+                    <div class="space-y-4">
+                        <button onclick="window.app.selectRole('passenger')" class="w-full py-5 px-4 border-2 border-brand-100 text-brand-700 rounded-2xl shadow-sm text-lg font-bold bg-brand-50 hover:bg-brand-100 hover:border-brand-300 transition-all flex flex-col items-center gap-2 active:scale-95">
+                            <i data-lucide="user" class="w-8 h-8"></i>
+                            I'm a Passenger
+                            <span class="text-xs font-medium text-brand-600/70">I'm looking for a ride</span>
+                        </button>
+                        <button onclick="window.app.selectRole('driver')" class="w-full py-5 px-4 border-2 border-blue-100 text-blue-700 rounded-2xl shadow-sm text-lg font-bold bg-blue-50 hover:bg-blue-100 hover:border-blue-300 transition-all flex flex-col items-center gap-2 active:scale-95">
+                            <i data-lucide="steering-wheel" class="w-8 h-8"></i>
+                            I'm a Driver
+                            <span class="text-xs font-medium text-blue-600/70">I want to offer a ride</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -265,7 +290,7 @@
             <div class="bg-gradient-to-b from-brand-700 to-brand-600 text-white pt-10 pb-24 px-6 rounded-b-[40px] shadow-lg relative">
                 <div class="flex justify-between items-center mb-8">
                     <div>
-                        <p class="text-brand-100 text-xs font-medium uppercase tracking-wider mb-1" id="greeting-text">Maligayang pagbabalik,</p>
+                        <p class="text-brand-100 text-xs font-medium uppercase tracking-wider mb-1" id="greeting-text">Welcome back,</p>
                         <h2 class="text-2xl font-bold flex items-center gap-2">
                             <span id="user-display-name">Commuter</span>
                             <i data-lucide="badge-check" class="w-5 h-5 text-blue-400 fill-white"></i>
@@ -285,10 +310,10 @@
                         <div class="relative z-10">
                             <div class="flex items-center gap-2 text-blue-600 mb-2">
                                 <i data-lucide="droplet" class="w-4 h-4 fill-blue-100"></i>
-                                <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Presyo ng Gas</p>
+                                <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Gas Price</p>
                             </div>
                             <p class="text-2xl font-black text-gray-900" id="dash-fuel-price">₱64.20</p>
-                            <p class="text-[10px] text-gray-400 mt-1">kada Litro</p>
+                            <p class="text-[10px] text-gray-400 mt-1">per Liter</p>
                         </div>
                     </div>
                     <div class="flex-1 bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 relative overflow-hidden">
@@ -296,28 +321,28 @@
                         <div class="relative z-10">
                             <div class="flex items-center gap-2 text-brand-600 mb-2">
                                 <i data-lucide="leaf" class="w-4 h-4 fill-brand-100"></i>
-                                <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Naiwasang CO2</p>
+                                <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">CO2 Saved</p>
                             </div>
                             <p class="text-2xl font-black text-gray-900" id="dash-co2">12.4<span class="text-sm font-bold text-gray-500">kg</span></p>
-                            <p class="text-[10px] text-gray-400 mt-1">Kabuuan ng Komunidad</p>
+                            <p class="text-[10px] text-gray-400 mt-1">Community Total</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="px-6 mt-20 pb-8 space-y-6">
-                <!-- Primary Actions -->
+                <!-- Primary Actions (Roles limit these) -->
                 <div>
-                    <h3 class="text-sm font-bold text-gray-900 mb-3">Saan tayo pupunta?</h3>
+                    <h3 class="text-sm font-bold text-gray-900 mb-3">Where are we heading?</h3>
                     <div class="grid gap-3">
-                        <button onclick="window.app.navigate('find')" class="w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                        <button id="dash-action-find" onclick="window.app.navigate('find')" class="w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between group active:scale-[0.98] transition-transform">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center text-white shadow-md">
                                     <i data-lucide="search" class="w-5 h-5"></i>
                                 </div>
                                 <div class="text-left">
-                                    <h4 class="text-base font-bold text-gray-900">Maghanap ng Sakay</h4>
-                                    <p class="text-xs text-gray-500 font-medium mt-0.5">Sumabay sa driver na papunta sa ruta mo</p>
+                                    <h4 class="text-base font-bold text-gray-900">Find a Ride</h4>
+                                    <p class="text-xs text-gray-500 font-medium mt-0.5">Join a driver heading your way</p>
                                 </div>
                             </div>
                             <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
@@ -325,14 +350,14 @@
                             </div>
                         </button>
 
-                        <button onclick="window.app.navigate('offer')" class="w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                        <button id="dash-action-offer" onclick="window.app.navigate('offer')" class="w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between group active:scale-[0.98] transition-transform">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 bg-brand-500 rounded-xl flex items-center justify-center text-white shadow-md shadow-brand-200">
                                     <i data-lucide="steering-wheel" class="w-5 h-5"></i>
                                 </div>
                                 <div class="text-left">
-                                    <h4 class="text-base font-bold text-gray-900">Mag-alok ng Sakay</h4>
-                                    <p class="text-xs text-gray-500 font-medium mt-0.5">I-share ang upuan, hatiin ang gastos sa gas</p>
+                                    <h4 class="text-base font-bold text-gray-900">Offer a Ride</h4>
+                                    <p class="text-xs text-gray-500 font-medium mt-0.5">Share seats, split gas costs</p>
                                 </div>
                             </div>
                             <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
@@ -345,11 +370,11 @@
                 <!-- Recent Activity Preview -->
                 <div id="dashboard-recent-activity" class="hidden">
                     <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-sm font-bold text-gray-900">Mga Aktibong Biyahe</h3>
-                        <button onclick="window.app.navigate('activity')" class="text-xs font-bold text-brand-600">Tingnan Lahat</button>
+                        <h3 class="text-sm font-bold text-gray-900">Active Rides</h3>
+                        <button onclick="window.app.navigate('activity')" class="text-xs font-bold text-brand-600">View All</button>
                     </div>
                     <div id="dash-activity-list" class="space-y-3">
-                        <!-- Pinu-populate ng JS -->
+                        <!-- Populated by JS -->
                     </div>
                 </div>
             </div>
@@ -364,7 +389,7 @@
                     <button onclick="window.app.navigate('dashboard')" class="w-10 h-10 flex items-center justify-center -ml-2 text-gray-900 hover:bg-gray-100 rounded-full active:scale-90 transition-all">
                         <i data-lucide="arrow-left" class="w-6 h-6"></i>
                     </button>
-                    <h2 class="text-xl font-bold text-gray-900">Mag-alok ng Sakay</h2>
+                    <h2 class="text-xl font-bold text-gray-900">Offer a Ride</h2>
                 </div>
             </div>
 
@@ -377,11 +402,11 @@
                         
                         <div class="space-y-5 relative">
                             <div class="relative">
-                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 ml-7">Panggagalingan</label>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 ml-7">Origin</label>
                                 <div class="flex items-center gap-3">
                                     <div class="w-4 h-4 rounded-full border-4 border-brand-500 bg-white z-10 flex-shrink-0 mt-2"></div>
                                     <div class="flex-1 relative">
-                                        <input type="text" id="offer-origin" required autocomplete="off" oninput="window.app.handleAutocomplete(event, 'offer-origin-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all pr-10" placeholder="Halimbawa: SM Megamall">
+                                        <input type="text" id="offer-origin" required autocomplete="off" oninput="window.app.handleAutocomplete(event, 'offer-origin-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all pr-10" placeholder="e.g., SM Megamall">
                                         <i data-lucide="map-pin" class="absolute right-3 top-3.5 w-4 h-4 text-gray-400"></i>
                                     </div>
                                 </div>
@@ -389,11 +414,11 @@
                             </div>
                             
                             <div class="relative">
-                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 ml-7">Patutunguhan</label>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 ml-7">Destination</label>
                                 <div class="flex items-center gap-3">
                                     <div class="w-4 h-4 rounded-full bg-gray-900 border-2 border-white shadow-sm z-10 flex-shrink-0 mt-2"></div>
                                     <div class="flex-1 relative">
-                                        <input type="text" id="offer-dest" required autocomplete="off" oninput="window.app.handleAutocomplete(event, 'offer-dest-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all pr-10" placeholder="Halimbawa: UP Diliman">
+                                        <input type="text" id="offer-dest" required autocomplete="off" oninput="window.app.handleAutocomplete(event, 'offer-dest-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all pr-10" placeholder="e.g., UP Diliman">
                                         <i data-lucide="flag" class="absolute right-3 top-3.5 w-4 h-4 text-gray-400"></i>
                                     </div>
                                 </div>
@@ -401,15 +426,15 @@
                             </div>
                         </div>
                         <div class="mt-4 pt-4 border-t border-gray-100 flex gap-3">
-                            <button type="button" onclick="window.app.useSavedPlace('offer-origin', 'home')" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 flex items-center gap-1"><i data-lucide="home" class="w-3 h-3"></i> Bahay</button>
-                            <button type="button" onclick="window.app.useSavedPlace('offer-dest', 'work')" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 flex items-center gap-1"><i data-lucide="briefcase" class="w-3 h-3"></i> Trabaho</button>
+                            <button type="button" onclick="window.app.useSavedPlace('offer-origin', 'home')" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 flex items-center gap-1"><i data-lucide="home" class="w-3 h-3"></i> Home</button>
+                            <button type="button" onclick="window.app.useSavedPlace('offer-dest', 'work')" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 flex items-center gap-1"><i data-lucide="briefcase" class="w-3 h-3"></i> Work</button>
                         </div>
                     </div>
 
                     <!-- Details Block -->
                     <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 space-y-4">
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Araw at Oras ng Pag-alis</label>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Departure Date & Time</label>
                             <div class="relative">
                                 <input type="datetime-local" id="offer-time" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all appearance-none">
                                 <i data-lucide="calendar" class="absolute right-4 top-3.5 w-5 h-5 text-gray-400 pointer-events-none"></i>
@@ -418,17 +443,17 @@
                         
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Bakanteng Upuan</label>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Available Seats</label>
                                 <select id="offer-seats" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 transition-all">
-                                    <option value="1">1 Upuan</option>
-                                    <option value="2">2 Upuan</option>
-                                    <option value="3" selected>3 Upuan</option>
-                                    <option value="4">4 Upuan</option>
+                                    <option value="1">1 Seat</option>
+                                    <option value="2">2 Seats</option>
+                                    <option value="3" selected>3 Seats</option>
+                                    <option value="4">4 Seats</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Modelo ng Sasakyan</label>
-                                <input type="text" id="offer-car" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 transition-all" placeholder="Halimbawa: Vios '22">
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Car Model</label>
+                                <input type="text" id="offer-car" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 transition-all" placeholder="e.g., Vios '22">
                             </div>
                         </div>
                     </div>
@@ -436,12 +461,12 @@
                     <div class="bg-brand-50/50 p-4 rounded-2xl border border-brand-100/50 flex gap-3 items-start">
                         <i data-lucide="info" class="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5"></i>
                         <p class="text-xs text-brand-800 leading-relaxed font-medium">
-                            Kasama sa kalkulasyon ang standard na ₱50 komisyon bilang tulong sa iyong maintenance at paggamit ng platform.
+                            Calculation includes a standard ₱50 commission for you to help cover maintenance and platform use.
                         </p>
                     </div>
 
                     <button type="submit" id="btn-submit-offer" class="w-full py-4 rounded-2xl shadow-[0_8px_20px_rgba(22,163,74,0.3)] text-base font-bold text-white bg-brand-600 hover:bg-brand-700 active:scale-95 transition-all flex justify-center items-center gap-2 mt-4">
-                        Kalkulahin at I-post ang Biyahe
+                        Calculate & Post Ride
                     </button>
                 </form>
             </div>
@@ -456,7 +481,7 @@
                     <button onclick="window.app.navigate('dashboard')" class="w-10 h-10 flex items-center justify-center -ml-2 text-gray-900 hover:bg-gray-100 rounded-full active:scale-90 transition-all">
                         <i data-lucide="arrow-left" class="w-6 h-6"></i>
                     </button>
-                    <h2 class="text-xl font-bold text-gray-900">Maghanap ng Sakay</h2>
+                    <h2 class="text-xl font-bold text-gray-900">Find a Ride</h2>
                 </div>
             </div>
 
@@ -469,37 +494,37 @@
                         <div class="relative">
                             <div class="flex items-center gap-3">
                                 <div class="w-4 h-4 rounded-full border-4 border-brand-500 bg-white z-10 flex-shrink-0"></div>
-                                <input type="text" id="find-origin" autocomplete="off" oninput="window.app.handleAutocomplete(event, 'find-origin-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500" placeholder="Panggagalingan...">
+                                <input type="text" id="find-origin" autocomplete="off" oninput="window.app.handleAutocomplete(event, 'find-origin-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500" placeholder="Origin...">
                             </div>
                             <div id="find-origin-suggestions" class="suggestions-list hidden"></div>
                         </div>
                         <div class="relative">
                             <div class="flex items-center gap-3">
                                 <div class="w-4 h-4 rounded-full bg-gray-900 border-2 border-white shadow-sm z-10 flex-shrink-0"></div>
-                                <input type="text" id="find-dest" autocomplete="off" oninput="window.app.handleAutocomplete(event, 'find-dest-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500" placeholder="Patutunguhan...">
+                                <input type="text" id="find-dest" autocomplete="off" oninput="window.app.handleAutocomplete(event, 'find-dest-suggestions')" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500" placeholder="Destination...">
                             </div>
                             <div id="find-dest-suggestions" class="suggestions-list hidden"></div>
                         </div>
                     </div>
                     <div class="mt-3 flex gap-3">
-                        <button type="button" onclick="window.app.useSavedPlace('find-origin', 'home')" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 flex items-center gap-1"><i data-lucide="home" class="w-3 h-3"></i> Bahay</button>
-                        <button type="button" onclick="window.app.useSavedPlace('find-dest', 'work')" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 flex items-center gap-1"><i data-lucide="briefcase" class="w-3 h-3"></i> Trabaho</button>
+                        <button type="button" onclick="window.app.useSavedPlace('find-origin', 'home')" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 flex items-center gap-1"><i data-lucide="home" class="w-3 h-3"></i> Home</button>
+                        <button type="button" onclick="window.app.useSavedPlace('find-dest', 'work')" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 flex items-center gap-1"><i data-lucide="briefcase" class="w-3 h-3"></i> Work</button>
                     </div>
                     
                     <button onclick="window.app.searchRides()" id="btn-search-rides" class="w-full mt-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gray-900 hover:bg-black active:scale-95 transition-all flex justify-center items-center gap-2">
-                        <i data-lucide="search" class="w-4 h-4"></i> Maghanap ng Ruta
+                        <i data-lucide="search" class="w-4 h-4"></i> Search Routes
                     </button>
                 </div>
 
                 <!-- Results -->
                 <div id="search-results-container">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-sm font-bold text-gray-900" id="search-title">Mga Available na Sakay</h3>
+                        <h3 class="text-sm font-bold text-gray-900" id="search-title">Available Rides</h3>
                         <span class="text-[10px] font-bold text-brand-600 bg-brand-50 px-2 py-1 rounded-md" id="search-count">Live</span>
                     </div>
                     
                     <div id="search-results-list" class="space-y-4 pb-10">
-                        <!-- Pinu-populate ng JS -->
+                        <!-- Populated by JS -->
                     </div>
                 </div>
             </div>
@@ -520,9 +545,9 @@
                 
                 <div class="flex justify-between items-start mb-6">
                     <div class="flex-1 pr-4">
-                        <h2 id="detail-route" class="text-xl font-black text-gray-900 leading-tight mb-2">Ruta</h2>
+                        <h2 id="detail-route" class="text-xl font-black text-gray-900 leading-tight mb-2">Route</h2>
                         <p id="detail-time" class="text-sm font-medium text-brand-600 flex items-center gap-1.5 bg-brand-50 inline-flex px-2.5 py-1 rounded-lg">
-                            <i data-lucide="clock" class="w-4 h-4"></i> <span>Oras</span>
+                            <i data-lucide="clock" class="w-4 h-4"></i> <span>Time</span>
                         </p>
                     </div>
                     <div class="flex flex-col items-center">
@@ -534,37 +559,37 @@
                 <div class="flex gap-2 mb-6 overflow-x-auto hide-scrollbar pb-1">
                     <div class="bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 flex items-center gap-2 flex-shrink-0">
                         <i data-lucide="car" class="w-4 h-4 text-gray-500"></i>
-                        <span id="detail-car" class="text-xs font-semibold text-gray-700">Kotse</span>
+                        <span id="detail-car" class="text-xs font-semibold text-gray-700">Car</span>
                     </div>
                     <div class="bg-blue-50 border border-blue-100 rounded-xl px-3 py-2 flex items-center gap-2 flex-shrink-0">
                         <i data-lucide="users" class="w-4 h-4 text-blue-500"></i>
-                        <span id="detail-seats" class="text-xs font-semibold text-blue-700">Upuan</span>
+                        <span id="detail-seats" class="text-xs font-semibold text-blue-700">Seats</span>
                     </div>
                     <div class="bg-orange-50 border border-orange-100 rounded-xl px-3 py-2 flex items-center gap-2 flex-shrink-0">
                         <i data-lucide="route" class="w-4 h-4 text-orange-500"></i>
-                        <span id="detail-distance" class="text-xs font-semibold text-orange-700">Layo</span>
+                        <span id="detail-distance" class="text-xs font-semibold text-orange-700">Distance</span>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-[0_4px_20px_rgba(0,0,0,0.03)] mb-8">
                     <div class="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
                         <div class="bg-brand-100 p-1.5 rounded-lg text-brand-600"><i data-lucide="calculator" class="w-4 h-4"></i></div>
-                        <h3 class="text-sm font-bold text-gray-900">Pagtatantiya ng Hati</h3>
+                        <h3 class="text-sm font-bold text-gray-900">Fair-Share Estimate</h3>
                     </div>
 
                     <div class="space-y-3">
                         <div class="flex justify-between items-center text-xs">
-                            <span class="text-gray-500 font-medium">Kalkulasyon sa Hati sa Gas</span>
+                            <span class="text-gray-500 font-medium">Fuel Share Calculation</span>
                             <span id="detail-total-cost" class="font-bold text-gray-800">₱0.00</span>
                         </div>
                         <div class="flex justify-between items-center text-xs">
-                            <span class="text-gray-500 font-medium">+ Komisyon ng Driver</span>
+                            <span class="text-gray-500 font-medium">+ Driver Commission</span>
                             <span class="font-bold text-brand-600">₱50.00</span>
                         </div>
                         
                         <div class="pt-3 mt-1 border-t border-dashed border-gray-200 flex justify-between items-end">
                             <div>
-                                <span class="block text-[10px] font-bold text-brand-600 uppercase tracking-wider">Kabuuan ng Iyong Hati</span>
+                                <span class="block text-[10px] font-bold text-brand-600 uppercase tracking-wider">Your Total Split</span>
                             </div>
                             <span id="detail-exact-share" class="text-3xl font-black text-gray-900 tracking-tight">₱0</span>
                         </div>
@@ -573,7 +598,7 @@
 
                 <div class="flex gap-4">
                     <button onclick="window.app.requestRide()" id="btn-request" class="flex-1 py-4 rounded-2xl shadow-[0_8px_20px_rgba(17,24,39,0.2)] text-base font-bold text-white bg-gray-900 hover:bg-black active:scale-95 transition-all flex justify-center items-center gap-2">
-                        Mag-request Makisakay
+                        Request to Join
                     </button>
                     <button id="btn-sos-detail" onclick="window.app.shareRideSOS()" class="hidden py-4 px-6 rounded-2xl border-2 border-red-100 text-red-600 bg-red-50 hover:bg-red-100 active:scale-95 transition-all flex justify-center items-center gap-2">
                         <i data-lucide="shield-alert" class="w-5 h-5"></i>
@@ -590,11 +615,11 @@
         =========================================== -->
         <div id="view-activity" class="view">
             <div class="bg-white pt-10 pb-4 px-6 sticky top-0 z-20 border-b border-gray-100 shadow-sm">
-                <h2 class="text-xl font-bold text-gray-900">Aking Aktibidad</h2>
+                <h2 class="text-xl font-bold text-gray-900">My Activity</h2>
                 
                 <div class="flex mt-4 bg-gray-100 p-1 rounded-xl">
-                    <button onclick="window.app.switchActivityTab('joined')" id="tab-joined" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-gray-900 transition-all">Mga Request</button>
-                    <button onclick="window.app.switchActivityTab('offered')" id="tab-offered" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">Nagmamaneho</button>
+                    <button onclick="window.app.switchActivityTab('joined')" id="tab-joined" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-gray-900 transition-all">Requests</button>
+                    <button onclick="window.app.switchActivityTab('offered')" id="tab-offered" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">Driving</button>
                 </div>
             </div>
 
@@ -614,14 +639,14 @@
                 </button>
                 <div class="flex-1">
                     <h2 id="chat-title" class="text-base font-bold text-gray-900 truncate">Chat</h2>
-                    <p id="chat-subtitle" class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Group Chat ng Biyahe</p>
+                    <p id="chat-subtitle" class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Ride Group Chat</p>
                 </div>
             </div>
 
             <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50"></div>
 
             <div class="p-4 bg-white border-t border-gray-100 flex items-center gap-2">
-                <input type="text" id="chat-input" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500" placeholder="Mag-type ng mensahe...">
+                <input type="text" id="chat-input" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500" placeholder="Type a message...">
                 <button onclick="window.app.sendMessage()" class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand-200 active:scale-90 transition-transform">
                     <i data-lucide="send" class="w-5 h-5"></i>
                 </button>
@@ -629,7 +654,7 @@
         </div>
 
         <!-- ==========================================
-             VIEW: PROFILE & RATING MODAL (NEW)
+             VIEW: PROFILE & RATING MODAL
         =========================================== -->
         <div id="view-profile" class="view bg-gray-50">
             <div class="bg-brand-600 pt-10 pb-20 px-6 rounded-b-[40px] shadow-lg relative text-white">
@@ -637,16 +662,16 @@
                     <button onclick="window.app.navigate('dashboard')" class="w-10 h-10 flex items-center justify-center -ml-2 text-white hover:bg-white/20 rounded-full active:scale-90 transition-all">
                         <i data-lucide="arrow-left" class="w-6 h-6"></i>
                     </button>
-                    <h2 class="text-xl font-bold">Aking Profile</h2>
+                    <h2 class="text-xl font-bold">My Profile</h2>
                 </div>
                 <div class="flex flex-col items-center text-center">
                     <div id="profile-avatar-large" class="w-20 h-20 rounded-full border-4 border-white bg-brand-800 flex items-center justify-center mb-3 shadow-md overflow-hidden"></div>
                     <h3 id="profile-name-large" class="text-xl font-bold">Commuter</h3>
                     <div class="flex items-center gap-1 text-brand-100 text-sm mt-1">
                         <i data-lucide="star" class="w-4 h-4 fill-yellow-400 text-yellow-400"></i>
-                        <span id="profile-rating-display" class="font-bold">Bago</span>
+                        <span id="profile-rating-display" class="font-bold">New</span>
                         <span class="opacity-50 mx-2">|</span>
-                        <span id="profile-rides-display">0 Biyahe</span>
+                        <span id="profile-rides-display">0 Rides</span>
                     </div>
                 </div>
             </div>
@@ -654,33 +679,33 @@
             <div class="px-6 -mt-10 relative z-10 space-y-4 pb-8">
                 <!-- Saved Places -->
                 <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
-                    <h4 class="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-brand-500"></i> Mga Naka-save na Lugar</h4>
+                    <h4 class="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-brand-500"></i> Saved Places</h4>
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500"><i data-lucide="home" class="w-5 h-5"></i></div>
                                 <div>
-                                    <p class="text-xs font-bold text-gray-800">Bahay</p>
-                                    <p id="profile-home-text" class="text-[10px] text-gray-500 w-32 truncate">Hindi pa naka-set</p>
+                                    <p class="text-xs font-bold text-gray-800">Home</p>
+                                    <p id="profile-home-text" class="text-[10px] text-gray-500 w-32 truncate">Not set</p>
                                 </div>
                             </div>
-                            <button onclick="window.app.setSavedPlace('home')" class="text-[10px] font-bold text-brand-600 bg-brand-50 px-3 py-1.5 rounded-lg">I-set</button>
+                            <button onclick="window.app.setSavedPlace('home')" class="text-[10px] font-bold text-brand-600 bg-brand-50 px-3 py-1.5 rounded-lg">Set</button>
                         </div>
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500"><i data-lucide="briefcase" class="w-5 h-5"></i></div>
                                 <div>
-                                    <p class="text-xs font-bold text-gray-800">Trabaho</p>
-                                    <p id="profile-work-text" class="text-[10px] text-gray-500 w-32 truncate">Hindi pa naka-set</p>
+                                    <p class="text-xs font-bold text-gray-800">Work</p>
+                                    <p id="profile-work-text" class="text-[10px] text-gray-500 w-32 truncate">Not set</p>
                                 </div>
                             </div>
-                            <button onclick="window.app.setSavedPlace('work')" class="text-[10px] font-bold text-brand-600 bg-brand-50 px-3 py-1.5 rounded-lg">I-set</button>
+                            <button onclick="window.app.setSavedPlace('work')" class="text-[10px] font-bold text-brand-600 bg-brand-50 px-3 py-1.5 rounded-lg">Set</button>
                         </div>
                     </div>
                 </div>
 
                 <button onclick="window.app.logout()" class="w-full py-4 rounded-2xl border border-red-100 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 active:scale-95 transition-all flex justify-center items-center gap-2">
-                    <i data-lucide="log-out" class="w-4 h-4"></i> Mag-sign Out
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
                 </button>
             </div>
         </div>
@@ -691,8 +716,8 @@
                 <div class="w-16 h-16 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i data-lucide="star" class="w-8 h-8 fill-brand-600"></i>
                 </div>
-                <h3 class="text-xl font-black text-gray-900 mb-1">I-rate ang iyong Driver</h3>
-                <p id="rating-driver-name" class="text-sm font-medium text-gray-500 mb-6">Kumusta ang iyong biyahe?</p>
+                <h3 class="text-xl font-black text-gray-900 mb-1">Rate your Driver</h3>
+                <p id="rating-driver-name" class="text-sm font-medium text-gray-500 mb-6">How was your ride?</p>
                 
                 <div class="flex justify-center gap-2 mb-6" id="rating-stars-container">
                     <i data-lucide="star" class="w-8 h-8 star-rating" data-val="1" onclick="window.app.setRatingValue(1)"></i>
@@ -703,8 +728,8 @@
                 </div>
                 
                 <div class="flex gap-3">
-                    <button onclick="window.app.closeRatingModal()" class="flex-1 py-3 rounded-xl font-bold text-gray-500 bg-gray-100">Laktawan</button>
-                    <button onclick="window.app.submitRating()" class="flex-1 py-3 rounded-xl font-bold text-white bg-brand-600 shadow-md shadow-brand-200">I-submit</button>
+                    <button onclick="window.app.closeRatingModal()" class="flex-1 py-3 rounded-xl font-bold text-gray-500 bg-gray-100">Skip</button>
+                    <button onclick="window.app.submitRating()" class="flex-1 py-3 rounded-xl font-bold text-white bg-brand-600 shadow-md shadow-brand-200">Submit</button>
                 </div>
             </div>
         </div>
@@ -713,25 +738,25 @@
              BOTTOM NAVIGATION
         =========================================== -->
         <div id="bottom-nav" class="fixed bottom-0 w-full max-w-[414px] bg-white/90 backdrop-blur-md border-t border-gray-200 flex justify-around items-center pb-safe hidden z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.03)]">
-            <button onclick="window.app.navigate('dashboard')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-brand-600 transition-colors nav-btn group" data-target="dashboard">
+            <button id="nav-home" onclick="window.app.navigate('dashboard')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-brand-600 transition-colors nav-btn group" data-target="dashboard">
                 <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
                 <span class="text-[10px] font-bold">Home</span>
             </button>
-            <button onclick="window.app.navigate('find')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="find">
+            <button id="nav-find" onclick="window.app.navigate('find')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="find">
                 <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors"><i data-lucide="search" class="w-5 h-5"></i></div>
-                <span class="text-[10px] font-bold">Maghanap</span>
+                <span class="text-[10px] font-bold">Find</span>
             </button>
-            <button onclick="window.app.navigate('offer')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group relative" data-target="offer">
+            <button id="nav-offer" onclick="window.app.navigate('offer')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group relative" data-target="offer">
                 <div class="absolute -top-4 bg-gray-900 text-white p-3 rounded-full shadow-lg transform group-hover:-translate-y-1 transition-transform border-4 border-white"><i data-lucide="plus" class="w-5 h-5"></i></div>
                 <div class="h-8"></div>
-                <span class="text-[10px] font-bold mt-1">Mag-alok</span>
+                <span class="text-[10px] font-bold mt-1">Offer</span>
             </button>
-            <button onclick="window.app.navigate('activity')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="activity">
+            <button id="nav-activity" onclick="window.app.navigate('activity')" class="flex-1 py-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-600 transition-colors nav-btn group" data-target="activity">
                 <div class="p-1.5 rounded-xl group-hover:bg-brand-50 transition-colors relative">
                     <i data-lucide="list-todo" class="w-5 h-5"></i>
                     <span id="activity-badge" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full hidden"></span>
                 </div>
-                <span class="text-[10px] font-bold">Aktibidad</span>
+                <span class="text-[10px] font-bold">Activity</span>
             </button>
         </div>
 
@@ -763,6 +788,7 @@
 
         window.app = {
             user: null,
+            userRole: null,
             allRides: [],
             allRequests: [],
             previousRequests: [],
@@ -787,7 +813,7 @@
 
             async init() {
                 lucide.createIcons();
-                this.setLoading(true, "Kumokonekta sa SabayBiyahe...");
+                this.setLoading(true, "Connecting to SabayBiyahe...");
 
                 try {
                     appInstance = initializeApp(firebaseConfig);
@@ -817,18 +843,18 @@
                 await initAuth();
 
                 onAuthStateChanged(auth, async (user) => {
-                    this.setLoading(false);
                     if (user && !user.isAnonymous) {
                         this.user = user;
                         this.updateProfileUI(user);
-                        this.navigate('dashboard');
-                        document.getElementById('bottom-nav').classList.remove('hidden');
+                        
                         this.setupDatabaseListeners();
                         this.setupPrivateListeners();
                     } else {
                         this.user = null;
+                        this.userRole = null;
                         this.navigate('login');
                         document.getElementById('bottom-nav').classList.add('hidden');
+                        this.setLoading(false);
                     }
                 });
 
@@ -836,6 +862,41 @@
                 now.setHours(now.getHours() + 1);
                 now.setMinutes(0);
                 document.getElementById('offer-time').value = now.toISOString().slice(0, 16);
+            },
+
+            async selectRole(role) {
+                this.setLoading(true, "Setting up account...");
+                try {
+                    const profileRef = doc(db, 'artifacts', appId, 'users', this.user.uid, 'settings', 'profile');
+                    await setDoc(profileRef, { role: role }, { merge: true });
+                    this.userRole = role;
+                    this.updateRoleUI();
+                    this.navigate('dashboard');
+                    document.getElementById('bottom-nav').classList.remove('hidden');
+                } catch(e) {
+                    this.showToast("Error setting role", "error");
+                }
+                this.setLoading(false);
+            },
+
+            updateRoleUI() {
+                if (this.userRole === 'passenger') {
+                    document.getElementById('dash-action-find').classList.remove('hidden');
+                    document.getElementById('dash-action-offer').classList.add('hidden');
+                    document.getElementById('nav-find').classList.remove('hidden');
+                    document.getElementById('nav-offer').classList.add('hidden');
+                    document.getElementById('tab-joined').classList.remove('hidden');
+                    document.getElementById('tab-offered').classList.add('hidden');
+                    this.switchActivityTab('joined');
+                } else if (this.userRole === 'driver') {
+                    document.getElementById('dash-action-find').classList.add('hidden');
+                    document.getElementById('dash-action-offer').classList.remove('hidden');
+                    document.getElementById('nav-find').classList.add('hidden');
+                    document.getElementById('nav-offer').classList.remove('hidden');
+                    document.getElementById('tab-joined').classList.add('hidden');
+                    document.getElementById('tab-offered').classList.remove('hidden');
+                    this.switchActivityTab('offered');
+                }
             },
 
             // Autocomplete Logic
@@ -943,13 +1004,13 @@
             async loginWithGoogle() {
                 const provider = new GoogleAuthProvider();
                 const btn = document.getElementById('btn-google-login');
-                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Sine-verify...';
+                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Verifying...';
                 btn.disabled = true;
                 lucide.createIcons();
                 try { await signInWithPopup(auth, provider); } catch (error) {
-                    btn.innerHTML = `Magpatuloy gamit ang Google`;
+                    btn.innerHTML = `Continue with Google`;
                     btn.disabled = false;
-                    this.showToast("Bigo ang pag-sign in. Gumamit ng Chrome/Safari.", "error");
+                    this.showToast("Sign in failed. Use Chrome/Safari.", "error");
                 }
             },
 
@@ -1004,12 +1065,12 @@
                             const oldReq = this.previousRequests.find(r => r.id === newReq.id);
                             if (oldReq && oldReq.status !== newReq.status) {
                                 if (newReq.passengerId === this.user.uid && newReq.status === 'accepted') {
-                                    this.showToast(`Tinanggap ang request! Pwede mo nang i-chat ang driver.`, 'success');
+                                    this.showToast(`Ride request accepted! You can now chat with the driver.`, 'success');
                                 } else if (newReq.passengerId === this.user.uid && newReq.status === 'rejected') {
-                                    this.showToast(`Ang iyong request ay tinanggihan.`, 'error');
+                                    this.showToast(`Your ride request was declined.`, 'error');
                                 }
                             } else if (!oldReq && newReq.driverId === this.user.uid && newReq.status === 'pending') {
-                                this.showToast(`Bagong request mula kay ${newReq.passengerName}!`, 'success');
+                                this.showToast(`New ride request from ${newReq.passengerName}!`, 'success');
                             }
                         });
                     }
@@ -1033,34 +1094,52 @@
 
             setupPrivateListeners() {
                 if(!db || !this.user) return;
-                const profileRef = collection(db, 'artifacts', appId, 'users', this.user.uid, 'settings');
+                const profileRef = doc(db, 'artifacts', appId, 'users', this.user.uid, 'settings', 'profile');
+                
                 this.unsubProfile = onSnapshot(profileRef, (snap) => {
-                    snap.docs.forEach(d => {
-                        if(d.id === 'places') {
-                            this.userProfileData = d.data();
-                            if(document.getElementById('profile-home-text')) {
-                                document.getElementById('profile-home-text').textContent = this.userProfileData.home?.name || "Hindi pa naka-set";
-                                document.getElementById('profile-work-text').textContent = this.userProfileData.work?.name || "Hindi pa naka-set";
-                            }
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        this.userProfileData = data;
+                        this.userRole = data.role;
+                        
+                        if (this.userRole && document.getElementById('view-role').classList.contains('active')) {
+                            this.navigate('dashboard');
+                            document.getElementById('bottom-nav').classList.remove('hidden');
+                        } else if (!this.userRole) {
+                            this.navigate('role');
+                            document.getElementById('bottom-nav').classList.add('hidden');
                         }
-                    });
+                        
+                        this.updateRoleUI();
+                        
+                        if(document.getElementById('profile-home-text')) {
+                            document.getElementById('profile-home-text').textContent = this.userProfileData.home?.name || "Not set";
+                            document.getElementById('profile-work-text').textContent = this.userProfileData.work?.name || "Not set";
+                        }
+                        this.setLoading(false);
+                    } else {
+                        // Setup profile structure if it does not exist
+                        this.navigate('role');
+                        document.getElementById('bottom-nav').classList.add('hidden');
+                        this.setLoading(false);
+                    }
                 });
             },
 
             async setSavedPlace(type) {
-                const label = type === 'home' ? 'Bahay' : 'Trabaho';
-                const placeName = prompt(`Maglagay ng landmark o siyudad para sa iyong ${label} (hal. UP Diliman):`);
+                const label = type === 'home' ? 'Home' : 'Work';
+                const placeName = prompt(`Enter a landmark or city for your ${label} (e.g. UP Diliman):`);
                 if(!placeName) return;
                 
-                this.setLoading(true, "Sini-save ang lokasyon...");
+                this.setLoading(true, "Saving location...");
                 try {
                     const coords = await this.geocode(placeName);
-                    if(!coords) throw new Error("Hindi nahanap ang lokasyon");
+                    if(!coords) throw new Error("Location not found");
                     
-                    const profileRef = doc(db, 'artifacts', appId, 'users', this.user.uid, 'settings', 'places');
+                    const profileRef = doc(db, 'artifacts', appId, 'users', this.user.uid, 'settings', 'profile');
                     await setDoc(profileRef, { [type]: coords }, { merge: true });
                     
-                    this.showToast(`Na-update ang ${label}!`);
+                    this.showToast(`${label} updated!`);
                 } catch(e) {
                     this.showToast(e.message, "error");
                 } finally {
@@ -1069,10 +1148,10 @@
             },
 
             useSavedPlace(inputId, type) {
-                const label = type === 'home' ? 'Bahay' : 'Trabaho';
+                const label = type === 'home' ? 'Home' : 'Work';
                 const place = this.userProfileData[type];
                 if(!place) {
-                    this.showToast(`I-set muna ang iyong ${label} sa iyong Profile.`, "error");
+                    this.showToast(`Please set your ${label} in your Profile.`, "error");
                     return;
                 }
                 const input = document.getElementById(inputId);
@@ -1080,28 +1159,28 @@
                 input.dataset.lat = place.lat;
                 input.dataset.lon = place.lon;
                 input.dataset.fullName = place.name;
-                this.showToast(`Ginagamit ang naka-save na ${label}`);
+                this.showToast(`Using saved ${label}`);
             },
 
             updateProfileStats() {
                 if(!this.user || !document.getElementById('profile-rides-display')) return;
                 const myDriven = this.allRides.filter(r => r.driverId === this.user.uid && r.status === 'completed').length;
                 const myJoined = this.allRequests.filter(req => req.passengerId === this.user.uid && req.status === 'completed').length;
-                document.getElementById('profile-rides-display').textContent = `${myDriven + myJoined} Biyahe`;
+                document.getElementById('profile-rides-display').textContent = `${myDriven + myJoined} Rides`;
 
                 const myRatings = this.allRatings.filter(r => r.targetId === this.user.uid);
                 if(myRatings.length > 0) {
                     const avg = myRatings.reduce((sum, r) => sum + r.value, 0) / myRatings.length;
                     document.getElementById('profile-rating-display').textContent = avg.toFixed(1);
                 } else {
-                    document.getElementById('profile-rating-display').textContent = "Bago";
+                    document.getElementById('profile-rating-display').textContent = "New";
                 }
             },
 
             shareRideSOS() {
                 if(!this.selectedRide) return;
                 const ride = this.selectedRide;
-                const text = `🚨 SabayBiyahe Ride Info:\nDriver: ${ride.driverName}\nKotse: ${ride.carModel}\nRuta: ${ride.originName.split(',')[0]} hanggang ${ride.destName.split(',')[0]}`;
+                const text = `🚨 SabayBiyahe Ride Info:\nDriver: ${ride.driverName}\nCar: ${ride.carModel}\nRoute: ${ride.originName.split(',')[0]} to ${ride.destName.split(',')[0]}`;
                 
                 if (navigator.share) {
                     navigator.share({ title: 'SabayBiyahe SOS', text: text }).catch(() => {});
@@ -1112,7 +1191,7 @@
                     tempInput.select();
                     document.execCommand("copy");
                     document.body.removeChild(tempInput);
-                    this.showToast("Na-copy sa clipboard ang detalye ng biyahe!");
+                    this.showToast("Ride details copied to clipboard!");
                 }
             },
 
@@ -1121,7 +1200,7 @@
                 this.ratingRideId = rideId;
                 this.ratingDriverId = driverId;
                 this.currentRatingValue = 0;
-                document.getElementById('rating-driver-name').textContent = `Kumusta ang biyahe mo kasama si ${driverName}?`;
+                document.getElementById('rating-driver-name').textContent = `How was your ride with ${driverName}?`;
                 this.setRatingValue(0);
                 document.getElementById('modal-rating').classList.remove('hidden');
                 document.getElementById('modal-rating').classList.add('flex');
@@ -1142,7 +1221,7 @@
 
             async submitRating() {
                 if(this.currentRatingValue === 0) {
-                    this.showToast("Pumili ng rating", "error");
+                    this.showToast("Select a rating", "error");
                     return;
                 }
                 try {
@@ -1153,10 +1232,10 @@
                         value: this.currentRatingValue,
                         timestamp: Date.now()
                     });
-                    this.showToast("Salamat sa pag-rate!");
+                    this.showToast("Thanks for rating!");
                     this.closeRatingModal();
                 } catch(e) {
-                    this.showToast("Bigo ang pag-submit ng rating", "error");
+                    this.showToast("Failed to submit rating", "error");
                 }
             },
 
@@ -1169,12 +1248,12 @@
                 const car = document.getElementById('offer-car').value;
 
                 if(!originInput.value || !destInput.value) {
-                    this.showToast("Ilagay ang lokasyon ng ruta", "error");
+                    this.showToast("Enter route locations", "error");
                     return;
                 }
 
                 const btn = document.getElementById('btn-submit-offer');
-                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Pinoproseso...';
+                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Processing...';
                 btn.disabled = true;
                 lucide.createIcons();
 
@@ -1191,7 +1270,7 @@
                          }
                     }
 
-                    if(!originCoords || !destCoords) throw new Error("Hindi nahanap ang lokasyon. Gumamit ng suggestions.");
+                    if(!originCoords || !destCoords) throw new Error("Location not found. Use suggestions.");
 
                     const route = await this.getRouteInfo(originCoords, destCoords);
                     const distanceKm = route ? route.distanceKm : 10.0;
@@ -1216,11 +1295,11 @@
                         createdAt: Date.now()
                     });
 
-                    this.showToast("Na-post na ang biyahe!");
+                    this.showToast("Ride posted!");
                     document.getElementById('form-offer').reset();
                     this.navigate('dashboard');
                 } catch (error) { this.showToast(error.message, "error"); } finally {
-                    btn.innerHTML = 'Kalkulahin at I-post ang Biyahe';
+                    btn.innerHTML = 'Calculate & Post Ride';
                     btn.disabled = false;
                 }
             },
@@ -1239,7 +1318,7 @@
                 const list = document.getElementById('search-results-list');
                 document.getElementById('search-count').textContent = `${rides.length} Live`;
                 if (rides.length === 0) {
-                    list.innerHTML = `<div class="bg-gray-50 rounded-2xl p-8 text-center text-xs text-gray-500 font-bold border-2 border-dashed border-gray-100">WALANG MATCH NA AKTIBONG BIYAHE</div>`;
+                    list.innerHTML = `<div class="bg-gray-50 rounded-2xl p-8 text-center text-xs text-gray-500 font-bold border-2 border-dashed border-gray-100">NO ACTIVE RIDES MATCHING</div>`;
                     return;
                 }
                 list.innerHTML = rides.map(ride => `
@@ -1260,7 +1339,7 @@
                         </div>
                         <div class="flex gap-2 text-[10px] font-bold">
                             <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-md flex items-center gap-1"><i data-lucide="car" class="w-3 h-3"></i> ${ride.carModel}</span>
-                            <span class="bg-blue-50 text-blue-600 px-2 py-1 rounded-md flex items-center gap-1"><i data-lucide="users" class="w-3 h-3"></i> ${ride.seatsAvailable} upuan</span>
+                            <span class="bg-blue-50 text-blue-600 px-2 py-1 rounded-md flex items-center gap-1"><i data-lucide="users" class="w-3 h-3"></i> ${ride.seatsAvailable} seats</span>
                         </div>
                     </div>
                 `).join('');
@@ -1276,7 +1355,7 @@
                 document.getElementById('detail-avatar').textContent = ride.driverName.substring(0,1).toUpperCase();
                 document.getElementById('detail-driver').textContent = ride.driverName;
                 document.getElementById('detail-car').textContent = ride.carModel;
-                document.getElementById('detail-seats').textContent = `${ride.seatsAvailable} Upuan`;
+                document.getElementById('detail-seats').textContent = `${ride.seatsAvailable} Seats`;
                 document.getElementById('detail-distance').textContent = `${ride.distanceKm}km`;
                 document.getElementById('detail-total-cost').textContent = `₱${(ride.fuelSplit || 0).toFixed(2)}`;
                 document.getElementById('detail-exact-share').textContent = `₱${ride.pricePerSeat}`;
@@ -1288,7 +1367,7 @@
                 
                 if(existingReq) {
                     btn.disabled = true;
-                    btn.innerHTML = `<i data-lucide="check" class="w-5 h-5"></i> Na-request (${existingReq.status})`;
+                    btn.innerHTML = `<i data-lucide="check" class="w-5 h-5"></i> Requested (${existingReq.status})`;
                     if(existingReq.status === 'accepted' || existingReq.status === 'completed') {
                         chatBtn.classList.remove('hidden');
                         sosBtn.classList.remove('hidden');
@@ -1298,12 +1377,12 @@
                     }
                 } else if (ride.driverId === this.user.uid) {
                     btn.disabled = true;
-                    btn.innerHTML = 'Iyong Biyahe';
+                    btn.innerHTML = 'Your Drive';
                     chatBtn.classList.remove('hidden');
                     sosBtn.classList.remove('hidden');
                 } else {
                     btn.disabled = false;
-                    btn.innerHTML = 'Mag-request Makisakay';
+                    btn.innerHTML = 'Request to Join';
                     chatBtn.classList.add('hidden');
                     sosBtn.classList.add('hidden');
                 }
@@ -1351,7 +1430,7 @@
             async requestRide() {
                 if(!db || !this.user || !this.selectedRide) return;
                 const btn = document.getElementById('btn-request');
-                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Pinoproseso...';
+                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Processing...';
                 btn.disabled = true;
                 try {
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'requests'), {
@@ -1362,9 +1441,9 @@
                         status: 'pending',
                         timestamp: Date.now()
                     });
-                    this.showToast("Naipadala na ang Request!");
+                    this.showToast("Request Sent!");
                     this.navigate('dashboard');
-                } catch(e) { this.showToast("Bigo ang pag-request", "error"); }
+                } catch(e) { this.showToast("Failed to request", "error"); }
             },
 
             switchActivityTab(tab) {
@@ -1383,7 +1462,7 @@
                 if(!this.user) return;
                 const myReqs = this.allRequests.filter(req => req.passengerId === this.user.uid);
                 const joinedList = document.getElementById('activity-joined-list');
-                joinedList.innerHTML = myReqs.length === 0 ? `<p class="text-center py-10 text-gray-400 font-bold text-xs">WALA PANG REQUESTS</p>` : myReqs.map(req => {
+                joinedList.innerHTML = myReqs.length === 0 ? `<p class="text-center py-10 text-gray-400 font-bold text-xs">NO REQUESTS YET</p>` : myReqs.map(req => {
                     const ride = this.allRides.find(r => r.id === req.rideId);
                     if(!ride) return '';
                     const col = req.status === 'accepted' ? 'text-brand-600 bg-brand-50' : req.status === 'completed' ? 'text-gray-600 bg-gray-100' : 'text-orange-600 bg-orange-50';
@@ -1394,15 +1473,15 @@
                         </div>
                         <h4 class="font-bold text-gray-900 text-sm">${ride.originName.split(',')[0]} → ${ride.destName.split(',')[0]}</h4>
                         <div class="mt-3 flex justify-end gap-2">
-                            ${req.status === 'accepted' ? `<button onclick="event.stopPropagation(); window.app.openChat('${ride.id}')" class="text-brand-600 font-bold text-xs flex items-center gap-1"><i data-lucide="message-circle" class="w-3 h-3"></i> Mensahe</button>` : ''}
-                            ${req.status === 'completed' ? `<button onclick="event.stopPropagation(); window.app.openRatingModal('${ride.driverId}', '${ride.driverName}', '${ride.id}')" class="text-yellow-600 bg-yellow-50 px-3 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1"><i data-lucide="star" class="w-3 h-3"></i> I-rate ang Driver</button>` : ''}
+                            ${req.status === 'accepted' ? `<button onclick="event.stopPropagation(); window.app.openChat('${ride.id}')" class="text-brand-600 font-bold text-xs flex items-center gap-1"><i data-lucide="message-circle" class="w-3 h-3"></i> Message</button>` : ''}
+                            ${req.status === 'completed' ? `<button onclick="event.stopPropagation(); window.app.openRatingModal('${ride.driverId}', '${ride.driverName}', '${ride.id}')" class="text-yellow-600 bg-yellow-50 px-3 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1"><i data-lucide="star" class="w-3 h-3"></i> Rate Driver</button>` : ''}
                         </div>
                     </div>`;
                 }).join('');
 
                 const myOffered = this.allRides.filter(r => r.driverId === this.user.uid);
                 const offeredList = document.getElementById('activity-offered-list');
-                offeredList.innerHTML = myOffered.length === 0 ? `<p class="text-center py-10 text-gray-400 font-bold text-xs">WALANG MINAMANEHONG BIYAHE</p>` : myOffered.map(ride => {
+                offeredList.innerHTML = myOffered.length === 0 ? `<p class="text-center py-10 text-gray-400 font-bold text-xs">NOT DRIVING ANY TRIPS</p>` : myOffered.map(ride => {
                     const reqs = this.allRequests.filter(req => req.rideId === ride.id);
                     const isTracking = this.watchPositionId && this.selectedRide?.id === ride.id;
                     
@@ -1412,21 +1491,21 @@
                             <div class="flex gap-2">
                                 <button onclick="event.stopPropagation(); window.app.openChat('${ride.id}')" class="p-2 bg-brand-50 text-brand-600 rounded-lg"><i data-lucide="message-circle" class="w-4 h-4"></i></button>
                                 ${ride.status === 'active' ? `
-                                    <button id="track-btn-${ride.id}" onclick="event.stopPropagation(); window.app.toggleLiveLocation('${ride.id}')" class="p-2 ${isTracking ? 'bg-red-100 text-red-600' : 'bg-blue-50 text-blue-600'} rounded-lg transition-colors" title="I-broadcast ang Lokasyon">
+                                    <button id="track-btn-${ride.id}" onclick="event.stopPropagation(); window.app.toggleLiveLocation('${ride.id}')" class="p-2 ${isTracking ? 'bg-red-100 text-red-600' : 'bg-blue-50 text-blue-600'} rounded-lg transition-colors" title="Broadcast Location">
                                         <i data-lucide="${isTracking ? 'stop-circle' : 'navigation'}" class="w-4 h-4"></i>
                                     </button>
-                                    <button onclick="event.stopPropagation(); window.app.completeRide('${ride.id}')" class="bg-brand-600 text-white text-[10px] px-3 py-2 rounded-lg font-bold">Tapusin ang Biyahe</button>
-                                ` : `<span class="text-[10px] font-bold text-gray-400 uppercase flex items-center">Tapos Na</span>`}
+                                    <button onclick="event.stopPropagation(); window.app.completeRide('${ride.id}')" class="bg-brand-600 text-white text-[10px] px-3 py-2 rounded-lg font-bold">Finish Trip</button>
+                                ` : `<span class="text-[10px] font-bold text-gray-400 uppercase flex items-center">Completed</span>`}
                             </div>
                         </div>
                         <div class="mt-4 space-y-2">
                             ${reqs.map(req => `<div class="flex justify-between items-center bg-gray-50 p-2 rounded-xl">
                                 <span class="text-xs font-bold">${req.passengerName}</span>
                                 ${req.status === 'pending' && ride.status === 'active' ? `<div class="flex gap-2">
-                                    <button onclick="event.stopPropagation(); window.app.handleRequest('${req.id}', 'accepted', '${ride.id}')" class="text-[10px] bg-brand-600 text-white px-2 py-1 rounded-lg font-bold">Tanggapin</button>
-                                    <button onclick="event.stopPropagation(); window.app.handleRequest('${req.id}', 'rejected', null)" class="text-[10px] bg-gray-200 text-gray-700 px-2 py-1 rounded-lg font-bold">Tanggihan</button>
+                                    <button onclick="event.stopPropagation(); window.app.handleRequest('${req.id}', 'accepted', '${ride.id}')" class="text-[10px] bg-brand-600 text-white px-2 py-1 rounded-lg font-bold">Accept</button>
+                                    <button onclick="event.stopPropagation(); window.app.handleRequest('${req.id}', 'rejected', null)" class="text-[10px] bg-gray-200 text-gray-700 px-2 py-1 rounded-lg font-bold">Decline</button>
                                 </div>` : `<span class="text-[10px] font-bold uppercase text-gray-400">${req.status}</span>`}
-                            </div>`).join('') || '<p class="text-[10px] italic text-gray-400">Wala pang requests</p>'}
+                            </div>`).join('') || '<p class="text-[10px] italic text-gray-400">No requests yet</p>'}
                         </div>
                     </div>`;
                 }).join('');
@@ -1437,7 +1516,7 @@
                 if (this.watchPositionId) {
                     navigator.geolocation.clearWatch(this.watchPositionId);
                     this.watchPositionId = null;
-                    this.showToast("Itinigil ang pag-broadcast ng live location.");
+                    this.showToast("Live location broadcast stopped.");
                     
                     const btn = document.getElementById(`track-btn-${rideId}`);
                     if(btn) {
@@ -1450,11 +1529,11 @@
                 }
 
                 if (!navigator.geolocation) {
-                    this.showToast("Hindi supported ng browser ang Geolocation", "error");
+                    this.showToast("Browser does not support Geolocation", "error");
                     return;
                 }
 
-                this.showToast("Bino-broadcast ang live location sa mga pasahero...");
+                this.showToast("Broadcasting live location to passengers...");
                 const btn = document.getElementById(`track-btn-${rideId}`);
                 if(btn) {
                     btn.classList.remove('bg-blue-50', 'text-blue-600');
@@ -1474,11 +1553,11 @@
                                     lon: position.coords.longitude
                                 }
                             });
-                        } catch(e) { console.error("Error sa pag-update ng lokasyon", e); }
+                        } catch(e) { console.error("Error updating location", e); }
                     },
                     (error) => {
-                        this.showToast("Error sa pagkuha ng lokasyon: " + error.message, "error");
-                        this.toggleLiveLocation(rideId); // Auto toggle off pag may error
+                        this.showToast("Error getting location: " + error.message, "error");
+                        this.toggleLiveLocation(rideId); // Auto toggle off on error
                     },
                     { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
                 );
@@ -1492,19 +1571,19 @@
                         if(ride && ride.seatsAvailable > 0) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rides', rideId), { seatsAvailable: ride.seatsAvailable - 1 });
                     }
                     this.showToast(`Request ${newStatus}`);
-                } catch(e) { this.showToast("Bigo ang aksyon", "error"); }
+                } catch(e) { this.showToast("Action failed", "error"); }
             },
 
             async completeRide(rideId) {
-                if(!confirm("Gawing completed ang biyaheng ito? Papayagan nitong i-rate ka ng mga pasahero.")) return;
+                if(!confirm("Mark this ride as completed? This will allow passengers to rate you.")) return;
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rides', rideId), { status: 'completed' });
                     const acceptedReqs = this.allRequests.filter(req => req.rideId === rideId && req.status === 'accepted');
                     for(let req of acceptedReqs) {
                         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'requests', req.id), { status: 'completed' });
                     }
-                    this.showToast("Natapos na ang biyahe!");
-                } catch(e) { this.showToast("Bigo ang aksyon", "error"); }
+                    this.showToast("Trip completed!");
+                } catch(e) { this.showToast("Action failed", "error"); }
             },
 
             renderDashboardActivity() {
@@ -1514,7 +1593,7 @@
                 document.getElementById('dashboard-recent-activity').classList.toggle('hidden', relevant.length === 0);
                 list.innerHTML = relevant.map(ride => `<div class="bg-white rounded-2xl p-3 border border-gray-100 flex justify-between items-center">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg ${ride.driverId === this.user?.uid ? 'bg-brand-50 text-brand-600' : 'bg-blue-50 text-blue-600'} flex items-center justify-center font-bold text-[10px]">${ride.driverId === this.user?.uid ? 'DRV' : 'SALI'}</div>
+                        <div class="w-8 h-8 rounded-lg ${ride.driverId === this.user?.uid ? 'bg-brand-50 text-brand-600' : 'bg-blue-50 text-blue-600'} flex items-center justify-center font-bold text-[10px]">${ride.driverId === this.user?.uid ? 'DRV' : 'JOIN'}</div>
                         <div>
                             <p class="text-xs font-bold text-gray-900">${ride.destName.split(',')[0]}</p>
                             <p class="text-[10px] text-gray-500 font-bold">${this.formatDate(ride.time)}</p>
@@ -1554,13 +1633,13 @@
                         senderName: this.user.displayName || "Commuter",
                         text, timestamp: Date.now()
                     });
-                } catch(e) { this.showToast("Bigo ang pagpadala", "error"); }
+                } catch(e) { this.showToast("Message failed", "error"); }
             },
 
             renderChat() {
                 const container = document.getElementById('chat-messages');
                 const rideMessages = this.allMessages.filter(m => m.rideId === this.activeChatRideId).sort((a, b) => a.timestamp - b.timestamp);
-                container.innerHTML = rideMessages.length === 0 ? `<div class="flex flex-col items-center justify-center h-full opacity-40"><p class="text-xs font-bold uppercase">Wala pang mensahe</p></div>` : rideMessages.map(m => {
+                container.innerHTML = rideMessages.length === 0 ? `<div class="flex flex-col items-center justify-center h-full opacity-40"><p class="text-xs font-bold uppercase">No messages yet</p></div>` : rideMessages.map(m => {
                     const isMe = m.senderId === this.user?.uid;
                     return `<div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
                         ${!isMe ? `<span class="text-[9px] font-black text-gray-400 mb-1 ml-1 uppercase">${m.senderName}</span>` : ''}
