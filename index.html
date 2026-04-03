@@ -806,7 +806,8 @@
         import { getAuth, signInWithCustomToken, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, getDocs, setDoc, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = {
+        // Environment-compliant Firebase Configuration
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyDMOHXX-muvgnVlkMRN37-qRhUUXAp7Y_8",
             authDomain: "sabaybiyahe-app.firebaseapp.com",
             projectId: "sabaybiyahe-app",
@@ -874,7 +875,8 @@
                                 await signInAnonymously(auth).catch(() => {});
                             }
                         } else {
-                            await signInAnonymously(auth).catch(() => {});
+                            // Let existing Google login persist gracefully if tested locally outside of Canvas iframe constraints
+                            // We don't force signInAnonymously() unconditionally to protect active sessions
                         }
                     } catch(e) { console.error("Initial auth failed:", e); }
                 };
@@ -935,15 +937,23 @@
                 const provider = new GoogleAuthProvider();
                 const btn = document.getElementById('btn-google-login');
                 const originalText = btn.innerHTML;
+                
+                // Store original HTML text inside a dataset to reset it properly
+                btn.dataset.originalText = originalText;
                 btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Verifying...';
                 btn.disabled = true;
                 lucide.createIcons();
+                
                 try { 
                     await signInWithPopup(auth, provider); 
-                } catch (error) {
-                    btn.innerHTML = originalText;
+                    // Crucial fix: Reset button immediately upon success to prevent it getting stuck visually
+                    btn.innerHTML = btn.dataset.originalText;
                     btn.disabled = false;
-                    this.showToast("Sign in failed. Use Chrome/Safari.", "error");
+                } catch (error) {
+                    btn.innerHTML = btn.dataset.originalText;
+                    btn.disabled = false;
+                    console.error("Popup Error: ", error);
+                    this.showToast("Sign in failed. " + (error.message || "Use Chrome/Safari."), "error");
                 }
             },
 
@@ -984,7 +994,7 @@
             },
 
             routeUser(user) {
-                // Require Email Verification before proceeding
+                // Require Email Verification before proceeding (Except for Google users where it's usually automatic)
                 if (!user.emailVerified) {
                     document.getElementById('auth-forms').classList.add('hidden');
                     document.getElementById('view-verify-email').classList.remove('hidden');
@@ -1160,6 +1170,7 @@
                 const messagesRef = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
                 const ratingsRef = collection(db, 'artifacts', appId, 'public', 'data', 'ratings');
 
+                // MANDATORY FIX: Add explicit error handlers to onSnapshot
                 this.unsubRides = onSnapshot(ridesRef, (snap) => {
                     this.allRides = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                     this.renderDashboardActivity();
@@ -1174,7 +1185,7 @@
                             this.updateDriverMarker(updatedRide);
                         }
                     }
-                });
+                }, (error) => console.error("Rides listener failed:", error));
                 
                 this.unsubRequests = onSnapshot(requestsRef, (snap) => {
                     const newRequests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -1199,16 +1210,17 @@
                     this.renderActivity();
                     this.updateProfileStats();
                     this.updateActivityBadge();
-                });
+                }, (error) => console.error("Requests listener failed:", error));
                 
                 this.unsubMessages = onSnapshot(messagesRef, (snap) => {
                     this.allMessages = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                     if(this.activeChatRideId) this.renderChat();
-                });
+                }, (error) => console.error("Messages listener failed:", error));
+
                 this.unsubRatings = onSnapshot(ratingsRef, (snap) => {
                     this.allRatings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                     this.updateProfileStats();
-                });
+                }, (error) => console.error("Ratings listener failed:", error));
             },
 
             setupPrivateListeners() {
@@ -1221,7 +1233,16 @@
                         this.userProfileData = data;
                         this.userRole = data.role;
                         
-                        if (this.userRole && document.getElementById('view-role').classList.contains('active')) {
+                        this.updateRoleUI();
+                        
+                        if(document.getElementById('profile-home-text')) {
+                            document.getElementById('profile-home-text').textContent = this.userProfileData.home?.name || "Not set";
+                            document.getElementById('profile-work-text').textContent = this.userProfileData.work?.name || "Not set";
+                        }
+                        
+                        // CRUCIAL ROUTING FIX: 
+                        // It used to strand existing users on view-login because it only checked view-role.
+                        if (this.userRole && (document.getElementById('view-login').classList.contains('active') || document.getElementById('view-role').classList.contains('active'))) {
                             this.navigate('dashboard');
                             document.getElementById('bottom-nav').classList.remove('hidden');
                         } else if (!this.userRole) {
@@ -1229,17 +1250,22 @@
                             document.getElementById('bottom-nav').classList.add('hidden');
                         }
                         
-                        this.updateRoleUI();
-                        
-                        if(document.getElementById('profile-home-text')) {
-                            document.getElementById('profile-home-text').textContent = this.userProfileData.home?.name || "Not set";
-                            document.getElementById('profile-work-text').textContent = this.userProfileData.work?.name || "Not set";
-                        }
                         this.setLoading(false);
                     } else {
                         this.navigate('role');
                         document.getElementById('bottom-nav').classList.add('hidden');
                         this.setLoading(false);
+                    }
+                }, (error) => {
+                    console.error("Profile access error:", error);
+                    this.showToast("Database synchronization error. Please try again.", "error");
+                    this.setLoading(false);
+                    
+                    // Failsafe: Re-enable UI button if snapshot is rejected by rules/timeout
+                    const btn = document.getElementById('btn-google-login');
+                    if (btn && btn.dataset.originalText) {
+                        btn.innerHTML = btn.dataset.originalText;
+                        btn.disabled = false;
                     }
                 });
             },
@@ -1251,8 +1277,11 @@
                 
                 this.setLoading(true, "Saving location...");
                 try {
-                    const coords = await this.geocode(placeName);
-                    if(!coords) throw new Error("Location not found");
+                    // Quick proxy geocode resolution 
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(placeName + ', Philippines')}&limit=1`).then(r => r.json());
+                    if(!res || res.length === 0) throw new Error("Location not found");
+                    
+                    const coords = { lat: parseFloat(res[0].lat), lon: parseFloat(res[0].lon), name: res[0].display_name };
                     
                     const profileRef = doc(db, 'artifacts', appId, 'users', this.user.uid, 'settings', 'profile');
                     await setDoc(profileRef, { [type]: coords }, { merge: true });
