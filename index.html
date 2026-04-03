@@ -491,6 +491,15 @@
                                 <input type="text" id="offer-car" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 transition-all" placeholder="e.g., Vios '22">
                             </div>
                         </div>
+
+                        <div class="pt-2">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Current Pump Price (₱/L)</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-3.5 text-gray-500 text-sm font-bold">₱</span>
+                                <input type="number" step="0.01" id="offer-pump-price" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-8 pr-4 text-sm font-semibold focus:ring-2 focus:ring-brand-500 transition-all" placeholder="64.20">
+                            </div>
+                            <p class="text-[9px] text-gray-400 mt-1.5 font-medium">This updates the live community fuel average.</p>
+                        </div>
                     </div>
 
                     <div class="bg-brand-50/50 p-4 rounded-2xl border border-brand-100/50 flex gap-3 items-start">
@@ -838,7 +847,6 @@
 
         let appInstance, auth, db;
         const CONSTANTS = {
-            FUEL_PRICE_PER_LITER: 64.20,
             AVG_KM_PER_LITER: 12,
             DRIVER_COMMISSION: 50.00
         };
@@ -868,6 +876,7 @@
             currentRatingValue: 0,
             ratingRideId: null,
             ratingDriverId: null,
+            currentFuelPrice: 64.20, // Initial fallback
 
             async init() {
                 lucide.createIcons();
@@ -1191,6 +1200,27 @@
                 // MANDATORY FIX: Add explicit error handlers to onSnapshot
                 this.unsubRides = onSnapshot(ridesRef, (snap) => {
                     this.allRides = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    
+                    // Crowdsourced Pricing Logic: Rolling average of the last 20 rides with a pump price
+                    const recentRidesWithPrice = this.allRides
+                        .filter(r => r.pumpPrice)
+                        .sort((a, b) => b.createdAt - a.createdAt)
+                        .slice(0, 20);
+
+                    if (recentRidesWithPrice.length > 0) {
+                        const sum = recentRidesWithPrice.reduce((acc, r) => acc + r.pumpPrice, 0);
+                        this.currentFuelPrice = parseFloat((sum / recentRidesWithPrice.length).toFixed(2));
+                    } else {
+                        this.currentFuelPrice = 64.20; // Fallback if no data
+                    }
+
+                    // Update UI components with live community price
+                    const fuelDisplay = document.getElementById('dash-fuel-price');
+                    if (fuelDisplay) fuelDisplay.textContent = `₱${this.currentFuelPrice.toFixed(2)}`;
+                    
+                    const offerPumpInput = document.getElementById('offer-pump-price');
+                    if (offerPumpInput && !offerPumpInput.value) offerPumpInput.value = this.currentFuelPrice.toFixed(2);
+
                     this.renderDashboardActivity();
                     this.renderActivity();
                     this.updateProfileStats();
@@ -1411,6 +1441,8 @@
                 const timeStr = document.getElementById('offer-time').value;
                 const seats = parseInt(document.getElementById('offer-seats').value);
                 const car = document.getElementById('offer-car').value;
+                const pumpPriceInput = document.getElementById('offer-pump-price').value;
+                const pumpPrice = parseFloat(pumpPriceInput) || this.currentFuelPrice;
 
                 if(!originInput.value || !destInput.value) {
                     this.showToast("Enter route locations", "error");
@@ -1439,7 +1471,7 @@
 
                     const route = await this.getRouteInfo(originCoords, destCoords);
                     const distanceKm = route ? route.distanceKm : 10.0;
-                    const fuelCostPerSeat = Math.ceil(((parseFloat(distanceKm) / CONSTANTS.AVG_KM_PER_LITER) * CONSTANTS.FUEL_PRICE_PER_LITER) / (seats + 1));
+                    const fuelCostPerSeat = Math.ceil(((parseFloat(distanceKm) / CONSTANTS.AVG_KM_PER_LITER) * pumpPrice) / (seats + 1));
                     const pricePerSeat = fuelCostPerSeat + CONSTANTS.DRIVER_COMMISSION;
 
                     const ridesRef = collection(db, 'artifacts', appId, 'public', 'data', 'rides');
@@ -1454,6 +1486,7 @@
                         totalSeats: seats,
                         carModel: car,
                         distanceKm,
+                        pumpPrice: pumpPrice,
                         pricePerSeat,
                         fuelSplit: fuelCostPerSeat,
                         status: 'active',
