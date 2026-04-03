@@ -47,6 +47,19 @@
             }
         }
     </script>
+    
+    <!-- Anti-Inspect Script -->
+    <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', event => {
+            if (event.key === 'F12' || 
+                (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'J' || event.key === 'C')) || 
+                (event.ctrlKey && event.key === 'U')) {
+                event.preventDefault();
+            }
+        });
+    </script>
+
     <style>
         body {
             background-color: #f9fafb;
@@ -433,7 +446,6 @@
                     
                     <!-- Route Block -->
                     <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 relative">
-                        <div class="absolute left-8 top-12 bottom-12 w-0.5 bg-gray-200 rounded-full"></div>
                         
                         <div class="space-y-5 relative">
                             <div class="relative">
@@ -534,7 +546,6 @@
             <div class="p-6 max-w-3xl mx-auto w-full">
                 <!-- Search Box -->
                 <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 mb-6 relative">
-                    <div class="absolute left-8 top-12 bottom-12 w-0.5 bg-gray-200 rounded-full"></div>
                     
                     <div class="space-y-4 relative">
                         <div class="relative">
