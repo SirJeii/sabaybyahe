@@ -257,11 +257,18 @@
                                 <button id="tab-signup" onclick="window.app.switchAuthTab('signup')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">Sign Up</button>
                             </div>
 
-                            <!-- Email/Password Form -->
+                            <!-- Email/Password/Signup Form -->
                             <form onsubmit="event.preventDefault(); window.app.handleEmailAuth();" class="space-y-3">
-                                <input type="email" id="auth-email" required placeholder="Email address" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                                <input type="password" id="auth-password" required placeholder="Password" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                                <button type="submit" id="btn-email-auth" class="w-full py-3.5 rounded-xl font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-md shadow-brand-200 transition-all">Login</button>
+                                
+                                <div id="signup-fields" class="hidden space-y-3">
+                                    <input type="text" id="auth-name" placeholder="Full Name" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                                    <input type="tel" id="auth-phone" placeholder="Contact Number (e.g., 09123456789)" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                                </div>
+                                
+                                <input type="email" id="auth-email" required placeholder="Email address" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                                <input type="password" id="auth-password" required placeholder="Password" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                                
+                                <button type="submit" id="btn-email-auth" class="w-full mt-2 py-3.5 rounded-xl font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-md shadow-brand-200 transition-all">Login</button>
                             </form>
 
                             <div class="relative flex items-center py-2">
@@ -841,7 +848,8 @@
     <!-- Application Logic & Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // Added updateProfile to the import list
+        import { getAuth, signInWithCustomToken, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, getDocs, setDoc, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Environment-compliant Firebase Configuration
@@ -912,9 +920,6 @@
                                 console.warn("Initial token mismatched, trying anonymous");
                                 await signInAnonymously(auth).catch(() => {});
                             }
-                        } else {
-                            // Let existing Google login persist gracefully if tested locally outside of Canvas iframe constraints
-                            // We don't force signInAnonymously() unconditionally to protect active sessions
                         }
                     } catch(e) { console.error("Initial auth failed:", e); }
                 };
@@ -949,19 +954,54 @@
                 document.getElementById('tab-login').className = mode === 'login' ? 'flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-gray-900 transition-all' : 'flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all';
                 document.getElementById('tab-signup').className = mode === 'signup' ? 'flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-gray-900 transition-all' : 'flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all';
                 document.getElementById('btn-email-auth').textContent = mode === 'login' ? 'Login' : 'Sign Up';
+
+                // Show/hide extra signup fields
+                const signupFields = document.getElementById('signup-fields');
+                if (mode === 'signup') {
+                    signupFields.classList.remove('hidden');
+                } else {
+                    signupFields.classList.add('hidden');
+                }
             },
 
             async handleEmailAuth() {
-                const email = document.getElementById('auth-email').value;
+                const email = document.getElementById('auth-email').value.trim();
                 const password = document.getElementById('auth-password').value;
+                const name = document.getElementById('auth-name').value.trim();
+                const phone = document.getElementById('auth-phone').value.trim();
+
                 if(!email || !password) return this.showToast("Please enter email and password", "error");
+
+                // Standard Email Validation Regex
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if(!emailRegex.test(email)) return this.showToast("Please enter a valid email address", "error");
+
+                // Registration-specific Validation
+                if(this.authMode === 'signup') {
+                    if(!name) return this.showToast("Please enter your full name", "error");
+                    
+                    // Specific to PH numbers or basic number matching
+                    const phoneRegex = /^(09|\+639)\d{9}$/;
+                    if(!phoneRegex.test(phone)) return this.showToast("Please enter a valid mobile number (e.g., 09123456789)", "error");
+                    
+                    if(password.length < 6) return this.showToast("Password must be at least 6 characters long", "error");
+                }
 
                 this.setLoading(true, "Authenticating...");
                 try {
                     if(this.authMode === 'login') {
                         await signInWithEmailAndPassword(auth, email, password);
                     } else {
+                        // Creating user
                         const cred = await createUserWithEmailAndPassword(auth, email, password);
+                        
+                        // Update Auth Profile Display Name
+                        await updateProfile(cred.user, { displayName: name });
+                        
+                        // Save Name and Phone to Firestore Profile settings
+                        const profileRef = doc(db, 'artifacts', appId, 'users', cred.user.uid, 'settings', 'profile');
+                        await setDoc(profileRef, { name: name, phone: phone, email: email }, { merge: true });
+
                         await sendEmailVerification(cred.user);
                         this.showToast("Account created! Please check your email to verify.");
                     }
@@ -976,7 +1016,6 @@
                 const btn = document.getElementById('btn-google-login');
                 const originalText = btn.innerHTML;
                 
-                // Store original HTML text inside a dataset to reset it properly
                 btn.dataset.originalText = originalText;
                 btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Verifying...';
                 btn.disabled = true;
@@ -984,7 +1023,6 @@
                 
                 try { 
                     await signInWithPopup(auth, provider); 
-                    // Crucial fix: Reset button immediately upon success to prevent it getting stuck visually
                     btn.innerHTML = btn.dataset.originalText;
                     btn.disabled = false;
                 } catch (error) {
@@ -1208,7 +1246,6 @@
                 const messagesRef = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
                 const ratingsRef = collection(db, 'artifacts', appId, 'public', 'data', 'ratings');
 
-                // MANDATORY FIX: Add explicit error handlers to onSnapshot
                 this.unsubRides = onSnapshot(ridesRef, (snap) => {
                     this.allRides = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                     
@@ -1299,8 +1336,7 @@
                             document.getElementById('profile-work-text').textContent = this.userProfileData.work?.name || "Not set";
                         }
                         
-                        // CRUCIAL ROUTING FIX: 
-                        // It used to strand existing users on view-login because it only checked view-role.
+                        // CRUCIAL ROUTING FIX
                         if (this.userRole && (document.getElementById('view-login').classList.contains('active') || document.getElementById('view-role').classList.contains('active'))) {
                             this.navigate('dashboard');
                             document.getElementById('bottom-nav').classList.remove('hidden');
@@ -1320,7 +1356,6 @@
                     this.showToast("Database synchronization error. Please try again.", "error");
                     this.setLoading(false);
                     
-                    // Failsafe: Re-enable UI button if snapshot is rejected by rules/timeout
                     const btn = document.getElementById('btn-google-login');
                     if (btn && btn.dataset.originalText) {
                         btn.innerHTML = btn.dataset.originalText;
@@ -1336,7 +1371,6 @@
                 
                 this.setLoading(true, "Saving location...");
                 try {
-                    // Quick proxy geocode resolution 
                     const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(placeName + ', Philippines')}&limit=1`).then(r => r.json());
                     if(!res || res.length === 0) throw new Error("Location not found");
                     
