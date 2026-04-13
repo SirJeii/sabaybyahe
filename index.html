@@ -848,7 +848,6 @@
     <!-- Application Logic & Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // Added updateProfile to the import list
         import { getAuth, signInWithCustomToken, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, getDocs, setDoc, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -1129,6 +1128,10 @@
                 const query = event.target.value;
                 const container = document.getElementById(suggestionsId);
                 
+                if (event.target.id.startsWith('find-')) {
+                    this.searchRides();
+                }
+
                 clearTimeout(this.autocompleteTimer);
                 if (query.length < 3) {
                     container.classList.add('hidden');
@@ -1163,6 +1166,10 @@
                 input.dataset.lat = lat;
                 input.dataset.lon = lon;
                 input.dataset.fullName = fullName;
+                
+                if (inputId.startsWith('find-')) {
+                    this.searchRides();
+                }
             },
 
             setLoading(isActive, text = "Loading...") {
@@ -1195,6 +1202,8 @@
 
                 if(viewId === 'dashboard') this.renderDashboardActivity();
                 if(viewId === 'activity') this.renderActivity();
+                // When passenger navigates to find, immediately load/show the active rides
+                if(viewId === 'find') this.searchRides();
                 if(viewId === 'details' && this.selectedRide) {
                     setTimeout(() => this.renderMap(this.selectedRide.originCoords, this.selectedRide.destCoords), 150);
                 }
@@ -1400,6 +1409,10 @@
                 input.dataset.lon = place.lon;
                 input.dataset.fullName = place.name;
                 this.showToast(`Using saved ${label}`);
+                
+                if (inputId.startsWith('find-')) {
+                    this.searchRides();
+                }
             },
 
             updateProfileStats() {
@@ -1551,6 +1564,7 @@
                 const originQ = document.getElementById('find-origin').value.toLowerCase();
                 const destQ = document.getElementById('find-dest').value.toLowerCase();
                 let results = this.allRides.filter(r => r.status === 'active' && r.seatsAvailable > 0 && r.driverId !== this.user?.uid);
+                
                 if(originQ || destQ) {
                     results = results.filter(r => r.originName.toLowerCase().includes(originQ) || r.destName.toLowerCase().includes(destQ));
                 }
